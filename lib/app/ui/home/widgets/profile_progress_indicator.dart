@@ -1,0 +1,53 @@
+import 'dart:math';
+
+import 'package:drill_events/app/themes/app_themes.dart';
+import 'package:flutter/material.dart';
+
+class ProfileProgressIndicator extends StatelessWidget {
+  const ProfileProgressIndicator({super.key, this.child, this.onTap, this.diameter = 48});
+
+  final Widget? child;
+  final double diameter;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: SizedBox.square(
+        dimension: diameter,
+        child: CustomPaint(
+          painter: _ProfileProgressIndicatorPainter(color: context.themes.main.colors.greyDark.withAlpha(150)),
+          child: Center(child: child),
+        ),
+      ),
+    );
+  }
+}
+
+final class _ProfileProgressIndicatorPainter extends CustomPainter {
+  const _ProfileProgressIndicatorPainter({this.color = Colors.grey});
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint =
+        Paint()
+          ..color = color
+          ..strokeWidth = 4
+          ..style = PaintingStyle.stroke
+          ..strokeCap = StrokeCap.round;
+
+    canvas.drawArc(
+      Rect.fromCenter(center: Offset(size.width / 2, size.height / 2), width: size.height, height: size.width),
+      0.0,
+      pi * 2,
+      false,
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}

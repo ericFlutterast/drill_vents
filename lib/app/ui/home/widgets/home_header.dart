@@ -1,4 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
+import 'package:drill_events/app/ui/home/widgets/profile_progress_indicator.dart';
+import 'package:drill_events/common/navigation/routes.dart';
 import 'package:flutter/material.dart';
 
 class HomeHeader extends StatelessWidget {
@@ -20,9 +23,9 @@ class HomeHeader extends StatelessWidget {
                   hintText: 'Поиск...',
                   hintStyle: context.themes.main.texts.body.copyWith(color: context.themes.main.colors.greyDark),
                   filled: true,
-                  fillColor: Color(0xFFF5F5F5),
+                  fillColor: const Color(0xFFF5F5F5),
 
-                  border: OutlineInputBorder(
+                  border: const OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(50)),
                     borderSide: BorderSide.none,
                   ),
@@ -30,8 +33,19 @@ class HomeHeader extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(width: 20),
-            Container(height: 48, width: 48, decoration: BoxDecoration(color: Colors.red, shape: BoxShape.circle)),
+            const SizedBox(width: 20),
+            ProfileProgressIndicator(
+              onTap: () => Navigator.pushNamed(context, Routes().profile),
+              child: CachedNetworkImage(
+                imageUrl: '',
+                errorWidget:
+                    (_, __, ___) => Container(
+                      height: 38,
+                      width: 38,
+                      decoration: const BoxDecoration(color: Colors.orange, shape: BoxShape.circle),
+                    ),
+              ),
+            ),
           ],
         ),
       ),
