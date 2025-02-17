@@ -35,7 +35,7 @@ class HomeHeader extends StatelessWidget {
             ),
             const SizedBox(width: 20),
             ProfileProgressIndicator(
-              onTap: () => Navigator.pushNamed(context, Routes().profile),
+              onTap: () => Navigator.pushNamed(context, Routes.profile),
               child: CachedNetworkImage(
                 imageUrl: '',
                 errorWidget:
