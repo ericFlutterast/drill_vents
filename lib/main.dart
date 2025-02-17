@@ -12,7 +12,7 @@ void main() => runZonedGuarded(
     Bloc.observer = AppBlocObserver();
     Bloc.transformer = bloc_concurrency.sequential();
 
-    runApp(App());
+    runApp(const App());
   },
   (error, stackTrace) {
     Logger().log.e(error, error: error, stackTrace: stackTrace);

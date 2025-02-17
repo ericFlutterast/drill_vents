@@ -18,7 +18,13 @@ class HomeScreen extends StatelessWidget {
             const SoonEventsTitle(),
             SliverList.separated(
               itemCount: 10,
-              itemBuilder: (context, index) => const EventItem(title: 'Present Simple - когда и как использовать?'),
+              itemBuilder:
+                  (context, index) => EventItem(
+                    title: 'Present Simple - когда и как использовать?',
+                    onTap: () {
+                      print('hi: $index');
+                    },
+                  ),
               separatorBuilder: (_, __) => const SizedBox(height: 28),
             ),
             const SliverPadding(padding: EdgeInsets.only(top: 30)),
