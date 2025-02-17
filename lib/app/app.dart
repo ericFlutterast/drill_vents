@@ -1,5 +1,5 @@
-import 'package:drill_events/app/ui/screens/home_screen.dart';
-import 'package:drill_events/app/ui/screens/profile_screen.dart';
+import 'package:drill_events/app/ui/home/home_screen.dart';
+import 'package:drill_events/app/ui/profile/profile_screen.dart';
 import 'package:drill_events/common/navigation/routes.dart';
 import 'package:flutter/material.dart';
 
