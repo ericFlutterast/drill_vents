@@ -8,7 +8,7 @@ final class MainTheme implements IAppTheme {
   const MainTheme();
 
   @override
-  AppColors get colors => AppColors(
+  AppColors get colors => const AppColors(
     background: Color(0xFFFFFFFF),
     accent: Color(0xFF383838),
     greyDark: Color(0xFFB6B6B6),
@@ -21,35 +21,35 @@ final class MainTheme implements IAppTheme {
       color: Colors.black,
       fontWeight: FontWeight.w700,
       fontSize: 30.08,
-      height: 30.08 / 36.1,
+      height: 36.1 / 30.08,
       letterSpacing: 1.25,
     ),
     h2: GoogleFonts.robotoFlex(
       color: Colors.black,
       fontWeight: FontWeight.w700,
       fontSize: 24.06,
-      height: 24.06 / 28.87,
+      height: 28.87 / 24.06,
       letterSpacing: 1.25,
     ),
     h3: GoogleFonts.poppins(
       color: Colors.black,
       fontWeight: FontWeight.w600,
       fontSize: 19.25,
-      height: 19.25 / 25.41,
+      height: 25.41 / 19.25,
       letterSpacing: 0.6,
     ),
     body: GoogleFonts.poppins(
       color: Colors.black,
       fontWeight: FontWeight.w400,
       fontSize: 15.4,
-      height: 15.4 / 24.64,
+      height: 1.3,
       letterSpacing: 0.2,
     ),
     bodySmall: GoogleFonts.poppins(
       color: Colors.black,
       fontWeight: FontWeight.w400,
       fontSize: 12.32,
-      height: 12.32 / 19.71,
+      height: 19.71 / 12.32,
       letterSpacing: 0.2,
     ),
     caption: GoogleFonts.poppins(

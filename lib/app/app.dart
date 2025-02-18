@@ -1,3 +1,4 @@
+import 'package:drill_events/app/ui/event/event_screen.dart';
 import 'package:drill_events/app/ui/home/home_screen.dart';
 import 'package:drill_events/app/ui/profile/profile_screen.dart';
 import 'package:drill_events/common/navigation/routes.dart';
@@ -11,7 +12,11 @@ class App extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       initialRoute: Routes.home,
-      routes: {Routes.home: (context) => const HomeScreen(), Routes.profile: (context) => const ProfileScreen()},
+      routes: {
+        Routes.home: (context) => const HomeScreen(),
+        Routes.profile: (context) => const ProfileScreen(),
+        Routes.event: (context) => const EventScreen(),
+      },
     );
   }
 }
