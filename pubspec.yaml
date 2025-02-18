@@ -23,6 +23,7 @@ dependencies:
   equatable: ^2.0.7
   reactive_forms: ^17.0.0
   cached_network_image: ^3.4.1
+  flutter_svg: ^2.0.17
 
 dev_dependencies:
   flutter_test:
@@ -34,6 +35,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/icons/
     - assets/images/
   #   - images/a_dot_ham.jpeg
 

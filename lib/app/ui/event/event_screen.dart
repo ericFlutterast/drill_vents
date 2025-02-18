@@ -4,7 +4,6 @@ import 'package:drill_events/app/ui/widgets/app_button.dart';
 import 'package:drill_events/app/ui/widgets/app_company_logo.dart';
 import 'package:drill_events/common/navigation/modal_bottom_sheet.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 import 'widgets/date_time_info.dart';
 import 'widgets/invite_request_to_event_modal.dart';
@@ -19,40 +18,28 @@ class EventScreen extends StatefulWidget {
   State<EventScreen> createState() => _EventScreenState();
 }
 
-class _EventScreenState extends State<EventScreen> with SingleTickerProviderStateMixin {
-  late final _scrollController = ScrollController();
+class _EventScreenState extends State<EventScreen> with SingleTickerProviderStateMixin, AnimationForBackButton {
+  late final ScrollController _scrollController = ScrollController();
   late final _animationController = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 1200),
     reverseDuration: const Duration(milliseconds: 1200),
   );
-  bool isShowBackButton = true;
 
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_updateButtonVisible);
-  }
 
-  void _updateButtonVisible() {
-    final offset = _scrollController.offset;
-    final userScroll = _scrollController.position.userScrollDirection;
-
-    if (offset > 60 && userScroll == ScrollDirection.reverse && isShowBackButton) {
-      _animationController.forward();
-      setState(() => isShowBackButton = false);
-    }
-
-    if (offset < 150 && userScroll == ScrollDirection.forward && !isShowBackButton) {
-      _animationController.reverse();
-      setState(() => isShowBackButton = true);
-    }
+    _scrollController.addListener(() {
+      buttonVisibility(animationController: _animationController, scrollController: _scrollController);
+    });
   }
 
   @override
   void dispose() {
     super.dispose();
     _scrollController.dispose();
+    _animationController.dispose();
   }
 
   @override

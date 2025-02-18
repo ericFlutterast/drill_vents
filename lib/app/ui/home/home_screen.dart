@@ -1,6 +1,6 @@
-import 'package:drill_events/app/ui/home/widgets/event_item.dart';
 import 'package:drill_events/app/ui/home/widgets/home_header.dart';
 import 'package:drill_events/app/ui/home/widgets/soon_events_title.dart';
+import 'package:drill_events/app/ui/widgets/event_list_item.dart';
 import 'package:drill_events/common/navigation/routes.dart';
 import 'package:flutter/material.dart';
 
@@ -21,7 +21,7 @@ class HomeScreen extends StatelessWidget {
             SliverList.separated(
               itemCount: 10,
               itemBuilder:
-                  (context, index) => EventItem(
+                  (context, index) => EventListItem(
                     title: 'Present Simple - когда и как использовать?',
                     onTap: () => Navigator.pushNamed(context, Routes.event),
                   ),

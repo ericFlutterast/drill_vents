@@ -4,11 +4,12 @@ import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:flutter/material.dart';
 
 class ProfileProgressIndicator extends StatelessWidget {
-  const ProfileProgressIndicator({super.key, this.child, this.onTap, this.diameter = 48});
+  const ProfileProgressIndicator({super.key, this.child, this.onTap, this.diameter = 48, this.strokeWidth = 4});
 
   final Widget? child;
   final double diameter;
   final VoidCallback? onTap;
+  final double strokeWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +18,10 @@ class ProfileProgressIndicator extends StatelessWidget {
       child: SizedBox.square(
         dimension: diameter,
         child: CustomPaint(
-          painter: _ProfileProgressIndicatorPainter(color: context.themes.main.colors.greyDark.withAlpha(150)),
+          painter: _ProfileProgressIndicatorPainter(
+            color: context.themes.main.colors.greyDark.withAlpha(150),
+            strokeWidth: strokeWidth,
+          ),
           child: Center(child: child),
         ),
       ),
@@ -26,16 +30,17 @@ class ProfileProgressIndicator extends StatelessWidget {
 }
 
 final class _ProfileProgressIndicatorPainter extends CustomPainter {
-  const _ProfileProgressIndicatorPainter({this.color = Colors.grey});
+  const _ProfileProgressIndicatorPainter({this.color = Colors.grey, required this.strokeWidth});
 
   final Color color;
+  final double strokeWidth;
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint =
         Paint()
           ..color = color
-          ..strokeWidth = 4
+          ..strokeWidth = strokeWidth
           ..style = PaintingStyle.stroke
           ..strokeCap = StrokeCap.round;
 

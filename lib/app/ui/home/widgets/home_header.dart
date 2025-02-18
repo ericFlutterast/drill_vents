@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
-import 'package:drill_events/app/ui/home/widgets/profile_progress_indicator.dart';
+import 'package:drill_events/app/ui/widgets/profile_progress_indicator.dart';
 import 'package:drill_events/common/navigation/routes.dart';
 import 'package:flutter/material.dart';
 

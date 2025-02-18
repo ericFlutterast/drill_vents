@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 //TODO
 const _items = ['Завтра', 'Surf x Post', 'English club'];
 
-class EventItem extends StatelessWidget {
-  const EventItem({super.key, required this.title, this.imgUrl, this.onTap});
+class EventListItem extends StatelessWidget {
+  const EventListItem({super.key, required this.title, this.imgUrl, this.onTap});
 
   final String title;
   final String? imgUrl;
@@ -39,6 +39,7 @@ class EventItem extends StatelessWidget {
                   const SizedBox(height: 8),
                   Wrap(
                     runSpacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       for (final (i, item) in _items.indexed) ...[
                         Text(item, style: context.themes.main.texts.bodySmall),
