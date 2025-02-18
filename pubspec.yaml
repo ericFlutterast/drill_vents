@@ -24,6 +24,9 @@ dependencies:
   reactive_forms: ^17.0.0
   cached_network_image: ^3.4.1
   flutter_svg: ^2.0.17
+  json_serializable: ^6.9.4
+  json_annotation: ^4.9.0
+  dio: ^5.8.0+1
 
 dev_dependencies:
   flutter_test:

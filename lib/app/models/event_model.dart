@@ -1,0 +1,33 @@
+import 'package:drill_events/app/models/organization_model.dart';
+import 'package:equatable/equatable.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+part 'event_model.g.dart';
+
+@JsonSerializable(fieldRename: FieldRename.snake)
+final class EventModel extends Equatable {
+  const EventModel({
+    required this.eventId,
+    required this.title,
+    required this.description,
+    required this.organization,
+    required this.startDate,
+    required this.startTime,
+    required this.endDate,
+    required this.endTime,
+  });
+
+  factory EventModel.fromJson(Map<String, dynamic> json) => _$EventModelFromJson(json);
+
+  @JsonKey(name: 'id')
+  final String eventId;
+  final String title, description;
+  @JsonKey(name: 'org')
+  final OrganizationModel organization;
+  final DateTime? startDate, startTime, endDate, endTime;
+
+  @override
+  List<Object?> get props => [eventId, title, description, organization, startDate, startTime, endDate, endTime];
+
+  Map<String, dynamic> toJson() => _$EventModelToJson(this);
+}

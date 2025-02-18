@@ -1,8 +1,10 @@
+import 'package:drill_events/app/blocs/events.dart';
 import 'package:drill_events/app/ui/event/event_screen.dart';
 import 'package:drill_events/app/ui/home/home_screen.dart';
 import 'package:drill_events/app/ui/profile/profile_screen.dart';
 import 'package:drill_events/common/navigation/routes.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -13,7 +15,8 @@ class App extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: Routes.home,
       routes: {
-        Routes.home: (context) => const HomeScreen(),
+        Routes.home:
+            (context) => BlocProvider(create: (context) => EventsBloc()..add(FetchEvents()), child: const HomeScreen()),
         Routes.profile: (context) => const ProfileScreen(),
         Routes.event: (context) => const EventScreen(),
       },
