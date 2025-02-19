@@ -4,7 +4,9 @@ import 'package:drill_events/common/network/api_client.dart';
 import 'package:drill_events/common/network/endpoints.dart';
 
 final class DataRepositoryImpl implements IDataRepository {
-  final ApiClient _apiClient = ApiClient();
+  const DataRepositoryImpl(this._apiClient);
+
+  final HttpApiClient _apiClient;
 
   @override
   Future<Iterable<EventModel>> fetchEvents() async {

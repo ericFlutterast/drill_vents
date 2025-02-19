@@ -1,4 +1,4 @@
-import 'package:drill_events/app/data/data_repository.dart';
+import 'package:drill_events/app/data/data_repository_interface.dart';
 import 'package:drill_events/app/models/event_model.dart';
 import 'package:drill_events/common/logger/logger.dart';
 import 'package:equatable/equatable.dart';
@@ -25,7 +25,7 @@ typedef Emit = Emitter<EventsState>;
 
 //Bloc
 final class EventsBloc extends Bloc<_Event, EventsState> {
-  EventsBloc() : super(const EventsState()) {
+  EventsBloc({required IDataRepository repository}) : _repository = repository, super(const EventsState()) {
     on<_Event>((event, emit) async {
       switch (event) {
         case FetchEvents _:
@@ -34,11 +34,11 @@ final class EventsBloc extends Bloc<_Event, EventsState> {
     });
   }
 
-  final DataRepositoryImpl _repositoryImpl = DataRepositoryImpl();
+  final IDataRepository _repository;
 
   Future<dynamic> _fetchEvents(FetchEvents event, Emit emit) async {
     try {
-      final result = await _repositoryImpl.fetchEvents();
+      final result = await _repository.fetchEvents();
       emit(state.copyWith(events: result));
     } catch (error, stackTrace) {
       Logger().log.e(error, error: error, stackTrace: stackTrace);

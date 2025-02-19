@@ -2,17 +2,10 @@ import 'package:dio/dio.dart';
 
 part 'request_types.dart';
 
-final class ApiClient {
-  //const ApiClient(this._dio);
+final class HttpApiClient {
+  const HttpApiClient(this._dio);
 
-  final Dio _dio = Dio(
-    BaseOptions(
-      baseUrl: 'http://drillevents.drillcorp.ru:8333',
-      connectTimeout: const Duration(seconds: 60),
-      receiveTimeout: const Duration(seconds: 30),
-      sendTimeout: const Duration(seconds: 30),
-    ),
-  );
+  final Dio _dio;
 
   Future<Response<T>> request<T>(RequestType type) async {
     return switch (type) {
