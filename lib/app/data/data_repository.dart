@@ -16,4 +16,17 @@ final class DataRepositoryImpl implements IDataRepository {
 
     return (data as List).map((item) => EventModel.fromJson(item));
   }
+
+  @override
+  Future<Iterable<EventModel>> searchEvents(String value) async {
+    final queryParameters = {'search': value};
+
+    final response = await _apiClient.request(
+      RequestType.get(path: Endpoints.searchEvent, queryParameters: queryParameters),
+    );
+
+    final data = response.data['events'];
+
+    return (data as List).map((item) => EventModel.fromJson(item));
+  }
 }

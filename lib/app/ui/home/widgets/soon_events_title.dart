@@ -8,7 +8,7 @@ class SoonEventsTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(28, 45, 28, 28),
+        padding: const EdgeInsets.fromLTRB(28, 35, 28, 28),
         child: Text('Ближайшие события', style: context.themes.main.texts.body),
       ),
     );

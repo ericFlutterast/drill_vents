@@ -1,8 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:drill_events/app/blocs/events/bloc.dart';
+import 'package:drill_events/app/blocs/events/events.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:drill_events/app/ui/widgets/profile_progress_indicator.dart';
 import 'package:drill_events/common/navigation/routes.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomeHeader extends StatelessWidget {
   const HomeHeader({super.key});
@@ -10,14 +13,20 @@ class HomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
             child: TextField(
               cursorColor: context.themes.main.colors.accent,
-              onTap: () => print('move to search page'),
+              onChanged: (value) {
+                if (value.isEmpty) {
+                  context.read<EventsBloc>().add(const FetchEvents());
+                } else {
+                  context.read<EventsBloc>().add(SearchEvents(value: value));
+                }
+              },
               decoration: InputDecoration(
                 hintText: 'Поиск...',
                 hintStyle: context.themes.main.texts.body.copyWith(color: context.themes.main.colors.greyDark),

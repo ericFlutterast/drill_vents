@@ -27,12 +27,24 @@ dependencies:
   json_serializable: ^6.9.4
   json_annotation: ^4.9.0
   dio: ^5.8.0+1
+  flutter_gen: ^5.9.0
+  flutter_gen_runner: ^5.9.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   flutter_lints: ^5.0.0
+
+flutter_gen:
+  output: lib/app/generated/
+
+  line_length: 120
+
+  integrations:
+    image: true
+    flutter_svg: true
+    lottie: true
 
 flutter:
   uses-material-design: true
@@ -53,3 +65,4 @@ flutter:
   #       - asset: fonts/TrajanPro.ttf
   #       - asset: fonts/TrajanPro_Bold.ttf
   #         weight: 700
+
