@@ -9,45 +9,43 @@ class HomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 3),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: TextField(
-                readOnly: true,
-                onTap: () => print('move to search page'),
-                decoration: InputDecoration(
-                  hintText: 'Поиск...',
-                  hintStyle: context.themes.main.texts.body.copyWith(color: context.themes.main.colors.greyDark),
-                  filled: true,
-                  fillColor: const Color(0xFFF5F5F5),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 3),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: TextField(
+              cursorColor: context.themes.main.colors.accent,
+              onTap: () => print('move to search page'),
+              decoration: InputDecoration(
+                hintText: 'Поиск...',
+                hintStyle: context.themes.main.texts.body.copyWith(color: context.themes.main.colors.greyDark),
+                filled: true,
+                fillColor: const Color(0xFFF5F5F5),
 
-                  border: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(50)),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 22),
+                border: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(50)),
+                  borderSide: BorderSide.none,
                 ),
+                contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 22),
               ),
             ),
-            const SizedBox(width: 20),
-            ProfileProgressIndicator(
-              onTap: () => Navigator.pushNamed(context, Routes.profile),
-              child: CachedNetworkImage(
-                imageUrl: '',
-                errorWidget:
-                    (_, __, ___) => Container(
-                      height: 38,
-                      width: 38,
-                      decoration: const BoxDecoration(color: Colors.orange, shape: BoxShape.circle),
-                    ),
-              ),
+          ),
+          const SizedBox(width: 20),
+          ProfileProgressIndicator(
+            onTap: () => Navigator.pushNamed(context, Routes.profile),
+            child: CachedNetworkImage(
+              imageUrl: '',
+              errorWidget:
+                  (_, __, ___) => Container(
+                    height: 38,
+                    width: 38,
+                    decoration: const BoxDecoration(color: Colors.orange, shape: BoxShape.circle),
+                  ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

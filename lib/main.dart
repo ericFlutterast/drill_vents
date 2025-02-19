@@ -21,6 +21,7 @@ void main() => runZonedGuarded(
           MaterialApp(
             debugShowCheckedModeBanner: false,
             home: Scaffold(
+              backgroundColor: Colors.white,
               body: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
