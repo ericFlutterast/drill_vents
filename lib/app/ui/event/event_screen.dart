@@ -25,7 +25,7 @@ class _EventScreenState extends State<EventScreen> with SingleTickerProviderStat
   late final _animationController = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 1200),
-    reverseDuration: const Duration(milliseconds: 1200),
+    reverseDuration: const Duration(milliseconds: 400),
   );
 
   @override
@@ -39,9 +39,9 @@ class _EventScreenState extends State<EventScreen> with SingleTickerProviderStat
 
   @override
   void dispose() {
-    super.dispose();
     _scrollController.dispose();
     _animationController.dispose();
+    super.dispose();
   }
 
   @override
@@ -107,21 +107,30 @@ class _EventScreenState extends State<EventScreen> with SingleTickerProviderStat
                       const SizedBox(height: 42),
                       AppButton(
                         title: 'Записаться',
-                        onTap:
-                            () => Navigator.push(
-                              context,
-                              const AppModalBottomSheetPage(
-                                useSafeArea: true,
-                                child: InviteRequestToEventModal(
-                                  conditionsForParticipation: [
-                                    'Уровень английского B1 и выше',
-                                    'Уровень китайского 99 и выше',
-                                    'Японское гражданство',
-                                    'Звание глобала и 8к ммр в доте',
-                                  ],
-                                ),
-                              ).createRoute(context),
-                            ),
+                        onTap: () async {
+                          final result = await Navigator.push<bool?>(
+                            context,
+                            const AppModalBottomSheetPage<bool>(
+                              useSafeArea: true,
+                              child: InviteRequestToEventModal(
+                                conditionsForParticipation: [
+                                  'Уровень английского B1 и выше',
+                                  'Уровень китайского 99 и выше',
+                                  'Японское гражданство',
+                                  'Звание глобала и 8к ммр в доте',
+                                ],
+                              ),
+                            ).createRoute(context),
+                          );
+
+                          if (result == true) {
+                            _scrollController.animateTo(
+                              0.0,
+                              duration: const Duration(milliseconds: 400),
+                              curve: Curves.easeIn,
+                            );
+                          }
+                        },
                       ),
                     ],
                   ),

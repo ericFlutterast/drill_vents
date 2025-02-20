@@ -36,11 +36,19 @@ mixin AnimationForBackButton<T extends StatefulWidget> on State<T> {
     if (offset > 60 && userScroll == ScrollDirection.reverse && isShowBackButton) {
       animationController.forward();
       setState(() => isShowBackButton = false);
+      return;
     }
 
     if (offset < 150 && userScroll == ScrollDirection.forward && !isShowBackButton) {
       animationController.reverse();
       setState(() => isShowBackButton = true);
+      return;
+    }
+
+    if (offset == 0) {
+      animationController.reverse();
+      setState(() => isShowBackButton = true);
+      return;
     }
   }
 }

@@ -43,7 +43,16 @@ class _InviteRequestToEventModalState extends State<InviteRequestToEventModal> {
             formControl: _emailFormControl,
             builder: (context, form, _) {
               final isValid = form.valid && form.value != null && form.value!.isNotEmpty;
-              return AppButton(title: 'Отправить заявку', onTap: isValid ? () {} : null);
+              return AppButton(
+                title: 'Отправить заявку',
+                onTap:
+                    isValid
+                        ? () {
+                          //TODO:
+                          Navigator.pop(context, true);
+                        }
+                        : null,
+              );
             },
           ),
           SizedBox(height: MediaQuery.sizeOf(context).height * 0.03),
