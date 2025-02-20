@@ -13,6 +13,17 @@ final class MainTheme implements IAppTheme {
     accent: Color(0xFF383838),
     greyDark: Color(0xFFB6B6B6),
     greyLight: Color(0xFFF5F5F5),
+    amberBackground: Color(0xFFFAEDDA),
+    amberText: Color(0xFFFF9500),
+    errorBackground: Color(0xFFFAE8E8),
+    errorBackgroundAccent: Color(0xFFFFD6D6),
+    errorText: Color(0xFFF04438),
+    errorAccent: Color(0xFF912018),
+    successBackground: Color(0xFFEAF7E9),
+    successBackgroundAccent: Color(0xFFC8F1C6),
+    successSecondary: Color(0xFF3EC356),
+    successText: Color(0xFF1BA43E),
+    successAccent: Color(0xFF0D3D12),
   );
 
   @override
