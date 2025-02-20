@@ -33,6 +33,6 @@ class _AnimatedRefresh extends AnimatedWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Transform.rotate(angle: _progress.value * pi, child: Assets.icons.refresh.svg());
+    return Transform.rotate(angle: _progress.value * -pi, child: Assets.icons.refresh.svg());
   }
 }
