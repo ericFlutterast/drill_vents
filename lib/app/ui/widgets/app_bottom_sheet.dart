@@ -1,4 +1,3 @@
-import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:flutter/material.dart';
 
 class AppBottomSheet extends StatelessWidget {
@@ -10,26 +9,22 @@ class AppBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: height ?? MediaQuery.sizeOf(context).height * 0.4,
-      width: double.infinity,
-      child: Material(
-        color: context.themes.main.colors.background,
-        borderRadius: borderRadius ?? const BorderRadius.all(Radius.circular(32)),
-        child: Column(
-          children: [
-            const SizedBox(height: 10),
-            const SizedBox(
-              height: 4,
-              width: 42,
-              child: DecoratedBox(
-                decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(6)), color: Color(0xFFEDEDED)),
-              ),
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 10),
+          const SizedBox(
+            height: 4,
+            width: 42,
+            child: DecoratedBox(
+              decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(6)), color: Color(0xFFEDEDED)),
             ),
-            const SizedBox(height: 10),
-            if (child != null) Expanded(child: child!),
-          ],
-        ),
+          ),
+          const SizedBox(height: 10),
+          if (child != null) Flexible(child: child!),
+        ],
       ),
     );
   }

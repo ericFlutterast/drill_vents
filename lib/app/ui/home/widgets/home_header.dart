@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:drill_events/app/blocs/events/bloc.dart';
 import 'package:drill_events/app/blocs/events/events.dart';
-import 'package:drill_events/app/themes/app_themes.dart';
+import 'package:drill_events/app/ui/widgets/app_text_field.dart';
 import 'package:drill_events/app/ui/widgets/profile_progress_indicator.dart';
 import 'package:drill_events/common/navigation/routes.dart';
 import 'package:flutter/material.dart';
@@ -18,8 +18,8 @@ class HomeHeader extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            child: TextField(
-              cursorColor: context.themes.main.colors.accent,
+            child: AppTextField(
+              hintText: 'Поиск...',
               onChanged: (value) {
                 if (value.isEmpty) {
                   context.read<EventsBloc>().add(const FetchEvents());
@@ -27,18 +27,6 @@ class HomeHeader extends StatelessWidget {
                   context.read<EventsBloc>().add(SearchEvents(value: value));
                 }
               },
-              decoration: InputDecoration(
-                hintText: 'Поиск...',
-                hintStyle: context.themes.main.texts.body.copyWith(color: context.themes.main.colors.greyDark),
-                filled: true,
-                fillColor: const Color(0xFFF5F5F5),
-
-                border: const OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(50)),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 22),
-              ),
             ),
           ),
           const SizedBox(width: 20),

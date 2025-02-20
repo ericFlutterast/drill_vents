@@ -1,33 +1,39 @@
 import 'package:drill_events/app/themes/app_themes.dart';
-import 'package:drill_events/app/ui/widgets/app_bottom_sheet.dart';
+import 'package:drill_events/app/ui/event/widgets/event_description_tile.dart';
 import 'package:drill_events/app/ui/widgets/app_button.dart';
+import 'package:drill_events/app/ui/widgets/app_text_field.dart';
 import 'package:flutter/material.dart';
 
 class InviteRequestToEventModal extends StatelessWidget {
-  const InviteRequestToEventModal({super.key});
+  const InviteRequestToEventModal({super.key, required this.conditionsForParticipation});
+
+  final Iterable<String> conditionsForParticipation;
 
   @override
   Widget build(BuildContext context) {
-    return AppBottomSheet(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 28),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Внимание!', style: context.themes.main.texts.h2),
-            const SizedBox(height: 10),
-            Text('Рекомендации к ивенту:', style: context.themes.main.texts.h3),
-            for (int i = 0; i < 3; i++) Text('- Уровень английского B1 и выше', style: context.themes.main.texts.body),
-            const Spacer(),
-            AppButton(
-              title: 'Отправить заявку',
-              onTap: () {
-                //TODO:
-              },
-            ),
-            SizedBox(height: MediaQuery.sizeOf(context).height * 0.03),
-          ],
-        ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 28),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 24),
+          EventDescriptionTile(
+            title: 'Условия',
+            titleStyle: context.themes.main.texts.h3,
+            descriptionRows: conditionsForParticipation,
+          ),
+          const SizedBox(height: 36),
+          const AppTextField(hintText: 'Email'),
+          const SizedBox(height: 36),
+          AppButton(
+            title: 'Отправить заявку',
+            onTap: () {
+              //TODO:
+            },
+          ),
+          SizedBox(height: MediaQuery.sizeOf(context).height * 0.03),
+        ],
       ),
     );
   }
