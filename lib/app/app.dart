@@ -7,6 +7,7 @@ import 'package:drill_events/common/di/inherited_dependencies.dart';
 import 'package:drill_events/common/navigation/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:reactive_forms/reactive_forms.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -15,18 +16,25 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     final dependencies = InheritedDependencies.of(context).dependencies;
 
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      initialRoute: Routes.home,
-      routes: {
-        Routes.home:
-            (context) => BlocProvider<EventsBloc>(
-              create: (_) => dependencies.eventsBloc..add(FetchEvents()),
-              child: const HomeScreen(),
-            ),
-        Routes.profile: (context) => const ProfileScreen(),
-        Routes.event: (context) => const EventScreen(),
+    return ReactiveFormConfig(
+      validationMessages: {
+        ValidationMessage.email: (_) => 'Неверный email',
+        ValidationMessage.required: (_) => 'Обязательное поле',
+        ValidationMessage.number: (_) => 'Необходимо ввести число',
       },
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        initialRoute: Routes.home,
+        routes: {
+          Routes.home:
+              (context) => BlocProvider<EventsBloc>(
+                create: (_) => dependencies.eventsBloc..add(FetchEvents()),
+                child: const HomeScreen(),
+              ),
+          Routes.profile: (context) => const ProfileScreen(),
+          Routes.event: (context) => const EventScreen(),
+        },
+      ),
     );
   }
 }

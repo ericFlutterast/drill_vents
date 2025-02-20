@@ -111,6 +111,7 @@ class _EventScreenState extends State<EventScreen> with SingleTickerProviderStat
                             () => Navigator.push(
                               context,
                               const AppModalBottomSheetPage(
+                                useSafeArea: true,
                                 child: InviteRequestToEventModal(
                                   conditionsForParticipation: [
                                     'Уровень английского B1 и выше',

@@ -3,11 +3,19 @@ import 'package:drill_events/app/ui/event/widgets/event_description_tile.dart';
 import 'package:drill_events/app/ui/widgets/app_button.dart';
 import 'package:drill_events/app/ui/widgets/app_text_field.dart';
 import 'package:flutter/material.dart';
+import 'package:reactive_forms/reactive_forms.dart';
 
-class InviteRequestToEventModal extends StatelessWidget {
+class InviteRequestToEventModal extends StatefulWidget {
   const InviteRequestToEventModal({super.key, required this.conditionsForParticipation});
 
   final Iterable<String> conditionsForParticipation;
+
+  @override
+  State<InviteRequestToEventModal> createState() => _InviteRequestToEventModalState();
+}
+
+class _InviteRequestToEventModalState extends State<InviteRequestToEventModal> {
+  late final _emailFormControl = FormControl<String>(validators: [Validators.email], value: '');
 
   @override
   Widget build(BuildContext context) {
@@ -21,15 +29,21 @@ class InviteRequestToEventModal extends StatelessWidget {
           EventDescriptionTile(
             title: 'Условия',
             titleStyle: context.themes.main.texts.h3,
-            descriptionRows: conditionsForParticipation,
+            descriptionRows: widget.conditionsForParticipation,
           ),
           const SizedBox(height: 36),
-          const AppTextField(hintText: 'Email'),
+          AppTextField(
+            useReactiveForm: true,
+            hintText: 'Email',
+            formControl: _emailFormControl,
+            keyboardType: TextInputType.emailAddress,
+          ),
           const SizedBox(height: 36),
-          AppButton(
-            title: 'Отправить заявку',
-            onTap: () {
-              //TODO:
+          ReactiveValueListenableBuilder(
+            formControl: _emailFormControl,
+            builder: (context, form, _) {
+              final isValid = form.valid && form.value != null && form.value!.isNotEmpty;
+              return AppButton(title: 'Отправить заявку', onTap: isValid ? () {} : null);
             },
           ),
           SizedBox(height: MediaQuery.sizeOf(context).height * 0.03),
