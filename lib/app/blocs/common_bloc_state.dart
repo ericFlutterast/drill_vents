@@ -32,6 +32,7 @@ class CommonBlocState<T> {
   CommonBlocState<T> loading() => CommonBlocState<T>(status: StateStatus.loading);
   CommonBlocState<T> refreshing() => CommonBlocState<T>(status: StateStatus.refreshing);
   CommonBlocState<T> pagination() => CommonBlocState<T>(status: StateStatus.pagination);
-  CommonBlocState<T> error(Object error) => CommonBlocState<T>(status: StateStatus.error, error: error);
+  CommonBlocState<T> error(Object error, {T? value}) =>
+      CommonBlocState<T>(status: StateStatus.error, error: error, value: value);
   CommonBlocState<T> done(T value) => CommonBlocState<T>(status: StateStatus.done, value: value);
 }

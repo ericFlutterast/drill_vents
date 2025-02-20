@@ -58,27 +58,26 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ),
                     ),
+                  ),
+                if (state.hasValue && state.value.isEmpty || state.hasError)
+                  SliverToBoxAdapter(
+                    child: Center(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: MediaQuery.sizeOf(context).height * 0.2),
+                        child: Text('Не удалось загрузить', style: context.themes.main.texts.body),
+                      ),
+                    ),
                   )
                 else if (state.hasValue)
-                  if (state.value.isEmpty)
-                    SliverToBoxAdapter(
-                      child: Center(
-                        child: Padding(
-                          padding: EdgeInsets.only(top: MediaQuery.sizeOf(context).height * 0.2),
-                          child: Text('Не удалось загрузить', style: context.themes.main.texts.body),
+                  SliverList.separated(
+                    itemCount: state.value.length,
+                    itemBuilder:
+                        (context, index) => EventListItem(
+                          title: state.value.elementAt(index).title,
+                          onTap: () => Navigator.pushNamed(context, Routes.event),
                         ),
-                      ),
-                    )
-                  else
-                    SliverList.separated(
-                      itemCount: state.value.length,
-                      itemBuilder:
-                          (context, index) => EventListItem(
-                            title: state.value.elementAt(index).title,
-                            onTap: () => Navigator.pushNamed(context, Routes.event),
-                          ),
-                      separatorBuilder: (_, __) => const SizedBox(height: 28),
-                    ),
+                    separatorBuilder: (_, __) => const SizedBox(height: 28),
+                  ),
                 const SliverPadding(padding: EdgeInsets.only(top: 30)),
               ],
             );

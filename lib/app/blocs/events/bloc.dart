@@ -30,6 +30,7 @@ final class EventsBloc extends Bloc<Events, _State> {
       final result = await _repository.fetchEvents();
       emit(state.done(result));
     } catch (error, stackTrace) {
+      emit(state.error(error));
       Logger().log.e(error, error: error, stackTrace: stackTrace);
     }
   }
@@ -39,6 +40,7 @@ final class EventsBloc extends Bloc<Events, _State> {
       final result = await _repository.searchEvents(event.value);
       emit(state.done(result));
     } catch (error, stackTrace) {
+      emit(state.error(error));
       Logger().log.e(error, error: error, stackTrace: stackTrace);
     }
   }
