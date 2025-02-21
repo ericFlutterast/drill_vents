@@ -14,6 +14,7 @@ final class MainTheme implements IAppTheme {
     greyDark: Color(0xFFB6B6B6),
     greyLight: Color(0xFFF5F5F5),
     amberBackground: Color(0xFFFAEDDA),
+    amberBackgroundAccent: Color(0xFFFFDCA8),
     amberText: Color(0xFFFF9500),
     errorBackground: Color(0xFFFAE8E8),
     errorBackgroundAccent: Color(0xFFFFD6D6),

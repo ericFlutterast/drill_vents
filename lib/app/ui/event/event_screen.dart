@@ -1,5 +1,6 @@
 import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:drill_events/app/ui/event/widgets/event_description_tile.dart';
+import 'package:drill_events/app/ui/event/widgets/participation_status.dart';
 import 'package:drill_events/app/ui/widgets/app_back_button.dart';
 import 'package:drill_events/app/ui/widgets/app_button.dart';
 import 'package:drill_events/app/ui/widgets/app_company_logo.dart';
@@ -79,6 +80,11 @@ class _EventScreenState extends State<EventScreen> with SingleTickerProviderStat
                       ),
                       const SizedBox(height: 7),
                       Text('The Future of Work. How technology is reshaping', style: context.themes.main.texts.h1),
+
+                      if (false) ...[
+                        const SizedBox(height: 18),
+                        const ParticipationStatus(status: ParticipationStatusEnum.declined),
+                      ],
                       const SizedBox(height: 38),
                       const DateTimeInfo(),
                       const SizedBox(height: 32),
@@ -104,38 +110,40 @@ class _EventScreenState extends State<EventScreen> with SingleTickerProviderStat
                           'Участникам скидка 10% на напитки собственного приготовления 😉',
                         ],
                       ),
-                      const SizedBox(height: 42),
-                      AppButton(
-                        title: 'Записаться',
-                        onTap: () async {
-                          final result = await Navigator.push<bool?>(
-                            context,
-                            const AppModalBottomSheetPage<bool>(
-                              useSafeArea: true,
-                              child: InviteRequestToEventModal(
-                                conditionsForParticipation: [
-                                  'Уровень английского B1 и выше',
-                                  'Уровень китайского 99 и выше',
-                                  'Японское гражданство',
-                                  'Звание глобала и 8к ммр в доте',
-                                ],
-                              ),
-                            ).createRoute(context),
-                          );
-
-                          if (result == true) {
-                            _scrollController.animateTo(
-                              0.0,
-                              duration: const Duration(milliseconds: 400),
-                              curve: Curves.easeIn,
-                            );
-                          }
-                        },
-                      ),
                     ],
                   ),
                 ),
+                const SizedBox(height: 42),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: AppButton(
+                    title: 'Записаться',
+                    onTap: () async {
+                      final result = await Navigator.push<bool?>(
+                        context,
+                        const AppModalBottomSheetPage<bool>(
+                          useSafeArea: true,
+                          child: InviteRequestToEventModal(
+                            conditionsForParticipation: [
+                              'Уровень английского B1 и выше',
+                              'Уровень китайского 99 и выше',
+                              'Японское гражданство',
+                              'Звание глобала и 8к ммр в доте',
+                            ],
+                          ),
+                        ).createRoute(context),
+                      );
 
+                      if (result == true) {
+                        _scrollController.animateTo(
+                          0.0,
+                          duration: const Duration(milliseconds: 400),
+                          curve: Curves.easeIn,
+                        );
+                      }
+                    },
+                  ),
+                ),
                 const SizedBox(height: 25),
               ],
             ),

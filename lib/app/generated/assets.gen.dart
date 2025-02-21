@@ -15,14 +15,23 @@ import 'package:vector_graphics/vector_graphics.dart' as _vg;
 class $AssetsIconsGen {
   const $AssetsIconsGen();
 
+  /// File path: assets/icons/error.svg
+  SvgGenImage get error => const SvgGenImage('assets/icons/error.svg');
+
+  /// File path: assets/icons/processing.svg
+  SvgGenImage get processing => const SvgGenImage('assets/icons/processing.svg');
+
   /// File path: assets/icons/refresh.svg
   SvgGenImage get refresh => const SvgGenImage('assets/icons/refresh.svg');
+
+  /// File path: assets/icons/success.svg
+  SvgGenImage get success => const SvgGenImage('assets/icons/success.svg');
 
   /// File path: assets/icons/telegram.svg
   SvgGenImage get telegram => const SvgGenImage('assets/icons/telegram.svg');
 
   /// List of all assets
-  List<SvgGenImage> get values => [refresh, telegram];
+  List<SvgGenImage> get values => [error, processing, refresh, success, telegram];
 }
 
 class $AssetsImagesGen {

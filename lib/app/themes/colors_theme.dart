@@ -17,6 +17,7 @@ final class AppColors {
     required this.successBackgroundAccent,
     required this.successAccent,
     required this.successSecondary,
+    required this.amberBackgroundAccent,
   });
 
   final Color background;
@@ -24,6 +25,7 @@ final class AppColors {
   final Color greyDark;
   final Color greyLight;
   final Color amberBackground;
+  final Color amberBackgroundAccent;
   final Color amberText;
   final Color errorText;
   final Color errorBackground;

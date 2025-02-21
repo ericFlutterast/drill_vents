@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:drill_events/app/blocs/events/bloc.dart';
 import 'package:drill_events/app/data/data_repository.dart';
 import 'package:drill_events/common/di/dependencies.dart';
 import 'package:drill_events/common/network/api_client.dart';
@@ -40,15 +39,5 @@ Map<String, Loader> _dependenciesSteps = {
   },
   'repository': (dependencies) async {
     dependencies.repository = DataRepositoryImpl(dependencies.httpApiClient);
-  },
-  'вещи из моей кладовки': (dependencies) async {
-    await Future.delayed(const Duration(seconds: 1));
-    dependencies.eventsBloc = EventsBloc(repository: dependencies.repository);
-  },
-  'получение солнечной энергии': (dependencies) async {
-    await Future.delayed(const Duration(seconds: 1));
-  },
-  'темная материя': (dependencies) async {
-    await Future.delayed(const Duration(seconds: 1));
   },
 };

@@ -2,8 +2,10 @@ import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:flutter/material.dart';
 
 class AppButton extends StatelessWidget {
-  const AppButton({super.key, this.onTap, this.title});
+  const AppButton({super.key, this.onTap, this.title, this.backgroundColor, this.titleStyle});
 
+  final Color? backgroundColor;
+  final TextStyle? titleStyle;
   final VoidCallback? onTap;
   final String? title;
 
@@ -14,15 +16,18 @@ class AppButton extends StatelessWidget {
       borderRadius: const BorderRadius.all(Radius.circular(50)),
       child: Ink(
         decoration: BoxDecoration(
-          color: onTap == null ? context.themes.main.colors.greyDark : context.themes.main.colors.accent,
+          color:
+              backgroundColor ??
+              (onTap == null ? context.themes.main.colors.greyDark : context.themes.main.colors.accent),
           borderRadius: const BorderRadius.all(Radius.circular(50)),
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12.5),
+          padding: const EdgeInsets.symmetric(vertical: 12),
           child: Center(
             child: Text(
               title ?? '',
-              style: context.themes.main.texts.body.copyWith(color: context.themes.main.colors.background),
+              style:
+                  titleStyle ?? context.themes.main.texts.body.copyWith(color: context.themes.main.colors.background),
             ),
           ),
         ),
