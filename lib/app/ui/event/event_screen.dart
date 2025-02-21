@@ -121,9 +121,10 @@ class _EventScreenState extends State<EventScreen> with SingleTickerProviderStat
                     onTap: () async {
                       final result = await Navigator.push<bool?>(
                         context,
-                        const AppModalBottomSheetPage<bool>(
+                        AppModalBottomSheetPage<bool>(
                           useSafeArea: true,
-                          child: InviteRequestToEventModal(
+                          child: InviteRequestToEventModal.bloc(
+                            context,
                             conditionsForParticipation: [
                               'Уровень английского B1 и выше',
                               'Уровень китайского 99 и выше',

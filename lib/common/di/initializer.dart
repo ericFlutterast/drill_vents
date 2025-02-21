@@ -1,7 +1,11 @@
 import 'package:dio/dio.dart';
+import 'package:drill_events/app/blocs/detail_event/bloc.dart';
+import 'package:drill_events/app/blocs/events/bloc.dart';
+import 'package:drill_events/app/blocs/sign_up_to_event/bloc.dart';
 import 'package:drill_events/app/data/data_repository.dart';
 import 'package:drill_events/common/di/dependencies.dart';
 import 'package:drill_events/common/network/api_client.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> initializer({
   required Function(double progres, String step) onProgress,
@@ -37,7 +41,16 @@ Map<String, Loader> _dependenciesSteps = {
       ),
     );
   },
-  'repository': (dependencies) async {
+  'data': (dependencies) async {
     dependencies.repository = DataRepositoryImpl(dependencies.httpApiClient);
+    dependencies.sharedPreferences = await SharedPreferences.getInstance();
+  },
+  'blocs': (dependencies) async {
+    dependencies.eventsBloc = EventsBloc(repository: dependencies.repository);
+    dependencies.signUpToEventBloc = SignUpToEventBloc(
+      repository: dependencies.repository,
+      sharedPreferences: dependencies.sharedPreferences,
+    );
+    dependencies.detailEventBloc = DetailEventBloc(repository: dependencies.repository);
   },
 };

@@ -4,7 +4,7 @@ import 'package:bloc_concurrency/bloc_concurrency.dart' as bloc_concurrency;
 import 'package:drill_events/app/app.dart';
 import 'package:drill_events/common/bloc/bloc_observer.dart';
 import 'package:drill_events/common/di/dependencies.dart';
-import 'package:drill_events/common/di/inherited_dependencies.dart';
+import 'package:drill_events/common/di/dependencies_scope.dart';
 import 'package:drill_events/common/di/initializer.dart';
 import 'package:drill_events/common/logger/logger.dart';
 import 'package:flutter/material.dart';
@@ -65,7 +65,7 @@ void main() => runZonedGuarded(
         );
       },
       onSuccess: (Dependencies dependencies) {
-        runApp(InheritedDependencies(dependencies: dependencies, child: const App()));
+        runApp(DependenciesScope(dependencies: dependencies, child: const App()));
       },
     );
   },

@@ -1,6 +1,8 @@
+import 'package:equatable/equatable.dart';
+
 enum StateStatus { idle, loading, refreshing, pagination, error, done }
 
-class CommonBlocState<T> {
+class CommonBlocState<T> extends Equatable {
   const CommonBlocState({T? value, Object? error, required StateStatus status})
     : _value = value,
       _error = error,
@@ -10,7 +12,7 @@ class CommonBlocState<T> {
   final Object? _error;
   final StateStatus _status;
 
-  CommonBlocState.init() : _value = null, _error = null, _status = StateStatus.idle;
+  const CommonBlocState.init() : _value = null, _error = null, _status = StateStatus.idle;
 
   T get value => _value!;
   T? get getValueOrNull => _value;
@@ -34,5 +36,8 @@ class CommonBlocState<T> {
   CommonBlocState<T> pagination() => CommonBlocState<T>(status: StateStatus.pagination);
   CommonBlocState<T> error(Object error, {T? value}) =>
       CommonBlocState<T>(status: StateStatus.error, error: error, value: value);
-  CommonBlocState<T> done(T value) => CommonBlocState<T>(status: StateStatus.done, value: value);
+  CommonBlocState<T> done(T? value) => CommonBlocState<T>(status: StateStatus.done, value: value);
+
+  @override
+  List<Object?> get props => [_value, _error, _status];
 }

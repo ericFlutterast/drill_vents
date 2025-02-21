@@ -4,6 +4,7 @@ abstract interface class IDataRepository {
   //Events
   Future<Iterable<EventModel>> fetchEvents();
   Future<Iterable<EventModel>> searchEvents(String value);
+  Future<void> signUpToEvent(String email);
   //TODO
   Future<Object> getDetailEvent(String eventId);
 

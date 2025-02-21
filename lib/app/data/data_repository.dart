@@ -35,6 +35,11 @@ final class DataRepositoryImpl implements IDataRepository {
     return Object();
   }
 
+  @override
+  Future<void> signUpToEvent(String email) async {
+    await Future.delayed(const Duration(seconds: 2));
+  }
+
   //User
   @override
   Future<void> createUser({required String email, required String password}) {

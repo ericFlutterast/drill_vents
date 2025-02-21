@@ -10,7 +10,7 @@ typedef _State = CommonBlocState<Iterable<EventModel>>;
 typedef Emit = Emitter<_State>;
 
 final class EventsBloc extends Bloc<Events, _State> {
-  EventsBloc({required IDataRepository repository}) : _repository = repository, super(CommonBlocState.init()) {
+  EventsBloc({required IDataRepository repository}) : _repository = repository, super(const CommonBlocState.init()) {
     on<Events>((event, emit) async {
       switch (event) {
         case FetchEvents():
