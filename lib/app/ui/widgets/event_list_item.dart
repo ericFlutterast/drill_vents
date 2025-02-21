@@ -27,7 +27,7 @@ class EventListItem extends StatelessWidget {
                   (_, __, ___) => Container(
                     height: 52,
                     width: 52,
-                    decoration: BoxDecoration(color: context.themes.main.colors.greyDark, shape: BoxShape.circle),
+                    decoration: BoxDecoration(color: context.themes.main.colors.secondary, shape: BoxShape.circle),
                   ),
             ),
             const SizedBox(width: 12),
@@ -50,7 +50,7 @@ class EventListItem extends StatelessWidget {
                               dimension: 5,
                               child: DecoratedBox(
                                 decoration: BoxDecoration(
-                                  color: context.themes.main.colors.greyDark,
+                                  color: context.themes.main.colors.secondary,
                                   shape: BoxShape.circle,
                                 ),
                               ),

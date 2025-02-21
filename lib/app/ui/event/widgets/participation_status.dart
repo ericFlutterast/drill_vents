@@ -23,9 +23,9 @@ class ParticipationStatus extends StatelessWidget {
     final textStyles = context.themes.main.texts;
 
     final (textColor, icon) = switch (status) {
-      ParticipationStatusEnum.processing => (colors.amberText, Assets.icons.processing.svg()),
-      ParticipationStatusEnum.accepted => (colors.successText, Assets.icons.success.svg()),
-      ParticipationStatusEnum.declined => (colors.errorText, Assets.icons.error.svg()),
+      ParticipationStatusEnum.processing => (colors.warning600, Assets.icons.processing.svg()),
+      ParticipationStatusEnum.accepted => (colors.success600, Assets.icons.success.svg()),
+      ParticipationStatusEnum.declined => (colors.error600, Assets.icons.error.svg()),
     };
 
     return Row(

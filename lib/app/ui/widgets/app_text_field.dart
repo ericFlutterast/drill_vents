@@ -46,7 +46,7 @@ class AppTextField extends StatelessWidget {
       return ReactiveTextField(
         controller: controller,
         formControl: formControl,
-        cursorColor: context.themes.main.colors.accent,
+        cursorColor: context.themes.main.colors.primary,
         onTapOutside: onTapOutside,
         onAppPrivateCommand: onAppPrivateCommand,
         keyboardType: keyboardType,
@@ -56,7 +56,7 @@ class AppTextField extends StatelessWidget {
             InputDecoration(
               hintText: hintText,
               hintStyle:
-                  hintStyle ?? context.themes.main.texts.body.copyWith(color: context.themes.main.colors.greyDark),
+                  hintStyle ?? context.themes.main.texts.body.copyWith(color: context.themes.main.colors.secondary),
               filled: true,
               fillColor: const Color(0xFFF5F5F5),
               border:
@@ -72,7 +72,7 @@ class AppTextField extends StatelessWidget {
 
     return TextField(
       controller: controller,
-      cursorColor: context.themes.main.colors.accent,
+      cursorColor: context.themes.main.colors.primary,
       onChanged: onChanged,
       onTap: onTap,
       onTapOutside: onTapOutside,
@@ -86,7 +86,8 @@ class AppTextField extends StatelessWidget {
           decoration ??
           InputDecoration(
             hintText: hintText,
-            hintStyle: hintStyle ?? context.themes.main.texts.body.copyWith(color: context.themes.main.colors.greyDark),
+            hintStyle:
+                hintStyle ?? context.themes.main.texts.body.copyWith(color: context.themes.main.colors.secondary),
             filled: true,
             fillColor: const Color(0xFFF5F5F5),
             border:

@@ -27,8 +27,8 @@ class HomeScreen extends StatelessWidget {
               slivers: [
                 SliverAppBar(
                   collapsedHeight: MediaQuery.sizeOf(context).height * 0.1,
-                  surfaceTintColor: context.themes.main.colors.background,
-                  backgroundColor: context.themes.main.colors.background,
+                  surfaceTintColor: context.themes.main.colors.inverse,
+                  backgroundColor: context.themes.main.colors.inverse,
                   expandedHeight: 120,
                   pinned: true,
                   flexibleSpace: const FlexibleSpaceBar(
@@ -54,7 +54,7 @@ class HomeScreen extends StatelessWidget {
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
                           backgroundColor: context.themes.main.colors.background,
-                          color: context.themes.main.colors.accent,
+                          color: context.themes.main.colors.primary,
                         ),
                       ),
                     ),

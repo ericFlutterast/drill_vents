@@ -18,7 +18,7 @@ class AppButton extends StatelessWidget {
         decoration: BoxDecoration(
           color:
               backgroundColor ??
-              (onTap == null ? context.themes.main.colors.greyDark : context.themes.main.colors.accent),
+              (onTap == null ? context.themes.main.colors.secondary : context.themes.main.colors.primary),
           borderRadius: const BorderRadius.all(Radius.circular(50)),
         ),
         child: Padding(
@@ -26,8 +26,7 @@ class AppButton extends StatelessWidget {
           child: Center(
             child: Text(
               title ?? '',
-              style:
-                  titleStyle ?? context.themes.main.texts.body.copyWith(color: context.themes.main.colors.background),
+              style: titleStyle ?? context.themes.main.texts.body.copyWith(color: context.themes.main.colors.inverse),
             ),
           ),
         ),

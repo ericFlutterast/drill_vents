@@ -19,7 +19,7 @@ class ProfileProgressIndicator extends StatelessWidget {
         dimension: diameter,
         child: CustomPaint(
           painter: _ProfileProgressIndicatorPainter(
-            color: context.themes.main.colors.greyDark.withAlpha(150),
+            color: context.themes.main.colors.secondary.withAlpha(150),
             strokeWidth: strokeWidth,
           ),
           child: Center(child: child),

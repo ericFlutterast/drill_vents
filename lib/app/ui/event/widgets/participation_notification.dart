@@ -41,24 +41,24 @@ class _ParticipationNotificationState extends State<ParticipationNotification> w
     final (icon, backgroundColor, fillColor, textColor, iconBackgroundColor) = switch (widget.status) {
       ParticipationNotificationStatus.success => (
         Icons.check,
-        colors.successBackground,
-        colors.successBackgroundAccent,
-        colors.successAccent,
-        colors.successText,
+        colors.success100,
+        colors.success200,
+        colors.success900,
+        colors.success600,
       ),
       ParticipationNotificationStatus.processing => (
         CupertinoIcons.exclamationmark,
-        colors.amberBackground,
-        colors.amberBackgroundAccent,
-        const Color(0xFFB54708),
-        colors.amberText,
+        colors.warning100,
+        colors.warning200,
+        colors.warning900,
+        colors.warning600,
       ),
       ParticipationNotificationStatus.decline => (
         Icons.close_rounded,
-        colors.errorBackground,
-        colors.errorBackgroundAccent,
-        colors.errorAccent,
-        colors.errorText,
+        colors.error100,
+        colors.error200,
+        colors.error900,
+        colors.error600,
       ),
     };
 
@@ -88,7 +88,7 @@ class _ParticipationNotificationState extends State<ParticipationNotification> w
                   dimension: 37,
                   child: DecoratedBox(
                     decoration: BoxDecoration(color: iconBackgroundColor, shape: BoxShape.circle),
-                    child: Icon(icon, color: colors.background),
+                    child: Icon(icon, color: colors.inverse),
                   ),
                 ),
                 const SizedBox(width: 12),

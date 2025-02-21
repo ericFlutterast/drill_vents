@@ -48,7 +48,7 @@ class _EventScreenState extends State<EventScreen> with SingleTickerProviderStat
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: context.themes.main.colors.background,
+      backgroundColor: context.themes.main.colors.inverse,
       body: SafeArea(
         top: false,
         child: Stack(

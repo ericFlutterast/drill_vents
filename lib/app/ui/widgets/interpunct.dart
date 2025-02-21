@@ -10,7 +10,7 @@ class Interpunct extends StatelessWidget {
     return SizedBox.square(
       dimension: 5,
       child: DecoratedBox(
-        decoration: BoxDecoration(color: context.themes.main.colors.greyDark, shape: BoxShape.circle),
+        decoration: BoxDecoration(color: context.themes.main.colors.secondary, shape: BoxShape.circle),
       ),
     );
   }

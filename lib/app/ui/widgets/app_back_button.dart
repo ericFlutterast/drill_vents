@@ -15,7 +15,7 @@ class AppBackButton extends StatelessWidget {
       child: SizedBox.square(
         dimension: 42,
         child: Ink(
-          decoration: BoxDecoration(color: context.themes.main.colors.greyLight, shape: BoxShape.circle),
+          decoration: BoxDecoration(color: context.themes.main.colors.background, shape: BoxShape.circle),
           child: const Icon(Icons.arrow_back, size: 24),
         ),
       ),

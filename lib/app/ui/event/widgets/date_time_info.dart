@@ -19,7 +19,7 @@ class DateTimeInfo extends StatelessWidget {
         const Spacer(),
         DecoratedBox(
           decoration: BoxDecoration(
-            color: context.themes.main.colors.greyLight,
+            color: context.themes.main.colors.background,
             borderRadius: const BorderRadius.all(Radius.circular(8)),
           ),
           child: Padding(

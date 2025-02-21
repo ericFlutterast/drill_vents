@@ -42,7 +42,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     final textsStyles = context.themes.main.texts;
 
     return Scaffold(
-      backgroundColor: colors.background,
+      backgroundColor: colors.inverse,
       body: SafeArea(
         top: false,
         child: Stack(

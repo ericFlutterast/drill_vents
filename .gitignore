@@ -34,6 +34,7 @@ migrate_working_dir/
 /build/
 pubspec.lock
 **.g.dart
+**.gen.dart
 
 # Symbolication related
 app.*.symbols

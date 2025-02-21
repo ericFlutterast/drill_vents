@@ -27,7 +27,7 @@ class _AnimatedRefState extends State<AnimatedRefresh> with SingleTickerProvider
 }
 
 class _AnimatedRefresh extends AnimatedWidget {
-  const _AnimatedRefresh({super.key, required AnimationController controller}) : super(listenable: controller);
+  const _AnimatedRefresh({required AnimationController controller}) : super(listenable: controller);
 
   Animation<double> get _progress => listenable as Animation<double>;
 

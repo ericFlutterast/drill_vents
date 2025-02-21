@@ -52,7 +52,7 @@ class AppModalBottomSheetPage<T> extends Page<T> {
     return ModalBottomSheetRouteWithBlur<T>(
       settings: this,
       builder: (context) => AppBottomSheet(child: child),
-      backgroundColor: backgroundColor ?? context.themes.main.colors.background,
+      backgroundColor: backgroundColor ?? context.themes.main.colors.inverse,
       isScrollControlled: isScrollControlled,
       isDismissible: isDismissible,
       enableDrag: enableDrag,
