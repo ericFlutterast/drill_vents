@@ -1,22 +1,35 @@
+import 'package:drill_events/app/blocs/detail_event/bloc.dart';
 import 'package:drill_events/app/blocs/detail_event/events.dart';
+import 'package:drill_events/app/features/event/widgets/event_description_tile.dart';
+import 'package:drill_events/app/features/event/widgets/invite_request_to_event_modal.dart';
+import 'package:drill_events/app/features/widgets/app_back_button.dart';
+import 'package:drill_events/app/features/widgets/app_button.dart';
+import 'package:drill_events/app/features/widgets/app_company_logo.dart';
+import 'package:drill_events/app/features/widgets/interpunct.dart';
+import 'package:drill_events/app/generated/assets.gen.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
-import 'package:drill_events/app/ui/event/widgets/event_description_tile.dart';
-import 'package:drill_events/app/ui/widgets/app_back_button.dart';
-import 'package:drill_events/app/ui/widgets/app_button.dart';
-import 'package:drill_events/app/ui/widgets/app_company_logo.dart';
-import 'package:drill_events/app/ui/widgets/interpunct.dart';
 import 'package:drill_events/common/navigation/modal_bottom_sheet.dart';
 import 'package:drill_events/common/utils/extensions.dart';
 import 'package:flutter/material.dart';
-
-import 'widgets/date_time_info.dart';
-import 'widgets/invite_request_to_event_modal.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 //TODO:
 const _items = ['Завтра', 'Surf x Post', 'English club'];
 
 class EventScreen extends StatefulWidget {
   const EventScreen({super.key});
+
+  static Widget bloc(BuildContext context) {
+    return BlocProvider<DetailEventBloc>(
+      create:
+          (_) => DetailEventBloc(
+            context.dependencies.fastCache,
+            context.dependencies.repository,
+            context.dependencies.logger,
+          )..add(FetchDetailEvent(id: '')),
+      child: const EventScreen(),
+    );
+  }
 
   @override
   State<EventScreen> createState() => _EventScreenState();
@@ -37,13 +50,6 @@ class _EventScreenState extends State<EventScreen> with SingleTickerProviderStat
     _scrollController.addListener(() {
       buttonVisibility(animationController: _animationController, scrollController: _scrollController);
     });
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    context.deps.detailEventBloc.add(FetchDetailEvent(id: "0795727e-60d5-44bd-bf0e-17836dc1d5b6"));
   }
 
   @override
@@ -89,12 +95,12 @@ class _EventScreenState extends State<EventScreen> with SingleTickerProviderStat
                       const SizedBox(height: 7),
                       Text('The Future of Work. How technology is reshaping', style: context.themes.main.texts.h1),
 
-                      // if (false) ...[
-                      //   const SizedBox(height: 18),
-                      //   const ParticipationStatus(status: ParticipationStatusEnum.declined),
-                      // ],
+                      if (false) ...[
+                        const SizedBox(height: 18),
+                        const _ParticipationStatus(status: ParticipationStatusEnum.declined),
+                      ],
                       const SizedBox(height: 38),
-                      const DateTimeInfo(),
+                      const _DateTimeInfo(),
                       const SizedBox(height: 32),
                       Text(
                         'Приглашаем на английский клуб! Давайте прокачаем свои знания по английскому 😉',
@@ -131,7 +137,7 @@ class _EventScreenState extends State<EventScreen> with SingleTickerProviderStat
                         context,
                         AppModalBottomSheetPage<bool>(
                           useSafeArea: true,
-                          child: InviteRequestToEventModal.bloc(
+                          child: JoinEventModal.bloc(
                             context,
                             conditionsForParticipation: [
                               'Уровень английского B1 и выше',
@@ -167,6 +173,74 @@ class _EventScreenState extends State<EventScreen> with SingleTickerProviderStat
           ],
         ),
       ),
+    );
+  }
+}
+
+class _DateTimeInfo extends StatelessWidget {
+  const _DateTimeInfo();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('16 февраля', style: context.themes.main.texts.h3),
+            const SizedBox(height: 6),
+            Text('Краснодар, Постовая 55', style: context.themes.main.texts.bodySmall),
+          ],
+        ),
+        const Spacer(),
+        DecoratedBox(
+          decoration: BoxDecoration(
+            color: context.themes.main.colors.background,
+            borderRadius: const BorderRadius.all(Radius.circular(8)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 10),
+            child: Text('19:00', style: context.themes.main.texts.h3),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+enum ParticipationStatusEnum {
+  processing('Ваша заявка обрабатывается'),
+  accepted('Вы участвуете'),
+  declined('Вы не допущены к участию');
+
+  const ParticipationStatusEnum(this.message);
+
+  final String message;
+}
+
+class _ParticipationStatus extends StatelessWidget {
+  const _ParticipationStatus({this.status = ParticipationStatusEnum.processing});
+
+  final ParticipationStatusEnum status;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.themes.main.colors;
+    final textStyles = context.themes.main.texts;
+
+    final (textColor, icon) = switch (status) {
+      // Убери поля из енума и текст тут возвращай, когда интернационализацию подрубим все равно все текста в контексте будут
+      ParticipationStatusEnum.processing => (colors.warning600, Assets.icons.processing.svg()),
+      ParticipationStatusEnum.accepted => (colors.success600, Assets.icons.success.svg()),
+      ParticipationStatusEnum.declined => (colors.error600, Assets.icons.error.svg()),
+    };
+
+    return Row(
+      children: [
+        icon,
+        const SizedBox(width: 6),
+        Expanded(child: Text(status.message, style: textStyles.body.copyWith(color: textColor))),
+      ],
     );
   }
 }

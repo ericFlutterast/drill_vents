@@ -1,14 +1,12 @@
 ///Events
-sealed class Events {
-  const Events._();
-}
+sealed class Events {}
 
-final class FetchEvents extends Events {
-  const FetchEvents() : super._();
+final class FetchEventsFeed extends Events {
+  FetchEventsFeed();
 }
 
 final class SearchEvents extends Events {
-  const SearchEvents({required this.value}) : super._();
+  SearchEvents({required this.value});
 
   final String value;
 }

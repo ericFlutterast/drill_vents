@@ -5,7 +5,7 @@ import 'package:drill_events/common/ports/fast_cache.dart';
 class _CacheEntry {
   _CacheEntry(this.value);
 
-  dynamic value;
+  Object value;
   Timer? timer;
 }
 
@@ -28,7 +28,7 @@ class MapCache implements FastCache {
   }
 
   @override
-  void set<T>(String key, T value, {Duration? duration}) {
+  void set<T extends Object>(String key, T value, {Duration? duration}) {
     _clearEntry(key);
 
     final newEntry = _CacheEntry(value);

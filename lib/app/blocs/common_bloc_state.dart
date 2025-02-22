@@ -24,17 +24,14 @@ class CommonBlocState<T> extends Equatable {
   bool get hasError => _error != null;
 
   bool get isIdle => status == StateStatus.idle;
-  // TODO: pending более универсальная штука, у isLoading только 2 состояния, так как isPending может принимать что угодно, в зависимости от контекста
-  // то есть условно isPeding означает, что что-то происходит и это гарантирует, что поведение нестабильное и опасно бзать данные в данный момент
-  // https://github.com/TanStack/query/discussions/6297
-  bool get isLoading => status == StateStatus.loading;
+  bool get isPending => status == StateStatus.loading;
   bool get isRefreshing => status == StateStatus.refreshing;
   bool get isPagination => status == StateStatus.pagination;
   bool get isError => status == StateStatus.error;
   bool get isDone => status == StateStatus.done;
 
   CommonBlocState<T> idle() => CommonBlocState<T>(status: StateStatus.idle);
-  CommonBlocState<T> loading() => CommonBlocState<T>(status: StateStatus.loading);
+  CommonBlocState<T> pending() => CommonBlocState<T>(status: StateStatus.loading);
   CommonBlocState<T> refreshing() => CommonBlocState<T>(status: StateStatus.refreshing);
   CommonBlocState<T> pagination() => CommonBlocState<T>(status: StateStatus.pagination);
   CommonBlocState<T> error(Object error, {T? value}) =>

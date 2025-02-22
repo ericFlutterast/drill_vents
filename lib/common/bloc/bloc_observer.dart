@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 final class AppBlocObserver extends BlocObserver {
   AppBlocObserver(this._log);
 
-  final DrillLogger _log;
+  final Logger _log;
 
   @override
   void onChange(BlocBase bloc, Change change) {

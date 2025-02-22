@@ -2,13 +2,9 @@ import 'package:drill_events/common/di/dependencies.dart';
 import 'package:flutter/cupertino.dart';
 
 final class DependenciesScope extends InheritedWidget {
-  const DependenciesScope({super.key, required super.child, required Dependencies dependencies})
-    : _dependencies = dependencies;
+  const DependenciesScope({super.key, required super.child, required this.dependencies});
 
-  final Dependencies _dependencies;
-
-  // В чем смысл этого геттера?
-  Dependencies get dependencies => _dependencies;
+  final Dependencies dependencies;
 
   static DependenciesScope? maybeOf(BuildContext context, [bool listen = false]) {
     if (listen) {

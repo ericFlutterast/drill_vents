@@ -1,7 +1,7 @@
 import 'dart:ui' as ui;
 
+import 'package:drill_events/app/features/widgets/app_bottom_sheet.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
-import 'package:drill_events/app/ui/widgets/app_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 
 class AppModalBottomSheetPage<T> extends Page<T> {

@@ -6,9 +6,9 @@ import 'package:drill_events/common/bloc/bloc_observer.dart';
 import 'package:drill_events/common/di/dependencies.dart';
 import 'package:drill_events/common/di/dependencies_scope.dart';
 import 'package:drill_events/common/di/initializer.dart';
-import 'package:drill_events/common/logger/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:logger/logger.dart';
 
 void main() => runZonedGuarded(
   () async => initializer(
@@ -22,8 +22,7 @@ void main() => runZonedGuarded(
     },
   ),
   (error, stackTrace) {
-    // TODO: плохо, что у нас тут используется зависимость до того как она инициализирована
-    Logger().log.e(error, error: error, stackTrace: stackTrace);
+    Logger().e(error, error: error, stackTrace: stackTrace);
   },
 );
 

@@ -1,5 +1,5 @@
+import 'package:drill_events/app/features/widgets/interpunct.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
-import 'package:drill_events/app/ui/widgets/interpunct.dart';
 import 'package:flutter/material.dart';
 
 class EventDescriptionTile extends StatelessWidget {

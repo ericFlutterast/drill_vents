@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 class AppBottomSheet extends StatelessWidget {
-  const AppBottomSheet({super.key, this.child, this.height, this.borderRadius});
+  const AppBottomSheet({super.key, this.child, this.borderRadius});
 
   final Widget? child;
-  final double? height;
+
   final BorderRadiusGeometry? borderRadius;
 
   @override

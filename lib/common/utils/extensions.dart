@@ -3,5 +3,5 @@ import 'package:drill_events/common/di/dependencies_scope.dart';
 import 'package:flutter/material.dart';
 
 extension ContextExt on BuildContext {
-  Dependencies get deps => DependenciesScope.of(this).dependencies;
+  Dependencies get dependencies => DependenciesScope.of(this).dependencies;
 }

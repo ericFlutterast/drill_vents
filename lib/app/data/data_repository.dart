@@ -1,6 +1,6 @@
-import 'package:drill_events/common/ports/data_repository.dart';
 import 'package:drill_events/app/models/event_model.dart';
-import 'package:drill_events/common/network/api_client.dart';
+import 'package:drill_events/common/network/http_api_client.dart';
+import 'package:drill_events/common/ports/data_repository.dart';
 
 final class BackendDataRepository implements DataRepository {
   const BackendDataRepository(this._apiClient);
@@ -10,7 +10,7 @@ final class BackendDataRepository implements DataRepository {
   //Events
   @override
   Future<Iterable<EventModel>> fetchEvents() async {
-    final response = await _apiClient.request(RequestType.get(path: '/events/feed'));
+    final response = await _apiClient.get('/events/feed');
 
     final data = response.data['events'];
 
@@ -21,7 +21,7 @@ final class BackendDataRepository implements DataRepository {
   Future<Iterable<EventModel>> searchEvents(String value) async {
     final queryParameters = {'search': value};
 
-    final response = await _apiClient.request(RequestType.get(path: '/events', queryParameters: queryParameters));
+    final response = await _apiClient.get('/events', queryParameters: queryParameters);
 
     final data = response.data['events'];
 
@@ -31,7 +31,7 @@ final class BackendDataRepository implements DataRepository {
   @override
   Future<EventModel> getDetailEvent(String eventId) async {
     await Future.delayed(const Duration(seconds: 2));
-    final response = await _apiClient.request(RequestType.get(path: '/events/$eventId'));
+    final response = await _apiClient.get('/events/$eventId');
     return EventModel.fromJson(response.data['event']);
   }
 

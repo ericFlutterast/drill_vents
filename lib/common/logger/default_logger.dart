@@ -1,8 +1,8 @@
 import 'package:drill_events/common/ports/logger.dart';
-import 'package:logger/logger.dart';
+import 'package:logger/logger.dart' as l;
 
-final class DefaultLogger implements DrillLogger {
-  final Logger _logger = Logger();
+final class DefaultLogger implements Logger {
+  final l.Logger _logger = l.Logger();
 
   @override
   void info(dynamic message) {

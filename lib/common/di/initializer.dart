@@ -6,7 +6,7 @@ import 'package:drill_events/app/data/data_repository.dart';
 import 'package:drill_events/common/cache/map_cache.dart';
 import 'package:drill_events/common/di/dependencies.dart';
 import 'package:drill_events/common/logger/default_logger.dart';
-import 'package:drill_events/common/network/api_client.dart';
+import 'package:drill_events/common/network/http_api_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> initializer({
@@ -52,11 +52,16 @@ Map<String, Loader> _dependenciesSteps = {
     dependencies.sharedPreferences = await SharedPreferences.getInstance();
   },
   'blocs': (dependencies) async {
-    dependencies.eventsBloc = EventsBloc(repository: dependencies.repository);
+    dependencies.eventsBloc = EventsBloc(dependencies.repository, dependencies.logger);
     dependencies.signUpToEventBloc = SignUpToEventBloc(
       repository: dependencies.repository,
       sharedPreferences: dependencies.sharedPreferences,
+      logger: dependencies.logger,
     );
-    dependencies.detailEventBloc = DetailEventBloc(dependencies.fastCache, dependencies.repository);
+    dependencies.detailEventBloc = DetailEventBloc(
+      dependencies.fastCache,
+      dependencies.repository,
+      dependencies.logger,
+    );
   },
 };

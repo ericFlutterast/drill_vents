@@ -1,11 +1,11 @@
 import 'package:drill_events/app/blocs/events/bloc.dart';
 import 'package:drill_events/app/blocs/events/events.dart';
-import 'package:drill_events/app/ui/event/event_screen.dart';
-import 'package:drill_events/app/ui/home/home_screen.dart';
-import 'package:drill_events/app/ui/profile/profile_screen.dart';
-import 'package:drill_events/app/ui/widgets/notification_manager.dart';
-import 'package:drill_events/common/di/dependencies_scope.dart';
+import 'package:drill_events/app/features/event/event_screen.dart';
+import 'package:drill_events/app/features/home/home_screen.dart';
+import 'package:drill_events/app/features/profile/profile_screen.dart';
+import 'package:drill_events/app/features/widgets/notification_manager.dart';
 import 'package:drill_events/common/navigation/routes.dart';
+import 'package:drill_events/common/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:reactive_forms/reactive_forms.dart';
@@ -15,8 +15,6 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dependencies = DependenciesScope.of(context).dependencies;
-
     return ReactiveFormConfig(
       validationMessages: {
         ValidationMessage.email: (_) => 'Неверный email',
@@ -32,11 +30,11 @@ class App extends StatelessWidget {
         routes: {
           Routes.home:
               (context) => BlocProvider<EventsBloc>(
-                create: (_) => dependencies.eventsBloc..add(const FetchEvents()),
+                create: (_) => context.dependencies.eventsBloc..add(FetchEventsFeed()),
                 child: const HomeScreen(),
               ),
           Routes.profile: (context) => const ProfileScreen(),
-          Routes.event: (context) => const EventScreen(),
+          Routes.event: (context) => EventScreen.bloc(context),
         },
       ),
     );
