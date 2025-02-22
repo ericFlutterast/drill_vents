@@ -1,12 +1,12 @@
 import 'package:drill_events/app/models/event_model.dart';
 
-abstract interface class IDataRepository {
+abstract interface class DataRepository {
   //Events
   Future<Iterable<EventModel>> fetchEvents();
   Future<Iterable<EventModel>> searchEvents(String value);
   Future<void> signUpToEvent(String email);
   //TODO
-  Future<Object> getDetailEvent(String eventId);
+  Future<EventModel> getDetailEvent(String eventId);
 
   //User
   Future<void> createUser({required String email, required String password});

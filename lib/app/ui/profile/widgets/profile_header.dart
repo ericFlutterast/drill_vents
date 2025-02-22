@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:drill_events/app/ui/widgets/app_icon_button.dart';
 import 'package:drill_events/app/ui/widgets/profile_progress_indicator.dart';
 import 'package:flutter/cupertino.dart';
@@ -19,14 +18,10 @@ class ProfileHeader extends StatelessWidget {
             diameter: avatarDiameter,
             strokeWidth: 7,
             onTap: () {},
-            child: CachedNetworkImage(
-              imageUrl: '',
-              errorWidget:
-                  (_, __, ___) => Container(
-                    height: 80,
-                    width: 80,
-                    decoration: const BoxDecoration(color: Colors.orange, shape: BoxShape.circle),
-                  ),
+            child: Container(
+              height: 80,
+              width: 80,
+              decoration: const BoxDecoration(color: Colors.orange, shape: BoxShape.circle),
             ),
           ),
           Column(

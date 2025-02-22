@@ -1,5 +1,6 @@
 import 'package:logger/logger.dart' as l;
 
+// TODO: remove
 final class Logger {
   static final Logger _instance = Logger._();
 

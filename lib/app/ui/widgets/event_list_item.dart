@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:flutter/material.dart';
 
@@ -21,14 +20,10 @@ class EventListItem extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            CachedNetworkImage(
-              imageUrl: '',
-              errorWidget:
-                  (_, __, ___) => Container(
-                    height: 52,
-                    width: 52,
-                    decoration: BoxDecoration(color: context.themes.main.colors.secondary, shape: BoxShape.circle),
-                  ),
+            Container(
+              height: 52,
+              width: 52,
+              decoration: BoxDecoration(color: context.themes.main.colors.secondary, shape: BoxShape.circle),
             ),
             const SizedBox(width: 12),
             Expanded(
