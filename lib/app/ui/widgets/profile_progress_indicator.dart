@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:flutter/material.dart';
 
+// TODO: надо переименовать
 class ProfileProgressIndicator extends StatelessWidget {
   const ProfileProgressIndicator({super.key, this.child, this.onTap, this.diameter = 48, this.strokeWidth = 4});
 

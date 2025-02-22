@@ -3,7 +3,9 @@ import 'package:drill_events/app/blocs/detail_event/bloc.dart';
 import 'package:drill_events/app/blocs/events/bloc.dart';
 import 'package:drill_events/app/blocs/sign_up_to_event/bloc.dart';
 import 'package:drill_events/app/data/data_repository.dart';
+import 'package:drill_events/common/cache/map_cache.dart';
 import 'package:drill_events/common/di/dependencies.dart';
+import 'package:drill_events/common/logger/default_logger.dart';
 import 'package:drill_events/common/network/api_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -29,11 +31,15 @@ Future<void> initializer({
 typedef Loader = Future<void> Function(Dependencies dependencies);
 
 Map<String, Loader> _dependenciesSteps = {
+  'utils': (dependencies) async {
+    dependencies.logger = DefaultLogger();
+    dependencies.fastCache = MapCache();
+  },
   'network': (dependencies) async {
     dependencies.httpApiClient = HttpApiClient(
       Dio(
         BaseOptions(
-          baseUrl: 'http://drillevents.drillcorp.ru:8333',
+          baseUrl: 'http://drillevents.drillcorp.ru:8000',
           connectTimeout: const Duration(seconds: 60),
           receiveTimeout: const Duration(seconds: 30),
           sendTimeout: const Duration(seconds: 30),
@@ -42,7 +48,7 @@ Map<String, Loader> _dependenciesSteps = {
     );
   },
   'data': (dependencies) async {
-    dependencies.repository = DataRepositoryImpl(dependencies.httpApiClient);
+    dependencies.repository = BackendDataRepository(dependencies.httpApiClient);
     dependencies.sharedPreferences = await SharedPreferences.getInstance();
   },
   'blocs': (dependencies) async {
@@ -51,6 +57,6 @@ Map<String, Loader> _dependenciesSteps = {
       repository: dependencies.repository,
       sharedPreferences: dependencies.sharedPreferences,
     );
-    dependencies.detailEventBloc = DetailEventBloc(repository: dependencies.repository);
+    dependencies.detailEventBloc = DetailEventBloc(dependencies.fastCache, dependencies.repository);
   },
 };

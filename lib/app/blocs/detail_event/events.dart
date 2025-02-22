@@ -1,9 +1,7 @@
-abstract class DetailEvents {
-  const DetailEvents();
-}
+abstract class DetailEvents {}
 
 final class FetchDetailEvent extends DetailEvents {
-  const FetchDetailEvent({required this.id});
+  FetchDetailEvent({required this.id});
 
   final String id;
 }

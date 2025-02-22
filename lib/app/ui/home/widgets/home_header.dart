@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:drill_events/app/blocs/events/bloc.dart';
 import 'package:drill_events/app/blocs/events/events.dart';
 import 'package:drill_events/app/ui/widgets/app_text_field.dart';
@@ -32,15 +31,21 @@ class HomeHeader extends StatelessWidget {
           const SizedBox(width: 20),
           ProfileProgressIndicator(
             onTap: () => Navigator.pushNamed(context, Routes.profile),
-            child: CachedNetworkImage(
-              imageUrl: '',
-              errorWidget:
-                  (_, __, ___) => Container(
-                    height: 38,
-                    width: 38,
-                    decoration: const BoxDecoration(color: Colors.orange, shape: BoxShape.circle),
-                  ),
+            child: const SizedBox(
+              height: 38,
+              width: 38,
+              child: DecoratedBox(decoration: BoxDecoration(color: Colors.orange, shape: BoxShape.circle)),
             ),
+            // TODO: вернуть, ошибка заебала просто))))
+            // CachedNetworkImage(
+            //   imageUrl: '',
+            //   errorWidget:
+            //       (_, __, ___) => const SizedBox(
+            //         height: 38,
+            //         width: 38,
+            //         child: DecoratedBox(decoration: BoxDecoration(color: Colors.orange, shape: BoxShape.circle)),
+            //       ),
+            // ),
           ),
         ],
       ),

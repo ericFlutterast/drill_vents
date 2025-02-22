@@ -29,12 +29,10 @@ class EventListItem extends StatelessWidget {
             CachedNetworkImage(
               imageUrl: '',
               errorWidget:
-                  (_, __, ___) => SizedBox(
+                  (_, __, ___) => Container(
                     height: 52,
                     width: 52,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(color: context.themes.main.colors.secondary, shape: BoxShape.circle),
-                    ),
+                    decoration: BoxDecoration(color: context.themes.main.colors.secondary, shape: BoxShape.circle),
                   ),
             ),
             const SizedBox(width: 12),

@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
+// TODO: JoinEventModal лучше
 class InviteRequestToEventModal extends StatefulWidget {
   const InviteRequestToEventModal({super.key, required this.conditionsForParticipation});
 
@@ -32,6 +33,7 @@ class _InviteRequestToEventModalState extends State<InviteRequestToEventModal> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    // Эта штука должна быть в блоке
     final email = DependenciesScope.of(context).dependencies.sharedPreferences.getString(SharedPrefKeys.email);
     _emailFormControl.value = email ?? '';
   }

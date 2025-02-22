@@ -7,6 +7,7 @@ final class DependenciesScope extends InheritedWidget {
 
   final Dependencies _dependencies;
 
+  // В чем смысл этого геттера?
   Dependencies get dependencies => _dependencies;
 
   static DependenciesScope? maybeOf(BuildContext context, [bool listen = false]) {

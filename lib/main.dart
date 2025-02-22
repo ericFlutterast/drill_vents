@@ -11,65 +11,68 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() => runZonedGuarded(
-  () async {
-    Bloc.observer = AppBlocObserver();
-    Bloc.transformer = bloc_concurrency.sequential();
+  () async => initializer(
+    onProgress: onProgress,
+    onError: onError,
+    onSuccess: (Dependencies dependencies) {
+      Bloc.observer = AppBlocObserver(dependencies.logger);
+      Bloc.transformer = bloc_concurrency.sequential();
 
-    await initializer(
-      onProgress: (progress, step) {
-        runApp(
-          MaterialApp(
-            debugShowCheckedModeBanner: false,
-            home: Scaffold(
-              backgroundColor: Colors.white,
-              body: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text('Загрузка...: $step'),
-                    const SizedBox(height: 10),
-                    LinearProgressIndicator(
-                      value: progress,
-                      backgroundColor: Colors.grey,
-                      color: Colors.black,
-                      borderRadius: const BorderRadius.all(Radius.circular(10)),
-                    ),
-                    const SizedBox(height: 10),
-                    Text('${(progress * 100).toStringAsFixed(1)}%'),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-      onError: (error, stackTrace) {
-        runApp(
-          MaterialApp(
-            debugShowCheckedModeBanner: false,
-            home: Scaffold(
-              body: Container(
-                color: Colors.red,
-                child: Center(
-                  child: Text(
-                    textAlign: TextAlign.center,
-                    'Возникла ошибка: $error, попробуйте перезагрузить приложение',
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-      onSuccess: (Dependencies dependencies) {
-        runApp(DependenciesScope(dependencies: dependencies, child: const App()));
-      },
-    );
-  },
+      runApp(DependenciesScope(dependencies: dependencies, child: const App()));
+    },
+  ),
   (error, stackTrace) {
+    // TODO: плохо, что у нас тут используется зависимость до того как она инициализирована
     Logger().log.e(error, error: error, stackTrace: stackTrace);
   },
 );
+
+void onProgress(double progress, String step) {
+  runApp(
+    MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        backgroundColor: Colors.white,
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text('Загрузка...: $step'),
+              const SizedBox(height: 10),
+              LinearProgressIndicator(
+                value: progress,
+                backgroundColor: Colors.grey,
+                color: Colors.black,
+                borderRadius: const BorderRadius.all(Radius.circular(10)),
+              ),
+              const SizedBox(height: 10),
+              Text('${(progress * 100).toStringAsFixed(1)}%'),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+void onError(Object error, StackTrace? stackTrace) {
+  runApp(
+    MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: Container(
+          color: Colors.red,
+          child: Center(
+            child: Text(
+              textAlign: TextAlign.center,
+              'Возникла ошибка: $error, попробуйте перезагрузить приложение',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}

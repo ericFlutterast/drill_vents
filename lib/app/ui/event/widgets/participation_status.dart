@@ -23,6 +23,7 @@ class ParticipationStatus extends StatelessWidget {
     final textStyles = context.themes.main.texts;
 
     final (textColor, icon) = switch (status) {
+      // Убери поля из енума и текст тут возвращай, когда интернационализацию подрубим все равно все текста в контексте будут
       ParticipationStatusEnum.processing => (colors.warning600, Assets.icons.processing.svg()),
       ParticipationStatusEnum.accepted => (colors.success600, Assets.icons.success.svg()),
       ParticipationStatusEnum.declined => (colors.error600, Assets.icons.error.svg()),

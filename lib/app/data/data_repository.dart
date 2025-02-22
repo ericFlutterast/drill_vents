@@ -1,9 +1,9 @@
-import 'package:drill_events/app/data/data_repository_interface.dart';
+import 'package:drill_events/common/ports/data_repository.dart';
 import 'package:drill_events/app/models/event_model.dart';
 import 'package:drill_events/common/network/api_client.dart';
 
-final class DataRepositoryImpl implements IDataRepository {
-  const DataRepositoryImpl(this._apiClient);
+final class BackendDataRepository implements DataRepository {
+  const BackendDataRepository(this._apiClient);
 
   final HttpApiClient _apiClient;
 
@@ -29,10 +29,10 @@ final class DataRepositoryImpl implements IDataRepository {
   }
 
   @override
-  Future<Object> getDetailEvent(String eventId) async {
+  Future<EventModel> getDetailEvent(String eventId) async {
+    await Future.delayed(const Duration(seconds: 2));
     final response = await _apiClient.request(RequestType.get(path: '/events/$eventId'));
-
-    return Object();
+    return EventModel.fromJson(response.data['event']);
   }
 
   @override

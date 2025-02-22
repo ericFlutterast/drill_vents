@@ -1,11 +1,12 @@
+import 'package:drill_events/app/blocs/detail_event/events.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:drill_events/app/ui/event/widgets/event_description_tile.dart';
-import 'package:drill_events/app/ui/event/widgets/participation_status.dart';
 import 'package:drill_events/app/ui/widgets/app_back_button.dart';
 import 'package:drill_events/app/ui/widgets/app_button.dart';
 import 'package:drill_events/app/ui/widgets/app_company_logo.dart';
 import 'package:drill_events/app/ui/widgets/interpunct.dart';
 import 'package:drill_events/common/navigation/modal_bottom_sheet.dart';
+import 'package:drill_events/common/utils/extensions.dart';
 import 'package:flutter/material.dart';
 
 import 'widgets/date_time_info.dart';
@@ -36,6 +37,13 @@ class _EventScreenState extends State<EventScreen> with SingleTickerProviderStat
     _scrollController.addListener(() {
       buttonVisibility(animationController: _animationController, scrollController: _scrollController);
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    context.deps.detailEventBloc.add(FetchDetailEvent(id: "0795727e-60d5-44bd-bf0e-17836dc1d5b6"));
   }
 
   @override
@@ -81,10 +89,10 @@ class _EventScreenState extends State<EventScreen> with SingleTickerProviderStat
                       const SizedBox(height: 7),
                       Text('The Future of Work. How technology is reshaping', style: context.themes.main.texts.h1),
 
-                      if (false) ...[
-                        const SizedBox(height: 18),
-                        const ParticipationStatus(status: ParticipationStatusEnum.declined),
-                      ],
+                      // if (false) ...[
+                      //   const SizedBox(height: 18),
+                      //   const ParticipationStatus(status: ParticipationStatusEnum.declined),
+                      // ],
                       const SizedBox(height: 38),
                       const DateTimeInfo(),
                       const SizedBox(height: 32),

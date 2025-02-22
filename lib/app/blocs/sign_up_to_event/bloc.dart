@@ -1,6 +1,6 @@
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
 import 'package:drill_events/app/blocs/sign_up_to_event/events.dart';
-import 'package:drill_events/app/data/data_repository_interface.dart';
+import 'package:drill_events/common/ports/data_repository.dart';
 import 'package:drill_events/common/logger/logger.dart';
 import 'package:drill_events/common/shared_preferences/shared_preferences_keys.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,14 +10,14 @@ typedef _State = CommonBlocState<String>;
 typedef Emit = Emitter<_State>;
 
 final class SignUpToEventBloc extends Bloc<SignUpToEvent, _State> {
-  SignUpToEventBloc({required IDataRepository repository, required SharedPreferences sharedPreferences})
+  SignUpToEventBloc({required DataRepository repository, required SharedPreferences sharedPreferences})
     : _repository = repository,
       _sharedPreferences = sharedPreferences,
       super(const CommonBlocState.init()) {
     on<SignUpEvent>(_fetchDetailEvent);
   }
 
-  final IDataRepository _repository;
+  final DataRepository _repository;
   final SharedPreferences _sharedPreferences;
 
   Future<void> _fetchDetailEvent(SignUpEvent event, Emit emit) async {

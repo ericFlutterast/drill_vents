@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class AppCompanyLogo extends StatelessWidget {
@@ -19,10 +18,11 @@ class AppCompanyLogo extends StatelessWidget {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(100),
           clipBehavior: Clip.hardEdge,
-          child: CachedNetworkImage(
-            imageUrl: url ?? '',
-            errorWidget: (_, __, ___) => Image.asset('assets/images/image.png'),
-          ),
+          child: Image.asset('assets/images/image.png'),
+          // CachedNetworkImage(
+          //   imageUrl: url ?? '',
+          //   errorWidget: (_, __, ___) => Image.asset('assets/images/image.png'),
+          // ),
         ),
       ),
     );
