@@ -6,14 +6,19 @@ import 'package:flutter/material.dart';
 const _items = ['Завтра', 'Surf x Post', 'English club'];
 
 class EventListItem extends StatelessWidget {
-  const EventListItem({super.key, required this.title, this.imgUrl, this.onTap});
+  const EventListItem({super.key, required this.title, this.imgUrl, this.onTap}) : _showSimmer = false;
+
+  const EventListItem.shimmer({super.key}) : _showSimmer = true, onTap = null, imgUrl = null, title = '';
 
   final String title;
   final String? imgUrl;
   final VoidCallback? onTap;
+  final bool _showSimmer;
 
   @override
   Widget build(BuildContext context) {
+    if (_showSimmer) return const _EventItemShimmer();
+
     return GestureDetector(
       onTap: onTap,
       child: Padding(
@@ -24,10 +29,12 @@ class EventListItem extends StatelessWidget {
             CachedNetworkImage(
               imageUrl: '',
               errorWidget:
-                  (_, __, ___) => Container(
+                  (_, __, ___) => SizedBox(
                     height: 52,
                     width: 52,
-                    decoration: BoxDecoration(color: context.themes.main.colors.secondary, shape: BoxShape.circle),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(color: context.themes.main.colors.secondary, shape: BoxShape.circle),
+                    ),
                   ),
             ),
             const SizedBox(width: 12),
@@ -64,6 +71,58 @@ class EventListItem extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _EventItemShimmer extends StatelessWidget {
+  const _EventItemShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        children: [
+          SizedBox(
+            height: 52,
+            width: 52,
+            child: DecoratedBox(
+              decoration: BoxDecoration(color: context.themes.main.colors.background, shape: BoxShape.circle),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: 23,
+                  width: MediaQuery.sizeOf(context).width,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: context.themes.main.colors.background,
+                      borderRadius: const BorderRadius.all(Radius.circular(6)),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                SizedBox(
+                  height: 23,
+                  width: MediaQuery.sizeOf(context).width * 0.3,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: context.themes.main.colors.background,
+                      borderRadius: const BorderRadius.all(Radius.circular(6)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 40),
+        ],
       ),
     );
   }
