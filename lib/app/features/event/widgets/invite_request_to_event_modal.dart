@@ -6,7 +6,6 @@ import 'package:drill_events/app/features/widgets/app_button.dart';
 import 'package:drill_events/app/features/widgets/app_text_field.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:drill_events/common/di/dependencies_scope.dart';
-import 'package:drill_events/common/shared_preferences/shared_preferences_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:reactive_forms/reactive_forms.dart';
@@ -29,14 +28,6 @@ class JoinEventModal extends StatefulWidget {
 
 class _InviteRequestToEventModalState extends State<JoinEventModal> {
   late final _emailFormControl = FormControl<String>(validators: [Validators.email], value: '');
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    //TODO: Эта штука должна быть в блоке
-    final email = DependenciesScope.of(context).dependencies.sharedPreferences.getString(SharedPrefKeys.email);
-    _emailFormControl.value = email ?? '';
-  }
 
   @override
   Widget build(BuildContext context) {

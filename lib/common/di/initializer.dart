@@ -59,7 +59,6 @@ Map<String, Loader> _dependenciesSteps = {
     dependencies.eventsBloc = EventsBloc(dependencies.repository, dependencies.logger);
     dependencies.signUpToEventBloc = SignUpToEventBloc(
       repository: dependencies.repository,
-      sharedPreferences: dependencies.sharedPreferences,
       logger: dependencies.logger,
     );
     dependencies.detailEventBloc = DetailEventBloc(
