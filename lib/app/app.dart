@@ -1,5 +1,6 @@
 import 'package:drill_events/app/blocs/events/bloc.dart';
 import 'package:drill_events/app/blocs/events/events.dart';
+import 'package:drill_events/app/features/auth/auth_provider.dart';
 import 'package:drill_events/app/features/event/event_screen.dart';
 import 'package:drill_events/app/features/home/home_screen.dart';
 import 'package:drill_events/app/features/profile/profile_screen.dart';
@@ -24,9 +25,7 @@ class App extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         initialRoute: Routes.home,
-        builder: (context, widget) {
-          return NotificationManager(child: widget!);
-        },
+        builder: (context, widget) => NotificationManager(child: AuthProvider(child: widget!)),
         routes: {
           Routes.home:
               (context) => BlocProvider<EventsBloc>(

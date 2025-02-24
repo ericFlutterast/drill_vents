@@ -1,4 +1,5 @@
-import 'package:drill_events/app/models/event_model.dart';
+import 'package:drill_events/app/models/event.dart';
+import 'package:drill_events/app/models/user.dart';
 
 abstract interface class DataRepository {
   //Events
@@ -10,7 +11,7 @@ abstract interface class DataRepository {
 
   //User
   Future<void> createUser({required String email, required String password});
-  Future<Object> fetchUserInfo();
+  Future<UserModel> fetchUserInfo(String token);
   Future<void> updateUserInfo(); //TODO: передавать модель с данными в параметрах
 
   //Spots
@@ -21,4 +22,8 @@ abstract interface class DataRepository {
   Future<Object> fetchOrganizationInfo(String organizationId);
   Future<Object> fetchOrganizationSpots(String organizationId);
   Future<Object> fetchOrganizationEvents(String organizationId);
+
+  //Auth
+  Future<String> getJwtToken();
+  Future<void> refreshJwt();
 }

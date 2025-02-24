@@ -1,6 +1,6 @@
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
 import 'package:drill_events/app/blocs/detail_event/events.dart';
-import 'package:drill_events/app/models/event_model.dart';
+import 'package:drill_events/app/models/event.dart';
 import 'package:drill_events/common/ports/data_repository.dart';
 import 'package:drill_events/common/ports/fast_cache.dart';
 import 'package:drill_events/common/ports/logger.dart';

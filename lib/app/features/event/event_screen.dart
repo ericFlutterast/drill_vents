@@ -132,8 +132,8 @@ class _EventScreenState extends State<EventScreen> with SingleTickerProviderStat
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: AppButton(
                     title: 'Записаться',
-                    onTap: () async {
-                      final result = await Navigator.push<bool?>(
+                    onTap: () {
+                      Navigator.push<bool?>(
                         context,
                         AppModalBottomSheetPage<bool>(
                           useSafeArea: true,
@@ -148,14 +148,6 @@ class _EventScreenState extends State<EventScreen> with SingleTickerProviderStat
                           ),
                         ).createRoute(context),
                       );
-
-                      if (result == true) {
-                        _scrollController.animateTo(
-                          0.0,
-                          duration: const Duration(milliseconds: 400),
-                          curve: Curves.easeIn,
-                        );
-                      }
                     },
                   ),
                 ),

@@ -6,7 +6,7 @@ import 'package:drill_events/app/features/widgets/animated_refresh.dart';
 import 'package:drill_events/app/features/widgets/app_text_field.dart';
 import 'package:drill_events/app/features/widgets/circle_avata_decoration.dart';
 import 'package:drill_events/app/features/widgets/event_list_item.dart';
-import 'package:drill_events/app/models/event_model.dart';
+import 'package:drill_events/app/models/event.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:drill_events/common/navigation/routes.dart';
 import 'package:flutter/cupertino.dart';

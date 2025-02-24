@@ -1,4 +1,5 @@
-import 'package:drill_events/app/models/event_model.dart';
+import 'package:drill_events/app/models/event.dart';
+import 'package:drill_events/app/models/user.dart';
 import 'package:drill_events/common/network/http_api_client.dart';
 import 'package:drill_events/common/ports/data_repository.dart';
 
@@ -52,8 +53,21 @@ final class BackendDataRepository implements DataRepository {
   }
 
   @override
-  Future<Object> fetchUserInfo() {
-    throw UnimplementedError();
+  Future<UserModel> fetchUserInfo(String token) async {
+    await Future.delayed(const Duration(seconds: 2));
+    //final result = await _apiClient.get('/user');
+    //final data = result.data;
+    return const UserModel(
+      userId: 'fake_id',
+      name: 'Drill Master',
+      phone: '+7 888 333 11 22',
+      telegram: '@drillGuyy',
+      email: '09erik07@gmail.com',
+      imgUrl: '',
+      instagram: '',
+      vk: '',
+      whatsApp: '',
+    );
   }
 
   //Org
@@ -80,6 +94,18 @@ final class BackendDataRepository implements DataRepository {
 
   @override
   Future<Object> fetchSpotEvents(String spotId) {
+    throw UnimplementedError();
+  }
+
+  //Auth
+  @override
+  Future<String> getJwtToken() async {
+    await Future.delayed(const Duration(seconds: 2));
+    return 'drill_wt';
+  }
+
+  @override
+  Future<void> refreshJwt() async {
     throw UnimplementedError();
   }
 }

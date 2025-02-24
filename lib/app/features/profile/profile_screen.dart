@@ -1,10 +1,14 @@
+import 'package:drill_events/app/blocs/auth/bloc.dart';
+import 'package:drill_events/app/blocs/common_bloc_state.dart';
 import 'package:drill_events/app/features/widgets/app_back_button.dart';
 import 'package:drill_events/app/features/widgets/app_icon_button.dart';
 import 'package:drill_events/app/features/widgets/circle_avata_decoration.dart';
 import 'package:drill_events/app/features/widgets/event_list_item.dart';
+import 'package:drill_events/app/models/user.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -129,22 +133,33 @@ class _UserInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     final textStyles = context.themes.main.texts;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text('Anatoly', style: textStyles.h3),
-        const SizedBox(height: 5),
-        Text('anatoly_washer@gmail.com', style: textStyles.bodySmall),
-        const SizedBox(height: 5),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SvgPicture.asset('assets/icons/telegram.svg'),
-            const SizedBox(width: 8),
-            Text('t.me/@vladimirshmondenko', style: textStyles.bodySmall),
-          ],
-        ),
-      ],
+    return BlocBuilder<AuthBloc, CommonBlocState<UserModel>>(
+      builder: (BuildContext context, state) {
+        if (state.isDone && state.hasValue) {
+          final user = state.value;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(user.name, style: textStyles.h3),
+              const SizedBox(height: 5),
+              Text(user.phone, style: textStyles.bodySmall),
+              const SizedBox(height: 5),
+              Text(user.email, style: textStyles.bodySmall),
+              const SizedBox(height: 5),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SvgPicture.asset('assets/icons/telegram.svg'),
+                  const SizedBox(width: 8),
+                  Text('t.me/${user.telegram}', style: textStyles.bodySmall),
+                ],
+              ),
+            ],
+          );
+        }
+        return const Center(child: CircularProgressIndicator.adaptive());
+      },
     );
   }
 }

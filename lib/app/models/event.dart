@@ -1,8 +1,8 @@
-import 'package:drill_events/app/models/organization_model.dart';
+import 'package:drill_events/app/models/organization.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-part 'event_model.g.dart';
+part 'event.g.dart';
 
 @JsonSerializable(fieldRename: FieldRename.snake)
 final class EventModel extends Equatable {

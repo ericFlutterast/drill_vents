@@ -1,7 +1,7 @@
 import 'package:bloc_concurrency/bloc_concurrency.dart' as bloc_concurrency;
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
 import 'package:drill_events/app/blocs/events/events.dart';
-import 'package:drill_events/app/models/event_model.dart';
+import 'package:drill_events/app/models/event.dart';
 import 'package:drill_events/common/ports/data_repository.dart';
 import 'package:drill_events/common/ports/logger.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
