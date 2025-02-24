@@ -3,7 +3,7 @@ import 'package:drill_events/app/blocs/auth/bloc.dart';
 import 'package:drill_events/app/blocs/detail_event/bloc.dart';
 import 'package:drill_events/app/blocs/events/bloc.dart';
 import 'package:drill_events/app/blocs/sign_up_to_event/bloc.dart';
-import 'package:drill_events/app/data/data_repository.dart';
+import 'package:drill_events/app/data/backend_data_repository.dart';
 import 'package:drill_events/common/cache/map_cache.dart';
 import 'package:drill_events/common/di/dependencies.dart';
 import 'package:drill_events/common/logger/default_logger.dart';
