@@ -22,7 +22,7 @@ class AppBottomSheet extends StatelessWidget {
               decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(6)), color: Color(0xFFEDEDED)),
             ),
           ),
-          const SizedBox(height: 10),
+
           if (child != null) Flexible(child: child!),
         ],
       ),

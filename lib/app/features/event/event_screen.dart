@@ -1,7 +1,9 @@
+import 'package:drill_events/app/blocs/auth/bloc.dart';
 import 'package:drill_events/app/blocs/detail_event/bloc.dart';
 import 'package:drill_events/app/blocs/detail_event/events.dart';
+import 'package:drill_events/app/features/event/widgets/creating_entry_for_event_modal.dart';
 import 'package:drill_events/app/features/event/widgets/event_description_tile.dart';
-import 'package:drill_events/app/features/event/widgets/invite_request_to_event_modal.dart';
+import 'package:drill_events/app/features/event/widgets/join_event_modal.dart';
 import 'package:drill_events/app/features/widgets/app_back_button.dart';
 import 'package:drill_events/app/features/widgets/app_button.dart';
 import 'package:drill_events/app/features/widgets/app_company_logo.dart';
@@ -132,22 +134,35 @@ class _EventScreenState extends State<EventScreen> with SingleTickerProviderStat
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: AppButton(
                     title: 'Записаться',
-                    onTap: () {
-                      Navigator.push<bool?>(
-                        context,
-                        AppModalBottomSheetPage<bool>(
-                          useSafeArea: true,
-                          child: JoinEventModal.bloc(
-                            context,
-                            conditionsForParticipation: [
-                              'Уровень английского B1 и выше',
-                              'Уровень китайского 99 и выше',
-                              'Японское гражданство',
-                              'Звание глобала и 8к ммр в доте',
-                            ],
-                          ),
-                        ).createRoute(context),
-                      );
+                    onTap: () async {
+                      final hasUser = context.read<AuthBloc>().state.hasValue;
+                      if (!hasUser) {
+                        final result = await Navigator.push<List<String>>(
+                          context,
+                          AppModalBottomSheetPage<List<String>>(
+                            useSafeArea: true,
+                            child: JoinEventModal.bloc(
+                              context,
+                              conditionsForParticipation: [
+                                'Уровень английского B1 и выше',
+                                'Уровень китайского 99 и выше',
+                                'Японское гражданство',
+                                'Звание глобала и 8к ммр в доте',
+                              ],
+                            ),
+                          ).createRoute(context),
+                        );
+
+                        if (result case [String email, String password]) {
+                          print('$email $password');
+                          if (context.mounted) {
+                            Navigator.push(
+                              context,
+                              const AppModalBottomSheetPage(child: CreatingEntryForEventModal()).createRoute(context),
+                            );
+                          }
+                        }
+                      }
                     },
                   ),
                 ),

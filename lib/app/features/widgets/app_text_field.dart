@@ -20,6 +20,8 @@ class AppTextField extends StatelessWidget {
     this.controller,
     this.formControl,
     this.keyboardType,
+    this.obscureText = false,
+    this.obscuringCharacter = '*',
     this.useReactiveForm = false,
   });
 
@@ -39,6 +41,8 @@ class AppTextField extends StatelessWidget {
   final Function(String, Map<String, dynamic>)? onAppPrivateCommand;
   final Function(PointerUpEvent)? onTapUpOutside;
   final bool useReactiveForm;
+  final bool obscureText;
+  final String obscuringCharacter;
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +54,8 @@ class AppTextField extends StatelessWidget {
         onTapOutside: onTapOutside,
         onAppPrivateCommand: onAppPrivateCommand,
         keyboardType: keyboardType,
+        obscureText: obscureText,
+        obscuringCharacter: obscuringCharacter,
 
         decoration:
             decoration ??
@@ -81,6 +87,8 @@ class AppTextField extends StatelessWidget {
       onSubmitted: onSubmitted,
       onTapUpOutside: onTapUpOutside,
       keyboardType: keyboardType,
+      obscureText: obscureText,
+      obscuringCharacter: obscuringCharacter,
 
       decoration:
           decoration ??
