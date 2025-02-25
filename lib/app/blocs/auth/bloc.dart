@@ -23,16 +23,21 @@ final class AuthBloc extends Bloc<AuthEvents, _State> {
     try {
       emit(state.pending());
       String? currentToken = await _secureStorage.read(key: SecureStorageKeys.jwt);
-      if (currentToken == null) {
+      //currentToken == null
+      if (true) {
         currentToken = await _repository.getJwtToken();
         await _secureStorage.write(key: SecureStorageKeys.jwt, value: currentToken);
       }
 
-      final user = await _getUser(currentToken);
-      emit(state.done(user));
+      if (currentToken case String token) {
+        final user = await _getUser(token);
+        emit(state.done(user));
+      }
     } catch (error, stackTrace) {
       emit(state.error(error));
       _logger.error(error, error: error, stackTrace: stackTrace);
+    } finally {
+      emit(state.idle());
     }
   }
 

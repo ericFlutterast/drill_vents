@@ -10,7 +10,7 @@ abstract interface class DataRepository {
   Future<EventModel> getDetailEvent(String eventId);
 
   //User
-  Future<void> createUser({required String email, required String password});
+  Future<String> createUser({required String email, required String password});
   Future<UserModel> fetchUserInfo(String token);
   Future<void> updateUserInfo(); //TODO: передавать модель с данными в параметрах
 
@@ -24,6 +24,6 @@ abstract interface class DataRepository {
   Future<Object> fetchOrganizationEvents(String organizationId);
 
   //Auth
-  Future<String> getJwtToken();
+  Future<String?> getJwtToken();
   Future<void> refreshJwt();
 }

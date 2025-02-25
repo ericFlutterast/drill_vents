@@ -43,8 +43,14 @@ final class BackendDataRepository implements DataRepository {
 
   //User
   @override
-  Future<void> createUser({required String email, required String password}) {
-    throw UnimplementedError();
+  Future<String> createUser({required String email, required String password}) async {
+    final body = {'email': email, 'password': password};
+    final response = await _apiClient.post('/users', data: body);
+    var userId = '';
+    if (response.data case {'user_id': String id}) {
+      userId = id;
+    }
+    return userId;
   }
 
   @override
@@ -54,7 +60,7 @@ final class BackendDataRepository implements DataRepository {
 
   @override
   Future<UserModel> fetchUserInfo(String token) async {
-    await Future.delayed(const Duration(seconds: 2));
+    //await Future.delayed(const Duration(seconds: 2));
     //final result = await _apiClient.get('/user');
     //final data = result.data;
     return const UserModel(
@@ -99,9 +105,9 @@ final class BackendDataRepository implements DataRepository {
 
   //Auth
   @override
-  Future<String> getJwtToken() async {
+  Future<String?> getJwtToken() async {
     await Future.delayed(const Duration(seconds: 2));
-    return 'drill_wt';
+    return null;
   }
 
   @override
