@@ -10,5 +10,5 @@ final class AppThemes {
 }
 
 extension MainThemeExtension on BuildContext {
-  AppThemes get themes => AppThemes(main: MainTheme());
+  AppThemes get themes => const AppThemes(main: MainTheme());
 }

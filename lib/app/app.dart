@@ -1,17 +1,41 @@
-import 'package:drill_events/app/ui/screens/home_screen.dart';
-import 'package:drill_events/app/ui/screens/profile_screen.dart';
+import 'package:drill_events/app/blocs/events/bloc.dart';
+import 'package:drill_events/app/blocs/events/events.dart';
+import 'package:drill_events/app/features/auth/auth_provider.dart';
+import 'package:drill_events/app/features/event/event_screen.dart';
+import 'package:drill_events/app/features/home/home_screen.dart';
+import 'package:drill_events/app/features/profile/profile_screen.dart';
+import 'package:drill_events/app/features/widgets/notification_manager.dart';
 import 'package:drill_events/common/navigation/routes.dart';
+import 'package:drill_events/common/utils/extensions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:reactive_forms/reactive_forms.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      initialRoute: Routes().home,
-      routes: {Routes().home: (context) => HomeScreen(), Routes().profile: (context) => ProfileScreen()},
+    return ReactiveFormConfig(
+      validationMessages: {
+        ValidationMessage.email: (_) => 'Неверный email',
+        ValidationMessage.required: (_) => 'Обязательное поле',
+        ValidationMessage.number: (_) => 'Необходимо ввести число',
+      },
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        initialRoute: Routes.home,
+        builder: (context, widget) => AuthProvider(child: NotificationManager(child: widget!)),
+        routes: {
+          Routes.home:
+              (context) => BlocProvider<EventsBloc>(
+                create: (_) => context.dependencies.eventsBloc..add(FetchEventsFeed()),
+                child: const HomeScreen(),
+              ),
+          Routes.profile: (context) => const ProfileScreen(),
+          Routes.event: (context) => EventScreen.bloc(context),
+        },
+      ),
     );
   }
 }
