@@ -25,7 +25,7 @@ class App extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         initialRoute: Routes.home,
-        builder: (context, widget) => NotificationManager(child: AuthProvider(child: widget!)),
+        builder: (context, widget) => AuthProvider(child: NotificationManager(child: widget!)),
         routes: {
           Routes.home:
               (context) => BlocProvider<EventsBloc>(

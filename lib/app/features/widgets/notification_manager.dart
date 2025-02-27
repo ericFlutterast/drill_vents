@@ -1,6 +1,10 @@
 import 'dart:async';
 
+import 'package:drill_events/app/blocs/auth/bloc.dart';
+import 'package:drill_events/app/blocs/auth/events.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NotificationManager extends StatefulWidget {
   const NotificationManager({super.key, required this.child});
@@ -35,6 +39,9 @@ class NotificationManagerState extends State<NotificationManager> with SingleTic
   Widget? _notification;
 
   late final AnimationController _animationController;
+
+  //TODO:
+  bool useColor = false;
 
   @override
   void initState() {
@@ -83,6 +90,7 @@ class NotificationManagerState extends State<NotificationManager> with SingleTic
               top: MediaQuery.sizeOf(context).height * 0.05,
               left: 0,
               right: 0,
+              height: 63,
               child: SlideTransition(
                 position: Tween<Offset>(begin: const Offset(0, -50), end: Offset.zero).animate(_animationController),
                 child: Dismissible(
@@ -96,6 +104,26 @@ class NotificationManagerState extends State<NotificationManager> with SingleTic
                 ),
               ),
             ),
+          //TODO: убрать когда будет готова авторизация
+          Positioned(
+            right: 10,
+            bottom: 50,
+            child: ElevatedButton(
+              style: ButtonStyle(backgroundColor: useColor ? WidgetStateProperty.all(Colors.green) : null),
+              onPressed: () async {
+                final shared = await SharedPreferences.getInstance();
+                if (shared.getString('uid') != null) {
+                  shared.remove('uid');
+                  setState(() => useColor = false);
+                } else {
+                  shared.setString('uid', '972d4ea4-93f2-48ec-b121-9306d56e4aca');
+                  setState(() => useColor = true);
+                  context.read<AuthBloc>().add(GetJwtTokenEvent());
+                }
+              },
+              child: const Text('Use user'),
+            ),
+          ),
         ],
       ),
     );

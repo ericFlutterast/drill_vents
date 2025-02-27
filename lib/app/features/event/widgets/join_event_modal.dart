@@ -2,22 +2,13 @@ import 'package:drill_events/app/features/event/widgets/event_description_tile.d
 import 'package:drill_events/app/features/widgets/app_button.dart';
 import 'package:drill_events/app/features/widgets/app_text_field.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
-import 'package:drill_events/common/di/dependencies_scope.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
 class JoinEventModal extends StatefulWidget {
   const JoinEventModal({super.key, required this.conditionsForParticipation});
 
   final Iterable<String> conditionsForParticipation;
-
-  static Widget bloc(BuildContext context, {required Iterable<String> conditionsForParticipation}) {
-    return BlocProvider(
-      create: (_) => DependenciesScope.of(context).dependencies.registrationBloc,
-      child: JoinEventModal(conditionsForParticipation: conditionsForParticipation),
-    );
-  }
 
   @override
   State<JoinEventModal> createState() => _InviteRequestToEventModalState();

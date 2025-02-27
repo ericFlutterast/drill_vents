@@ -25,6 +25,7 @@ class AppModalBottomSheetPage<T> extends Page<T> {
     this.sheetAnimationStyle,
     this.showDragHandle,
     this.transitionAnimationController,
+    super.name,
   });
 
   final Widget child;

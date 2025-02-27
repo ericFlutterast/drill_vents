@@ -5,13 +5,13 @@ abstract interface class DataRepository {
   //Events
   Future<Iterable<EventModel>> fetchEvents();
   Future<Iterable<EventModel>> searchEvents(String value);
-  Future<void> signUpToEvent(String email);
+  Future<String> signUpToEvent(String email);
   //TODO
   Future<EventModel> getDetailEvent(String eventId);
 
   //User
   Future<String> createUser({required String email, required String password});
-  Future<UserModel> fetchUserInfo(String token);
+  Future<UserModel> fetchUserInfo(String uid);
   Future<void> updateUserInfo(); //TODO: передавать модель с данными в параметрах
 
   //Spots

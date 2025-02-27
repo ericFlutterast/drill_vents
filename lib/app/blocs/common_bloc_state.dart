@@ -16,7 +16,7 @@ class CommonBlocState<T> extends Equatable {
 
   T get value => _value!;
   T? get getValueOrNull => _value;
-  Object get errorMessage => _error!;
+  Object get errorMessage => _error ?? 'Ошибка';
   Object? get errorMessageOrNull => _error;
   StateStatus get status => _status;
 
@@ -30,7 +30,7 @@ class CommonBlocState<T> extends Equatable {
   bool get isError => status == StateStatus.error;
   bool get isDone => status == StateStatus.done;
 
-  CommonBlocState<T> idle() => CommonBlocState<T>(status: StateStatus.idle);
+  CommonBlocState<T> idle({T? value}) => CommonBlocState<T>(status: StateStatus.idle, value: value);
   CommonBlocState<T> pending() => CommonBlocState<T>(status: StateStatus.loading);
   CommonBlocState<T> refreshing() => CommonBlocState<T>(status: StateStatus.refreshing);
   CommonBlocState<T> pagination() => CommonBlocState<T>(status: StateStatus.pagination);

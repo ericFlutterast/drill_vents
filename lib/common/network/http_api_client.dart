@@ -7,8 +7,8 @@ final class HttpApiClient implements RestClient {
   final Dio _dio;
 
   @override
-  Future<HttpResponse> get<T>(String path, {Map<String, dynamic>? queryParameters}) async {
-    final response = await _dio.get<T>(path, queryParameters: queryParameters);
+  Future<HttpResponse> get<T>(String path, {Map<String, dynamic>? queryParameters, Object? data}) async {
+    final response = await _dio.get<T>(path, queryParameters: queryParameters, data: data);
     return HttpResponse(response.data, statusCode: response.statusCode, statusMessage: response.statusMessage);
   }
 

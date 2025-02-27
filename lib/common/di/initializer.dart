@@ -5,6 +5,7 @@ import 'package:drill_events/app/blocs/events/bloc.dart';
 import 'package:drill_events/app/blocs/registration/bloc.dart';
 import 'package:drill_events/app/blocs/sign_up_to_event/bloc.dart';
 import 'package:drill_events/app/data/backend_data_repository.dart';
+import 'package:drill_events/common/adapters/events_pipe/events_pipe.dart';
 import 'package:drill_events/common/cache/map_cache.dart';
 import 'package:drill_events/common/di/dependencies.dart';
 import 'package:drill_events/common/logger/default_logger.dart';
@@ -37,6 +38,7 @@ Map<String, Loader> _dependenciesSteps = {
   'utils': (dependencies) async {
     dependencies.logger = DefaultLogger();
     dependencies.fastCache = MapCache();
+    dependencies.pipe = EventsPipe();
   },
   'network': (dependencies) async {
     dependencies.httpApiClient = HttpApiClient(
@@ -56,17 +58,27 @@ Map<String, Loader> _dependenciesSteps = {
     dependencies.sharedPreferences = await SharedPreferences.getInstance();
   },
   'blocs': (dependencies) async {
-    dependencies.authBloc = AuthBloc(dependencies.repository, dependencies.secureStorage, dependencies.logger);
+    dependencies.authBloc = AuthBloc(
+      dependencies.repository,
+      dependencies.secureStorage,
+      dependencies.logger,
+      dependencies.pipe,
+    );
     dependencies.eventsBloc = EventsBloc(dependencies.repository, dependencies.logger);
     dependencies.signUpToEventBloc = SignUpToEventBloc(
       repository: dependencies.repository,
       logger: dependencies.logger,
+      pipe: dependencies.pipe,
     );
     dependencies.detailEventBloc = DetailEventBloc(
       dependencies.fastCache,
       dependencies.repository,
       dependencies.logger,
     );
-    dependencies.registrationBloc = RegistrationBloc(repository: dependencies.repository, logger: dependencies.logger);
+    dependencies.registrationBloc = RegistrationBloc(
+      repository: dependencies.repository,
+      logger: dependencies.logger,
+      pipe: dependencies.pipe,
+    );
   },
 };

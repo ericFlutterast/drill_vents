@@ -141,9 +141,9 @@ class _UserInfo extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(user.name, style: textStyles.h3),
+              Text(user.info.name, style: textStyles.h3),
               const SizedBox(height: 5),
-              Text(user.phone, style: textStyles.bodySmall),
+              Text(user.info.phone, style: textStyles.bodySmall),
               const SizedBox(height: 5),
               Text(user.email, style: textStyles.bodySmall),
               const SizedBox(height: 5),
@@ -152,7 +152,7 @@ class _UserInfo extends StatelessWidget {
                 children: [
                   SvgPicture.asset('assets/icons/telegram.svg'),
                   const SizedBox(width: 8),
-                  Text('t.me/${user.telegram}', style: textStyles.bodySmall),
+                  Text('t.me/${user.info.telegram}', style: textStyles.bodySmall),
                 ],
               ),
             ],

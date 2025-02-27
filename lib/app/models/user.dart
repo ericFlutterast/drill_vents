@@ -1,56 +1,27 @@
+import 'package:drill_events/app/models/user_info.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'user.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(createToJson: false)
 final class UserModel extends Equatable {
-  const UserModel({
-    required this.userId,
-    required this.imgUrl,
-    required this.phone,
-    required this.name,
-    required this.instagram,
-    required this.telegram,
-    required this.vk,
-    required this.whatsApp,
-    required this.email,
-  });
+  const UserModel({required this.userId, required this.email, required this.info});
 
   factory UserModel.empty() => const UserModel(
     userId: '',
-    imgUrl: '',
-    phone: '',
-    name: '',
-    instagram: '',
-    telegram: '',
-    vk: '',
-    whatsApp: '',
     email: '',
+    info: UserInfo(phone: '', imgUrl: '', name: '', instagram: '', telegram: '', vk: '', whatsApp: ''),
   );
 
   factory UserModel.fromJson(Map<String, dynamic> json) => _$UserModelFromJson(json);
 
+  @JsonKey(name: 'id')
   final String userId;
-  @JsonKey(defaultValue: '', name: 'user_id')
-  final String name;
-  @JsonKey(defaultValue: '', name: 'img_name')
-  final String imgUrl;
   @JsonKey(defaultValue: '')
   final String email;
-  @JsonKey(defaultValue: '')
-  final String phone;
-  @JsonKey(defaultValue: '')
-  final String telegram;
-  @JsonKey(defaultValue: '')
-  final String whatsApp;
-  @JsonKey(defaultValue: '')
-  final String instagram;
-  @JsonKey(defaultValue: '')
-  final String vk;
+  final UserInfo info;
 
   @override
-  List<Object?> get props => [userId, imgUrl, phone, name, instagram, telegram, vk, whatsApp, email];
-
-  Map<String, dynamic> toJson() => _$UserModelToJson(this);
+  List<Object?> get props => [userId, email, info];
 }

@@ -12,20 +12,15 @@ final class BackendDataRepository implements DataRepository {
   @override
   Future<Iterable<EventModel>> fetchEvents() async {
     final response = await _apiClient.get('/events/feed');
-
     final data = response.data['events'];
-
     return (data as List).map((item) => EventModel.fromJson(item));
   }
 
   @override
   Future<Iterable<EventModel>> searchEvents(String value) async {
     final queryParameters = {'search': value};
-
     final response = await _apiClient.get('/events', queryParameters: queryParameters);
-
     final data = response.data['events'];
-
     return (data as List).map((item) => EventModel.fromJson(item));
   }
 
@@ -37,8 +32,10 @@ final class BackendDataRepository implements DataRepository {
   }
 
   @override
-  Future<void> signUpToEvent(String email) async {
-    await Future.delayed(const Duration(seconds: 2));
+  Future<String> signUpToEvent(String email) async {
+    //TODO:
+    await Future.delayed(const Duration(seconds: 5));
+    return 'success';
   }
 
   //User
@@ -59,21 +56,10 @@ final class BackendDataRepository implements DataRepository {
   }
 
   @override
-  Future<UserModel> fetchUserInfo(String token) async {
-    //await Future.delayed(const Duration(seconds: 2));
-    //final result = await _apiClient.get('/user');
-    //final data = result.data;
-    return const UserModel(
-      userId: 'fake_id',
-      name: 'Drill Master',
-      phone: '+7 888 333 11 22',
-      telegram: '@drillGuyy',
-      email: '09erik07@gmail.com',
-      imgUrl: '',
-      instagram: '',
-      vk: '',
-      whatsApp: '',
-    );
+  Future<UserModel> fetchUserInfo(String uid) async {
+    final result = await _apiClient.get('/users/$uid');
+    final data = result.data['user'] as Map<String, dynamic>;
+    return UserModel.fromJson(data);
   }
 
   //Org
