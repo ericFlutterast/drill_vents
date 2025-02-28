@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
+import 'package:drill_events/app/models/event.dart';
 import 'package:drill_events/app/models/spot.dart';
 import 'package:drill_events/common/ports/data_repository.dart';
 import 'package:drill_events/common/ports/logger.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 typedef DetailSpotBlocState = CommonBlocState<SpotModel>;
@@ -31,8 +31,10 @@ class DetailSpotBloc extends Bloc<DetailSpotEvent, DetailSpotBlocState> {
     try {
       emit(state.pending());
 
-      SpotModel spot = await repository.getSpot(event.spotID);
-      final events = await repository.getSpotEvents(event.spotID);
+      final results = await Future.wait([repository.getSpot(event.spotID), repository.getSpotEvents(event.spotID)]);
+
+      SpotModel spot = results[0] as SpotModel;
+      final events = results[1] as List<EventModel>;
 
       spot = spot.copyWith(events: events);
 

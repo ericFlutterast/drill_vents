@@ -1,3 +1,4 @@
+import 'package:drill_events/app/features/widgets/shimmer.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:drill_events/app/themes/colors_theme.dart';
 import 'package:flutter/material.dart';
@@ -120,4 +121,6 @@ class AppButton extends StatelessWidget {
       ),
     );
   }
+
+  static Widget shimmer() => const Shimmer(height: 50, width: double.infinity, borderRadius: 50);
 }

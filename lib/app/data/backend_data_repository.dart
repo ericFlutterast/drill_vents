@@ -1,4 +1,5 @@
 import 'package:drill_events/app/models/event.dart';
+import 'package:drill_events/app/models/org.dart';
 import 'package:drill_events/app/models/spot.dart';
 import 'package:drill_events/app/models/user.dart';
 import 'package:drill_events/common/network/http_api_client.dart';
@@ -65,18 +66,24 @@ final class BackendDataRepository implements DataRepository {
 
   //Org
   @override
-  Future<Object> fetchOrganizationEvents(String organizationId) {
-    throw UnimplementedError();
+  Future<OrgModel> getOrg(String orgId) async {
+    final response = await _apiClient.get('/orgs/$orgId');
+    final rawSpot = response.data['org'] as Map<String, dynamic>;
+    return OrgModel.fromJson(rawSpot);
   }
 
   @override
-  Future<Object> fetchOrganizationInfo(String organizationId) {
-    throw UnimplementedError();
+  Future<List<EventModel>> getOrgEvents(String orgId) async {
+    final response = await _apiClient.get('/orgs/$orgId/events');
+    final rawEvents = response.data['events'] as List;
+    return rawEvents.map((e) => EventModel.fromJson(e)).toList();
   }
 
   @override
-  Future<Object> fetchOrganizationSpots(String organizationId) {
-    throw UnimplementedError();
+  Future<List<SpotModel>> getOrgSpots(String orgId) async {
+    final response = await _apiClient.get('/orgs/$orgId/spots');
+    final rawEvents = response.data['spots'] as List;
+    return rawEvents.map((e) => SpotModel.fromJson(e)).toList();
   }
 
   //Spots

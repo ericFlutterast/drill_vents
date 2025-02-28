@@ -1,4 +1,5 @@
 import 'package:drill_events/app/models/event.dart';
+import 'package:drill_events/app/models/org.dart';
 import 'package:drill_events/app/models/spot.dart';
 import 'package:drill_events/app/models/user.dart';
 
@@ -20,9 +21,9 @@ abstract interface class DataRepository {
   Future<List<EventModel>> getSpotEvents(String spotId);
 
   //Org
-  Future<Object> fetchOrganizationInfo(String organizationId);
-  Future<Object> fetchOrganizationSpots(String organizationId);
-  Future<Object> fetchOrganizationEvents(String organizationId);
+  Future<OrgModel> getOrg(String orgId);
+  Future<List<EventModel>> getOrgEvents(String orgId);
+  Future<List<SpotModel>> getOrgSpots(String orgId);
 
   //Auth
   Future<String?> getJwtToken();

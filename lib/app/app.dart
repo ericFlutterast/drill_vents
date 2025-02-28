@@ -3,6 +3,7 @@ import 'package:drill_events/app/blocs/events/events.dart';
 import 'package:drill_events/app/features/auth/auth_provider.dart';
 import 'package:drill_events/app/features/event/event_screen.dart';
 import 'package:drill_events/app/features/home/home_screen.dart';
+import 'package:drill_events/app/features/org/org_screen.dart';
 import 'package:drill_events/app/features/profile/profile_screen.dart';
 import 'package:drill_events/app/features/spot/spot_screen.dart';
 import 'package:drill_events/app/features/widgets/notification_manager.dart';
@@ -36,6 +37,7 @@ class App extends StatelessWidget {
           Routes.profile: (context) => const ProfileScreen(),
           Routes.event: (context) => EventScreen.bloc(context),
           Routes.spot: (context) => SpotScreen.bloc(context),
+          Routes.org: (context) => OrgScreen.bloc(context),
         },
       ),
     );

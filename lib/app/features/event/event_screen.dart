@@ -20,6 +20,12 @@ import 'package:drill_events/common/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+class EventScreenArgs {
+  EventScreenArgs(this.eventId);
+
+  final String eventId;
+}
+
 class EventScreen extends StatefulWidget {
   const EventScreen({super.key});
 
@@ -75,9 +81,14 @@ class _EventScreenState extends State<EventScreen> {
     Navigator.popUntil(context, (route) => route.settings.name != _loadingBottomSheetName);
   }
 
-  Future _onTapLogo() {
+  void _onTapOrg() {
+    // TODO: Вставить орг из ответа ивента
+    context.openOrgScreen("7fdb5b3d-9de4-4dbb-a862-1a430feeb7fa");
+  }
+
+  void _onTapSpot() {
     // TODO: Вставить спот из ответа ивента
-    return context.openSpotScreen("2985f696-0ee6-4e2a-9ff6-e95b758526fc");
+    context.openSpotScreen("2985f696-0ee6-4e2a-9ff6-e95b758526fc");
   }
 
   void _startRegistration() async {
@@ -213,7 +224,7 @@ class _EventScreenState extends State<EventScreen> {
                     const SliverPadding(padding: EdgeInsets.only(top: 25)),
                   ],
                 ),
-                PositionedScreenHeader(controller: _scrollController, onTapLogo: _onTapLogo),
+                PositionedScreenHeader(controller: _scrollController, onTapLogo: _onTapOrg),
               ],
             ),
           ),
@@ -231,6 +242,8 @@ class _ContentSection extends StatelessWidget {
     required this.spotName,
     required this.requirements,
     required this.bonuses,
+    this.onTapOrgName,
+    this.onTapSpotName,
   });
 
   final String title;
@@ -239,6 +252,8 @@ class _ContentSection extends StatelessWidget {
   final String spotName;
   final List<String> requirements;
   final List<String> bonuses;
+  final VoidCallback? onTapSpotName;
+  final VoidCallback? onTapOrgName;
 
   @override
   Widget build(BuildContext context) {
@@ -252,9 +267,9 @@ class _ContentSection extends StatelessWidget {
             spacing: 12,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              Text(orgName, style: context.themes.main.texts.bodySmall),
+              GestureDetector(onTap: onTapOrgName, child: Text(orgName, style: context.themes.main.texts.bodySmall)),
               const Interpunct(),
-              Text(spotName, style: context.themes.main.texts.bodySmall),
+              GestureDetector(onTap: onTapSpotName, child: Text(spotName, style: context.themes.main.texts.bodySmall)),
             ],
           ),
           const SizedBox(height: 7),

@@ -1,11 +1,13 @@
 import 'package:drill_events/app/features/widgets/app_back_button.dart';
 import 'package:drill_events/app/features/widgets/app_company_logo.dart';
+import 'package:drill_events/app/features/widgets/shimmer.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 class PositionedScreenHeader extends StatelessWidget {
-  const PositionedScreenHeader({super.key, this.controller, this.onTapLogo});
+  const PositionedScreenHeader({super.key, this.controller, this.onTapLogo, this.isPending = false});
 
+  final bool isPending;
   final VoidCallback? onTapLogo;
   final ScrollController? controller;
 
@@ -15,15 +17,16 @@ class PositionedScreenHeader extends StatelessWidget {
       top: 5 + MediaQuery.sizeOf(context).height * 0.1,
       left: 0,
       right: 0,
-      child: ScreenHeader(controller: controller, onTapLogo: onTapLogo),
+      child: ScreenHeader(controller: controller, onTapLogo: onTapLogo, isPending: isPending),
     );
   }
 }
 
 // TODO: Из-за BouncingScrollPhysics есть бага, при offset = 0 - контролы не появляются
 class ScreenHeader extends StatefulWidget {
-  const ScreenHeader({super.key, this.controller, this.onTapLogo});
+  const ScreenHeader({super.key, this.controller, this.onTapLogo, this.isPending = false});
 
+  final bool isPending;
   final VoidCallback? onTapLogo;
   final ScrollController? controller;
 
@@ -90,14 +93,30 @@ class _ScreenHeaderState extends State<ScreenHeader> with TickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
+    if (widget.isPending) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            AppBackButton(onTap: () => Navigator.pop(context)),
+            const Shimmer(height: 52, width: 52, borderRadius: 50),
+          ],
+        ),
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SlideTransition(position: _buttonOffsetAnimation, child: AppBackButton(onTap: () => Navigator.pop(context))),
-          SlideTransition(position: _controlsOffsetAnimation, child: AppCompanyLogo(onTap: widget.onTapLogo)),
+          if (widget.onTapLogo != null)
+            SlideTransition(position: _controlsOffsetAnimation, child: AppCompanyLogo(onTap: widget.onTapLogo)),
         ],
       ),
     );
