@@ -81,16 +81,6 @@ class _EventScreenState extends State<EventScreen> {
     Navigator.popUntil(context, (route) => route.settings.name != _loadingBottomSheetName);
   }
 
-  void _onTapOrg() {
-    // TODO: Вставить орг из ответа ивента
-    context.openOrgScreen("7fdb5b3d-9de4-4dbb-a862-1a430feeb7fa");
-  }
-
-  void _onTapSpot() {
-    // TODO: Вставить спот из ответа ивента
-    context.openSpotScreen("2985f696-0ee6-4e2a-9ff6-e95b758526fc");
-  }
-
   void _startRegistration() async {
     final userData = await _promptUserData();
 
@@ -172,8 +162,12 @@ class _EventScreenState extends State<EventScreen> {
                   controller: _scrollController,
                   slivers: [
                     const SliverPadding(padding: EdgeInsets.only(top: 130)),
-                    const SliverToBoxAdapter(
+                    SliverToBoxAdapter(
                       child: _ContentSection(
+                        // TODO:
+                        onTapOrgName: () => context.openOrgScreen("7fdb5b3d-9de4-4dbb-a862-1a430feeb7fa"),
+                        // TODO:
+                        onTapSpotName: () => context.openSpotScreen("2985f696-0ee6-4e2a-9ff6-e95b758526fc"),
                         title: 'The Future of Work. How technology is reshaping',
                         description: 'Приглашаем на английский клуб! Давайте прокачаем свои знания по английскому 😉',
                         orgName: 'Surf',
