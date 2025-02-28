@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-enum StateStatus { idle, loading, refreshing, pagination, error, done }
+enum StateStatus { idle, pending, refreshing, pagination, error, done }
 
 class CommonBlocState<T> extends Equatable {
   const CommonBlocState({T? value, Object? error, required StateStatus status})
@@ -24,14 +24,14 @@ class CommonBlocState<T> extends Equatable {
   bool get hasError => _error != null;
 
   bool get isIdle => status == StateStatus.idle;
-  bool get isPending => status == StateStatus.loading;
+  bool get isPending => status == StateStatus.pending;
   bool get isRefreshing => status == StateStatus.refreshing;
   bool get isPagination => status == StateStatus.pagination;
   bool get isError => status == StateStatus.error;
   bool get isDone => status == StateStatus.done;
 
   CommonBlocState<T> idle({T? value}) => CommonBlocState<T>(status: StateStatus.idle, value: value);
-  CommonBlocState<T> pending() => CommonBlocState<T>(status: StateStatus.loading);
+  CommonBlocState<T> pending() => CommonBlocState<T>(status: StateStatus.pending);
   CommonBlocState<T> refreshing() => CommonBlocState<T>(status: StateStatus.refreshing);
   CommonBlocState<T> pagination() => CommonBlocState<T>(status: StateStatus.pagination);
   CommonBlocState<T> error(Object error, {T? value}) =>

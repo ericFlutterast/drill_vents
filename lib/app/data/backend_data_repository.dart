@@ -1,4 +1,5 @@
 import 'package:drill_events/app/models/event.dart';
+import 'package:drill_events/app/models/spot.dart';
 import 'package:drill_events/app/models/user.dart';
 import 'package:drill_events/common/network/http_api_client.dart';
 import 'package:drill_events/common/ports/data_repository.dart';
@@ -80,13 +81,17 @@ final class BackendDataRepository implements DataRepository {
 
   //Spots
   @override
-  Future<Object> fetchSpot(String spotId) {
-    throw UnimplementedError();
+  Future<SpotModel> getSpot(String spotId) async {
+    final response = await _apiClient.get('/spots/$spotId');
+    final rawSpot = response.data['spot'] as Map<String, dynamic>;
+    return SpotModel.fromJson(rawSpot);
   }
 
   @override
-  Future<Object> fetchSpotEvents(String spotId) {
-    throw UnimplementedError();
+  Future<List<EventModel>> getSpotEvents(String spotId) async {
+    final response = await _apiClient.get('/spots/$spotId/events');
+    final rawEvents = response.data['events'] as List;
+    return rawEvents.map((e) => EventModel.fromJson(e)).toList();
   }
 
   //Auth

@@ -29,6 +29,14 @@ final class RegistrationBloc extends Bloc<RegistrationEvent, _State> {
       emit(state.pending());
       final userId = await _repository.createUser(email: event.email, password: event.password);
       emit(state.done(userId));
+
+      // event.publishToPipe - не должно существовать. Эта штука позволяет управлять логикой блока извне. Пайп должен
+      // быть скрыт от глаз и тот кто общается с блоком даже намеков не должен получать о том что тут есть пайп. Это
+      // все равно что неявно связать 2 класса через посредника
+      //
+      // Если нужна такая штука, то лучше назвать как-нибудь иначе, сосмыслом.
+      // Хз там event.createAdmin
+      // if (event.createAdmin)  _pipe.publish(ПригласитьМатьНаТанец(admin));
       if (event.publishToPipe) {
         _pipe.publish(UserIsCreated(userId));
       }

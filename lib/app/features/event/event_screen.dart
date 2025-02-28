@@ -7,23 +7,18 @@ import 'package:drill_events/app/blocs/registration/events.dart';
 import 'package:drill_events/app/blocs/sign_up_to_event/bloc.dart';
 import 'package:drill_events/app/blocs/sign_up_to_event/events.dart';
 import 'package:drill_events/app/features/event/widgets/creating_entry_for_event_modal.dart';
-import 'package:drill_events/app/features/event/widgets/event_description_tile.dart';
 import 'package:drill_events/app/features/event/widgets/join_event_modal.dart';
 import 'package:drill_events/app/features/event/widgets/participation_notification.dart';
-import 'package:drill_events/app/features/widgets/app_back_button.dart';
 import 'package:drill_events/app/features/widgets/app_button.dart';
-import 'package:drill_events/app/features/widgets/app_company_logo.dart';
 import 'package:drill_events/app/features/widgets/interpunct.dart';
 import 'package:drill_events/app/features/widgets/notification_manager.dart';
+import 'package:drill_events/app/features/widgets/screen_header.dart';
 import 'package:drill_events/app/generated/assets.gen.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:drill_events/common/navigation/modal_bottom_sheet.dart';
 import 'package:drill_events/common/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-//TODO:
-const _items = ['Завтра', 'Surf x Post', 'English club'];
 
 class EventScreen extends StatefulWidget {
   const EventScreen({super.key});
@@ -51,34 +46,20 @@ class EventScreen extends StatefulWidget {
   State<EventScreen> createState() => _EventScreenState();
 }
 
-class _EventScreenState extends State<EventScreen> with SingleTickerProviderStateMixin, AnimationForBackButton {
+class _EventScreenState extends State<EventScreen> {
   bool _isRegistrationUserFlow = false;
   final _loadingBottomSheetName = 'Loading';
 
   late final ScrollController _scrollController = ScrollController();
-  late final _animationController = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 1200),
-    reverseDuration: const Duration(milliseconds: 400),
-  );
-
-  @override
-  void initState() {
-    super.initState();
-
-    _scrollController.addListener(() {
-      buttonVisibility(animationController: _animationController, scrollController: _scrollController);
-    });
-  }
 
   @override
   void dispose() {
     _scrollController.dispose();
-    _animationController.dispose();
     super.dispose();
   }
 
   void _showErrorNotification(String message) {
+    // Этого не должно тут быть. Это зона ответственности NotificationManager а не этого скрина
     NotificationManager.of(context).showNotification(
       notification: ParticipationNotification(status: ParticipationNotificationStatus.error, message: message),
     );
@@ -86,212 +67,244 @@ class _EventScreenState extends State<EventScreen> with SingleTickerProviderStat
     Navigator.popUntil(context, (route) => route.settings.name != _loadingBottomSheetName);
   }
 
+  Future _onTapLogo() {
+    // TODO: Вставить спот из ответа ивента
+    return context.openSpotScreen("2985f696-0ee6-4e2a-9ff6-e95b758526fc");
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.themes.main.colors.inverse,
-      body: SafeArea(
-        top: false,
-        child: BlocListener<RegistrationBloc, CommonBlocState>(
-          listener: (_, state) {
+      body: BlocListener<RegistrationBloc, CommonBlocState>(
+        listener: (_, state) {
+          if (state.isError) {
+            _showErrorNotification(state.errorMessage.toString());
+          }
+        },
+        child: BlocListener<AuthBloc, CommonBlocState>(
+          listener: (context, state) {
             if (state.isError) {
               _showErrorNotification(state.errorMessage.toString());
             }
           },
-          child: BlocListener<AuthBloc, CommonBlocState>(
-            listener: (context, state) {
-              if (state.isError) {
-                _showErrorNotification(state.errorMessage.toString());
+          child: BlocListener<SignUpToEventBloc, CommonBlocState<String>>(
+            listener: (_, state) {
+              if (state.isDone) {
+                Navigator.popUntil(context, (route) => route.settings.name != _loadingBottomSheetName);
+                Navigator.push(
+                  context,
+                  const AppModalBottomSheetPage(child: _SignUpDone.success()).createRoute(context),
+                );
               }
+              if (state.isError) {
+                Navigator.popUntil(context, (route) => route.settings.name != _loadingBottomSheetName);
+                Navigator.push(context, const AppModalBottomSheetPage(child: _SignUpDone.error()).createRoute(context));
+              }
+              setState(() => _isRegistrationUserFlow = false);
             },
-            child: BlocListener<SignUpToEventBloc, CommonBlocState<String>>(
-              listener: (_, state) {
-                if (state.isDone) {
-                  Navigator.popUntil(context, (route) => route.settings.name != _loadingBottomSheetName);
-                  Navigator.push(
-                    context,
-                    const AppModalBottomSheetPage(child: _SignUpDone.success()).createRoute(context),
-                  );
-                }
-                if (state.isError) {
-                  Navigator.popUntil(context, (route) => route.settings.name != _loadingBottomSheetName);
-                  Navigator.push(
-                    context,
-                    const AppModalBottomSheetPage(child: _SignUpDone.error()).createRoute(context),
-                  );
-                }
-                setState(() => _isRegistrationUserFlow = false);
-              },
-              child: Stack(
-                children: [
-                  ListView(
-                    controller: _scrollController,
-                    children: [
-                      SizedBox(height: MediaQuery.sizeOf(context).height * 0.1),
-                      const Align(
-                        alignment: Alignment.centerRight,
-                        child: Padding(padding: EdgeInsets.only(right: 20), child: AppCompanyLogo()),
-                      ),
-                      const SizedBox(height: 40),
+            child: Stack(
+              children: [
+                // TODO: нада заменить на CustomScrollView походу, потому что вероятно верхний отступ от статус бара едет
+                ListView(
+                  controller: _scrollController,
+                  children: [
+                    const SizedBox(height: 130),
+                    const _ContentSection(
+                      title: 'The Future of Work. How technology is reshaping',
+                      description: 'Приглашаем на английский клуб! Давайте прокачаем свои знания по английскому 😉',
+                      orgName: 'Surf',
+                      spotName: 'Surf x Post',
+                      requirements: [
+                        'Уровень английского B1 и выше',
+                        'Уровень китайского 99 и выше',
+                        'Японское гражданство',
+                        'Звание глобала и 8к ммр в доте',
+                      ],
+                      bonuses: [
+                        'Стол и стул (или бутылка)',
+                        'Участникам скидка 10% на напитки собственного приготовления 😉',
+                      ],
+                    ),
+                    const SizedBox(height: 42),
+                    // TODO: это обязательно нужно отрефакторить, выглядит прям жуть, я не смог сходу
+                    //
+                    // context.read<AuthBloc>() из билда нужно срочно убрать это прям критично
+                    if (!context.read<AuthBloc>().state.hasValue)
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 28),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Wrap(
-                              runSpacing: 8,
-                              spacing: 12,
-                              crossAxisAlignment: WrapCrossAlignment.center,
-                              children: [
-                                for (final (i, item) in _items.indexed) ...[
-                                  Text(item, style: context.themes.main.texts.bodySmall),
-                                  if (i != _items.length - 1) const Interpunct(),
-                                ],
-                              ],
-                            ),
-                            const SizedBox(height: 7),
-                            Text(
-                              'The Future of Work. How technology is reshaping',
-                              style: context.themes.main.texts.h1,
-                            ),
-                            BlocBuilder<SignUpToEventBloc, CommonBlocState<String>>(
-                              builder: (context, state) {
-                                if (state.hasValue) {
-                                  return const Column(
-                                    children: [
-                                      SizedBox(height: 18),
-                                      _ParticipationStatus(status: ParticipationStatusEnum.processing),
-                                    ],
-                                  );
-                                }
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: AppButton(
+                          title: _isRegistrationUserFlow ? 'Идет запись' : 'Записаться',
+                          isLoading: _isRegistrationUserFlow,
+                          // TODO: это нужно вынести в метод и дать этому осмысленное имя, а еще лучше разбить на несколько методов
+                          // Если честно я сколько ни смотрел я так и не смог понять что тут происходит(
+                          onTap: () async {
+                            final result = await Navigator.push<List<String>>(
+                              context,
+                              const AppModalBottomSheetPage<List<String>>(
+                                useSafeArea: true,
+                                child: JoinEventModal(
+                                  conditionsForParticipation: [
+                                    'Уровень английского B1 и выше',
+                                    'Уровень китайского 99 и выше',
+                                    'Японское гражданство',
+                                    'Звание глобала и 8к ммр в доте',
+                                  ],
+                                ),
+                              ).createRoute(context),
+                            );
 
-                                return const SizedBox.shrink();
-                              },
-                            ),
-                            const SizedBox(height: 38),
-                            const _DateTimeInfo(),
-                            const SizedBox(height: 32),
-                            Text(
-                              'Приглашаем на английский клуб! Давайте прокачаем свои знания по английскому 😉',
-                              style: context.themes.main.texts.body,
-                            ),
-                            const SizedBox(height: 24),
-                            const EventDescriptionTile(
-                              title: 'От тебя ждем',
-                              descriptionRows: [
-                                'Уровень английского B1 и выше',
-                                'Уровень китайского 99 и выше',
-                                'Японское гражданство',
-                                'Звание глобала и 8к ммр в доте',
-                              ],
-                            ),
-                            const SizedBox(height: 24),
-                            const EventDescriptionTile(
-                              title: 'С нас',
-                              descriptionRows: [
-                                'Стол и стул (или бутылка)',
-                                'Участникам скидка 10% на напитки собственного приготовления 😉',
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 42),
-                      if (!context.read<AuthBloc>().state.hasValue)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: AppButton(
-                            title: _isRegistrationUserFlow ? 'Идет запись' : 'Записаться',
-                            isLoading: _isRegistrationUserFlow,
-                            onTap: () async {
-                              final result = await Navigator.push<List<String>>(
-                                context,
-                                const AppModalBottomSheetPage<List<String>>(
-                                  useSafeArea: true,
-                                  child: JoinEventModal(
-                                    conditionsForParticipation: [
-                                      'Уровень английского B1 и выше',
-                                      'Уровень китайского 99 и выше',
-                                      'Японское гражданство',
-                                      'Звание глобала и 8к ммр в доте',
-                                    ],
-                                  ),
-                                ).createRoute(context),
-                              );
-
-                              if (result case [String email, String password]) {
-                                if (context.mounted) {
-                                  setState(() => _isRegistrationUserFlow = true);
-                                  context.read<RegistrationBloc>().add(
-                                    CreateUserEvent(email: email, password: password, publishToPipe: true),
-                                  );
-                                  Navigator.push(
-                                    context,
-                                    AppModalBottomSheetPage(
-                                      name: _loadingBottomSheetName,
-                                      child: const CreatingEntryForEventModal(),
-                                    ).createRoute(context),
-                                  );
-                                }
-                              }
-                            },
-                          ),
-                        )
-                      else
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: BlocBuilder<SignUpToEventBloc, CommonBlocState<String>>(
-                            builder: (context, state) {
-                              if (state.isPending) {
-                                return const AppButton(title: 'Идет запись', isLoading: true);
-                              }
-                              if (state.isDone) {
-                                return AppButton(
-                                  title: 'Отменить завявку',
-                                  backgroundColor: context.themes.main.colors.warning100,
-                                  titleStyle: context.themes.main.texts.body.copyWith(
-                                    color: context.themes.main.colors.warning600,
-                                  ),
-                                  onTap:
-                                      () => Navigator.push(
-                                        context,
-                                        const AppModalBottomSheetPage(
-                                          child: _DeclineSignUpModal(),
-                                        ).createRoute(context),
-                                      ),
+                            if (result case [String email, String password]) {
+                              if (context.mounted) {
+                                setState(() => _isRegistrationUserFlow = true);
+                                context.read<RegistrationBloc>().add(
+                                  CreateUserEvent(email: email, password: password, publishToPipe: true),
+                                );
+                                Navigator.push(
+                                  context,
+                                  AppModalBottomSheetPage(
+                                    name: _loadingBottomSheetName,
+                                    child: const CreatingEntryForEventModal(),
+                                  ).createRoute(context),
                                 );
                               }
-
-                              return AppButton(
-                                title: 'Записаться',
-                                onTap: () {
-                                  final email = context.read<AuthBloc>().state.value.email;
-                                  context.read<SignUpToEventBloc>().add(SignUpEvent(email: email));
-                                },
-                              );
-                            },
-                          ),
+                            }
+                          },
                         ),
-                      const SizedBox(height: 25),
-                    ],
-                  ),
-                  Positioned(
-                    top: 5 + MediaQuery.sizeOf(context).height * 0.1,
-                    left: 20,
-                    child: SlideTransition(
-                      position: Tween<Offset>(
-                        begin: Offset.zero,
-                        end: const Offset(-50, 0),
-                      ).animate(_animationController),
-                      child: AppBackButton(onTap: () => Navigator.pop(context)),
-                    ),
-                  ),
-                ],
-              ),
+                      )
+                    else
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: BlocBuilder<SignUpToEventBloc, CommonBlocState<String>>(
+                          builder: (context, state) {
+                            if (state.isPending) {
+                              return const AppButton(title: 'Идет запись', isLoading: true);
+                            }
+                            if (state.isDone) {
+                              return AppButton(
+                                title: 'Отменить завявку',
+                                // TODO: У кнопки должны быть состояния - можно передавать туда енум типо warning,
+                                // error, loading, ... . Стили таким образом передавать прям не хорошо
+                                backgroundColor: context.themes.main.colors.warning100,
+                                titleStyle: context.themes.main.texts.body.copyWith(
+                                  color: context.themes.main.colors.warning600,
+                                ),
+                                // TODO: вынести и назвать
+                                onTap:
+                                    () => Navigator.push(
+                                      context,
+                                      const AppModalBottomSheetPage(child: _DeclineSignUpModal()).createRoute(context),
+                                    ),
+                              );
+                            }
+
+                            return AppButton(
+                              title: 'Записаться',
+                              // TODO: вынести. Почему тут происходит регистрация? нужно назвать осмысленно метод иначе ничего не понятно
+                              onTap: () {
+                                final email = context.read<AuthBloc>().state.value.email;
+                                context.read<SignUpToEventBloc>().add(SignUpEvent(email: email));
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    const SizedBox(height: 25),
+                  ],
+                ),
+                PositionedScreenHeader(controller: _scrollController, onTapLogo: _onTapLogo),
+              ],
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+class _ContentSection extends StatelessWidget {
+  const _ContentSection({
+    required this.title,
+    required this.description,
+    required this.orgName,
+    required this.spotName,
+    required this.requirements,
+    required this.bonuses,
+  });
+
+  final String title;
+  final String description;
+  final String orgName;
+  final String spotName;
+  final List<String> requirements;
+  final List<String> bonuses;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 28),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Wrap(
+            runSpacing: 8,
+            spacing: 12,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Text(orgName, style: context.themes.main.texts.bodySmall),
+              const Interpunct(),
+              Text(spotName, style: context.themes.main.texts.bodySmall),
+            ],
+          ),
+          const SizedBox(height: 7),
+          Text(title, style: context.themes.main.texts.h1),
+          BlocBuilder<SignUpToEventBloc, CommonBlocState<String>>(
+            builder: (context, state) {
+              if (!state.hasValue) const SizedBox.shrink();
+
+              return const Column(
+                children: [SizedBox(height: 18), _ParticipationStatus(status: ParticipationStatusEnum.processing)],
+              );
+            },
+          ),
+          const SizedBox(height: 38),
+          const _DateTimeInfo(),
+          const SizedBox(height: 32),
+          Text(description, style: context.themes.main.texts.body),
+          const SizedBox(height: 24),
+          _OptionsBlock(title: 'От тебя ждем', options: requirements),
+          const SizedBox(height: 24),
+          _OptionsBlock(title: 'От тебя ждем', options: bonuses),
+        ],
+      ),
+    );
+  }
+}
+
+class _OptionsBlock extends StatelessWidget {
+  const _OptionsBlock({required this.title, required this.options});
+
+  final String title;
+  final List<String> options;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(title, style: context.themes.main.texts.body.copyWith(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 10),
+        for (final item in options) ...[
+          Row(
+            children: [
+              const Interpunct(),
+              const SizedBox(width: 12),
+              Expanded(child: Text(item, style: context.themes.main.texts.body)),
+            ],
+          ),
+        ],
+      ],
     );
   }
 }

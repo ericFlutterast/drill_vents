@@ -23,6 +23,7 @@ class AppBackButton extends StatelessWidget {
   }
 }
 
+// TODO: remove
 mixin AnimationForBackButton<T extends StatefulWidget> on State<T> {
   bool isShowBackButton = true;
 
