@@ -1,4 +1,5 @@
-import 'package:drill_events/app/blocs/detail_org_bloc.dart';
+import 'package:drill_events/app/blocs/detail_org.dart';
+import 'package:drill_events/app/blocs/detail_org_list_section.dart';
 import 'package:drill_events/app/features/widgets/app_button.dart';
 import 'package:drill_events/app/features/widgets/app_company_logo.dart';
 import 'package:drill_events/app/features/widgets/event_list_item.dart';
@@ -19,8 +20,13 @@ class OrgScreen extends StatefulWidget {
   const OrgScreen({super.key});
 
   static Widget bloc(BuildContext context) {
-    return BlocProvider<DetailOrgBloc>(
-      create: (_) => DetailOrgBloc(context.dependencies.repository, context.dependencies.logger),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => DetailOrgBloc(context.dependencies.backendApi, context.dependencies.logger)),
+        BlocProvider(
+          create: (_) => DetailOrgListSectionBloc(context.dependencies.backendApi, context.dependencies.logger),
+        ),
+      ],
       child: const OrgScreen(),
     );
   }
@@ -41,16 +47,8 @@ class _OrgScreenState extends State<OrgScreen> {
 
     final args = context.getArgs<OrgScreenArgs>();
 
-    final bloc = context.read<DetailOrgBloc>();
-    bloc.add(FetchDetailOrgEvent(args.orgId));
-  }
-
-  void _onTapSpot(String spotID) {
-    context.openSpotScreen(spotID);
-  }
-
-  void _onTapEvent(String eventID) {
-    context.openEventScreen(eventID);
+    context.read<DetailOrgBloc>().add(FetchDetailOrg(args.orgId));
+    context.read<DetailOrgListSectionBloc>().add(FetchDetailOrgLists(args.orgId));
   }
 
   void _switchTab(_Tab tab) {
@@ -61,7 +59,7 @@ class _OrgScreenState extends State<OrgScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.themes.main.colors.inverse,
-      body: BlocBuilder<DetailOrgBloc, DetailOrgBlocState>(
+      body: BlocBuilder<DetailOrgBloc, DetailOrgState>(
         builder: (context, state) {
           if (state.hasError) {
             // TODO:
@@ -119,27 +117,63 @@ class _OrgScreenState extends State<OrgScreen> {
                       ],
                     ),
                   ),
-                  if (!isPending)
-                    // TODO: refactor
-                    if (_openedTab == _Tab.events)
-                      SliverList.separated(
-                        itemCount: state.value.events.length,
-                        itemBuilder: (context, index) {
-                          final event = state.value.events[index];
-                          return EventListItem(title: event.title, onTap: () => _onTapEvent(event.eventId));
-                        },
-                        separatorBuilder: (context, index) => const SizedBox(height: 20),
-                      )
-                    else
-                      SliverList.separated(
-                        itemCount: state.value.spots.length,
-                        itemBuilder: (context, index) {
-                          final spot = state.value.spots[index];
-                          // TODO: change to SpotListItem when it's ready
-                          return EventListItem(title: spot.title, onTap: () => _onTapSpot(spot.id));
-                        },
-                        separatorBuilder: (context, index) => const SizedBox(height: 20),
-                      ),
+                  // TODO: постараться вынести
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    sliver: BlocBuilder<DetailOrgListSectionBloc, DetailOrgListSectionState>(
+                      builder: (context, sectionState) {
+                        if (sectionState.hasError) {
+                          // TODO: сделать компонент ошибки для списка
+                          return SliverToBoxAdapter(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 28),
+                              child: Text(
+                                sectionState.errorMessage.toString(),
+                                style: context.themes.main.texts.bodySmall.copyWith(
+                                  color: context.themes.main.colors.error600,
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+
+                        if (sectionState.isIdle || sectionState.isPending) {
+                          return SliverList.list(
+                            children: [
+                              const Shimmer(height: 70),
+                              const SizedBox(height: 20),
+                              const Shimmer(height: 70),
+                            ],
+                          );
+                        }
+
+                        if (_openedTab == _Tab.events) {
+                          final events = sectionState.value.events;
+
+                          return SliverList.separated(
+                            itemCount: events.length,
+                            itemBuilder: (context, index) {
+                              final event = events[index];
+                              return EventListItem(title: event.title, onTap: () => context.openEventScreen(event.id));
+                            },
+                            separatorBuilder: (context, index) => const SizedBox(height: 20),
+                          );
+                        }
+
+                        final spots = sectionState.value.spots;
+
+                        return SliverList.separated(
+                          itemCount: spots.length,
+                          itemBuilder: (context, index) {
+                            final spot = spots[index];
+                            // TODO: change to SpotListItem when it's ready
+                            return EventListItem(title: spot.title, onTap: () => context.openSpotScreen(spot.id));
+                          },
+                          separatorBuilder: (context, index) => const SizedBox(height: 20),
+                        );
+                      },
+                    ),
+                  ),
                   const SliverToBoxAdapter(child: SizedBox(height: 80)),
                 ],
               ),

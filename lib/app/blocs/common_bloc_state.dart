@@ -9,6 +9,7 @@ class CommonBlocState<T> extends Equatable {
       _status = status;
 
   final T? _value;
+  // TODO: нада подумать над этим, не очень удобно выводить ошибку на экране если она не стринга или не кастом объект
   final Object? _error;
   final StateStatus _status;
 

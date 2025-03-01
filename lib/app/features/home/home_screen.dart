@@ -38,6 +38,8 @@ class HomeScreen extends StatelessWidget {
                     titlePadding: EdgeInsets.only(bottom: 10),
                   ),
                 ),
+                // TODO: красивое но поведение прям супер не оч, хз может так у айоса принято но в андроиде
+                // противоположное вообще, нужно поменять в угоду UX и сделать похожим на RefreshIndicator
                 CupertinoSliverRefreshControl(
                   refreshIndicatorExtent: 60,
                   refreshTriggerPullDistance: 120,
@@ -48,12 +50,26 @@ class HomeScreen extends StatelessWidget {
                 ),
                 const _SoonEventsTitle(),
 
-                if (state.isPending)
-                  SliverList.separated(
-                    itemCount: 10, //state.value.length,
-                    itemBuilder: (context, index) => const EventListItem.shimmer(),
-                    separatorBuilder: (_, __) => const SizedBox(height: 28),
-                  ),
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  sliver:
+                      state.isPending
+                          ? SliverList.separated(
+                            itemCount: 10, //state.value.length,
+                            itemBuilder: (context, index) => const EventListItem.shimmer(),
+                            separatorBuilder: (_, __) => const SizedBox(height: 28),
+                          )
+                          : SliverList.separated(
+                            itemCount: 10, //state.value.length,
+                            itemBuilder:
+                                (context, index) => EventListItem(
+                                  title:
+                                      'Вечеринка для поддержания семеных отношений', //state.value.elementAt(index).title,
+                                  onTap: () => Navigator.pushNamed(context, Routes.event),
+                                ),
+                            separatorBuilder: (_, __) => const SizedBox(height: 28),
+                          ),
+                ),
 
                 // if (state.hasValue && state.value.isEmpty || state.hasError)
                 //   SliverToBoxAdapter(
@@ -65,15 +81,6 @@ class HomeScreen extends StatelessWidget {
                 //     ),
                 //   )
                 // else if (state.hasValue)
-                SliverList.separated(
-                  itemCount: 10, //state.value.length,
-                  itemBuilder:
-                      (context, index) => EventListItem(
-                        title: 'Вечеринка для поддержания семеных отношений', //state.value.elementAt(index).title,
-                        onTap: () => Navigator.pushNamed(context, Routes.event),
-                      ),
-                  separatorBuilder: (_, __) => const SizedBox(height: 28),
-                ),
                 const SliverPadding(padding: EdgeInsets.only(top: 30)),
               ],
             );

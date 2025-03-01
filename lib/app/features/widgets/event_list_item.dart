@@ -19,56 +19,53 @@ class EventListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     if (_showSimmer) return const _EventItemShimmer();
 
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            CachedNetworkImage(
-              imageUrl: '',
-              errorWidget:
-                  (_, __, ___) => Container(
-                    height: 52,
-                    width: 52,
-                    decoration: BoxDecoration(color: context.themes.main.colors.secondary, shape: BoxShape.circle),
-                  ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: context.themes.main.texts.body.copyWith(fontWeight: FontWeight.w600, height: 1.3)),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    runSpacing: 8,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      for (final (i, item) in _items.indexed) ...[
-                        Text(item, style: context.themes.main.texts.bodySmall),
-                        if (i != _items.length - 1)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 7.5),
-                            child: SizedBox.square(
-                              dimension: 5,
-                              child: DecoratedBox(
-                                decoration: BoxDecoration(
-                                  color: context.themes.main.colors.secondary,
-                                  shape: BoxShape.circle,
-                                ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          CachedNetworkImage(
+            imageUrl: '',
+            errorWidget:
+                (_, __, ___) => Container(
+                  height: 52,
+                  width: 52,
+                  decoration: BoxDecoration(color: context.themes.main.colors.secondary, shape: BoxShape.circle),
+                ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: context.themes.main.texts.body.copyWith(fontWeight: FontWeight.w600, height: 1.3)),
+                const SizedBox(height: 8),
+                Wrap(
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    for (final (i, item) in _items.indexed) ...[
+                      Text(item, style: context.themes.main.texts.bodySmall),
+                      if (i != _items.length - 1)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 7.5),
+                          child: SizedBox.square(
+                            dimension: 5,
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                color: context.themes.main.colors.secondary,
+                                shape: BoxShape.circle,
                               ),
                             ),
                           ),
-                      ],
+                        ),
                     ],
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

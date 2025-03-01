@@ -1,11 +1,16 @@
 import 'package:drill_events/app/features/event/event_screen.dart';
-import 'package:drill_events/app/features/org/org_screen.dart';
-import 'package:drill_events/app/features/spot/spot_screen.dart';
+import 'package:drill_events/app/features/org_screen.dart';
+import 'package:drill_events/app/features/spot_screen.dart';
 import 'package:drill_events/common/di/dependencies.dart';
 import 'package:drill_events/common/di/dependencies_scope.dart';
 import 'package:drill_events/common/navigation/modal_bottom_sheet.dart';
 import 'package:drill_events/common/navigation/routes.dart';
 import 'package:flutter/material.dart';
+
+extension DateTimeUtils on DateTime {
+  String toRFC3337Date() => toIso8601String().split("T")[0];
+  String toRFC3337Time() => toIso8601String().split("T")[1].split("+")[0];
+}
 
 extension ContextExt on BuildContext {
   Dependencies get dependencies => DependenciesScope.of(this).dependencies;

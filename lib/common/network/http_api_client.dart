@@ -1,20 +1,28 @@
 import 'package:dio/dio.dart';
 import 'package:drill_events/common/ports/http_client.dart';
 
-final class HttpApiClient implements RestClient {
+final class HttpApiClient {
   const HttpApiClient(this._dio);
 
   final Dio _dio;
 
-  @override
-  Future<HttpResponse> get<T>(String path, {Map<String, dynamic>? queryParameters, Object? data}) async {
-    final response = await _dio.get<T>(path, queryParameters: queryParameters, data: data);
+  Future<HttpResponse> get<T>(String path, {Map<String, dynamic>? queryParameters}) async {
+    final response = await _dio.get<T>(path, queryParameters: queryParameters);
     return HttpResponse(response.data, statusCode: response.statusCode, statusMessage: response.statusMessage);
   }
 
-  @override
   Future<HttpResponse> post<T>(String path, {Object? data, Map<String, dynamic>? queryParameters}) async {
-    final response = await _dio.post<T>(path, data: data, queryParameters: queryParameters);
+    final response = await _dio.post<T>(path, data: data);
+    return HttpResponse(response.data, statusCode: response.statusCode, statusMessage: response.statusMessage);
+  }
+
+  Future<HttpResponse> patch<T>(String path, {Object? data}) async {
+    final response = await _dio.patch<T>(path, data: data);
+    return HttpResponse(response.data, statusCode: response.statusCode, statusMessage: response.statusMessage);
+  }
+
+  Future<HttpResponse> delete<T>(String path) async {
+    final response = await _dio.delete<T>(path);
     return HttpResponse(response.data, statusCode: response.statusCode, statusMessage: response.statusMessage);
   }
 }

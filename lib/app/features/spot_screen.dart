@@ -1,12 +1,13 @@
-import 'package:drill_events/app/blocs/detail_spot_bloc.dart';
+import 'package:drill_events/app/blocs/detail_spot.dart';
+import 'package:drill_events/app/blocs/detail_spot_list_section.dart';
 import 'package:drill_events/app/features/widgets/app_button.dart';
 import 'package:drill_events/app/features/widgets/event_list_item.dart';
 import 'package:drill_events/app/features/widgets/screen_header.dart';
 import 'package:drill_events/app/features/widgets/shimmer.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
-import 'package:drill_events/common/navigation/routes.dart';
 import 'package:drill_events/common/utils/extensions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SpotScreenArgs {
@@ -19,8 +20,13 @@ class SpotScreen extends StatefulWidget {
   const SpotScreen({super.key});
 
   static Widget bloc(BuildContext context) {
-    return BlocProvider<DetailSpotBloc>(
-      create: (_) => DetailSpotBloc(context.dependencies.repository, context.dependencies.logger),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => DetailSpotBloc(context.dependencies.backendApi, context.dependencies.logger)),
+        BlocProvider(
+          create: (_) => DetailSpotListSectionBloc(context.dependencies.backendApi, context.dependencies.logger),
+        ),
+      ],
       child: const SpotScreen(),
     );
   }
@@ -38,23 +44,15 @@ class _SpotScreenState extends State<SpotScreen> {
 
     final args = context.getArgs<SpotScreenArgs>();
 
-    final bloc = context.read<DetailSpotBloc>();
-    bloc.add(FetchDetailSpotEvent(args.spotId));
+    context.read<DetailSpotBloc>().add(FetchDetailSpot(args.spotId));
+    context.read<DetailSpotListSectionBloc>().add(FetchDetailSpotEvents(args.spotId));
   }
-
-  void _onTapLogo() {
-    Navigator.pushNamed(context, Routes.org);
-  }
-
-  void _onTapSubscribe() {}
-
-  void _onTapEvent(String eventID) {}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.themes.main.colors.inverse,
-      body: BlocBuilder<DetailSpotBloc, DetailSpotBlocState>(
+      body: BlocBuilder<DetailSpotBloc, DetailSpotState>(
         builder: (context, state) {
           if (state.hasError) {
             // TODO:
@@ -108,24 +106,63 @@ class _SpotScreenState extends State<SpotScreen> {
                               description: state.value.description,
                               address: state.value.address,
                               subscribed: false,
-                              onSubscribe: _onTapSubscribe,
+                              onSubscribe: () {},
                             ),
                       ],
                     ),
                   ),
-                  if (!isPending)
-                    SliverList.separated(
-                      itemCount: state.value.events.length,
-                      itemBuilder: (context, index) {
-                        final event = state.value.events[index];
-                        return EventListItem(title: event.title, onTap: () => _onTapEvent(event.eventId));
+                  // TODO: вынести
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    sliver: BlocBuilder<DetailSpotListSectionBloc, DetailSpotListSectionState>(
+                      builder: (context, sectionState) {
+                        if (sectionState.hasError) {
+                          // TODO: сделать компонент ошибки для списка
+                          return SliverToBoxAdapter(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 28),
+                              child: Text(
+                                sectionState.errorMessage.toString(),
+                                style: context.themes.main.texts.bodySmall.copyWith(
+                                  color: context.themes.main.colors.error600,
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+
+                        if (sectionState.isIdle || sectionState.isPending) {
+                          return SliverList.list(
+                            children: [
+                              const Shimmer(height: 70),
+                              const SizedBox(height: 20),
+                              const Shimmer(height: 70),
+                            ],
+                          );
+                        }
+
+                        final events = sectionState.value;
+
+                        return SliverList.separated(
+                          itemCount: events.length,
+                          itemBuilder: (context, index) {
+                            final event = events[index];
+                            return EventListItem(title: event.title, onTap: () => context.openEventScreen(event.id));
+                          },
+                          separatorBuilder: (context, index) => const SizedBox(height: 20),
+                        );
                       },
-                      separatorBuilder: (context, index) => const SizedBox(height: 20),
                     ),
+                  ),
                   const SliverToBoxAdapter(child: SizedBox(height: 80)),
                 ],
               ),
-              PositionedScreenHeader(isPending: isPending, controller: _scrollController, onTapLogo: _onTapLogo),
+              // TODO:
+              PositionedScreenHeader(
+                isPending: isPending,
+                controller: _scrollController,
+                onTapLogo: () => context.openOrgScreen(state.value.org.id),
+              ),
             ],
           );
         },
@@ -187,9 +224,6 @@ class _ContentSection extends StatelessWidget {
       const SizedBox(height: 48),
       const Shimmer(height: 24, width: 100),
       const SizedBox(height: 24),
-      const Shimmer(height: 70),
-      const SizedBox(height: 20),
-      const Shimmer(height: 70),
     ],
   );
 }
