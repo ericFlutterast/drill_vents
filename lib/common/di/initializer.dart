@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:drill_events/app/blocs/auth/bloc.dart';
 import 'package:drill_events/app/blocs/detail_event/bloc.dart';
+import 'package:drill_events/app/blocs/detail_spot_bloc.dart';
 import 'package:drill_events/app/blocs/events/bloc.dart';
 import 'package:drill_events/app/blocs/registration/bloc.dart';
 import 'package:drill_events/app/blocs/sign_up_to_event/bloc.dart';
@@ -80,5 +81,6 @@ Map<String, Loader> _dependenciesSteps = {
       logger: dependencies.logger,
       pipe: dependencies.pipe,
     );
+    dependencies.detailSpotBloc = DetailSpotBloc(dependencies.repository, dependencies.logger);
   },
 };

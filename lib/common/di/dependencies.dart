@@ -1,5 +1,6 @@
 import 'package:drill_events/app/blocs/auth/bloc.dart';
 import 'package:drill_events/app/blocs/detail_event/bloc.dart';
+import 'package:drill_events/app/blocs/detail_spot_bloc.dart';
 import 'package:drill_events/app/blocs/events/bloc.dart';
 import 'package:drill_events/app/blocs/registration/bloc.dart';
 import 'package:drill_events/app/blocs/sign_up_to_event/bloc.dart';
@@ -29,6 +30,7 @@ final class Dependencies {
   //Blocs
   late final AuthBloc authBloc;
   late final EventsBloc eventsBloc;
+  late final DetailSpotBloc detailSpotBloc;
   late final SignUpToEventBloc signUpToEventBloc;
   late final DetailEventBloc detailEventBloc;
   late final RegistrationBloc registrationBloc;

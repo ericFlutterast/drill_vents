@@ -2,6 +2,12 @@ import 'package:drill_events/app/features/widgets/interpunct.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:flutter/material.dart';
 
+// Тут чисто пасхалку оставлю. Ты попытался переиспользовать этот виджет для модалки и для тела - не нужно, если
+// присмотришься - они совершенно разные, хоть и похожи. Самое главное - у них разные контексты, если поменяется
+// дизайн в модалке тебе придется копаться в говне. Лучше писать максимально тупой код, чем пытаться переиспользовать
+// компоненты везде. Принцип закрытости открытости, это не совсем про это, но он тут в тему. Типо ты пишешь код для
+// одного кейса конкретного, когда ты пытаешься залезть в него и переписать, чтобы он мог использовать в друго,
+// в третьем, четвертом - это плохой дизайн. (Я тоже страдал от этого, но ничего хорошего в этом нет)
 class EventDescriptionTile extends StatelessWidget {
   const EventDescriptionTile({
     super.key,
@@ -33,7 +39,6 @@ class EventDescriptionTile extends StatelessWidget {
           Text(title, style: titleStyle ?? textStyles.body.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 10),
         ],
-
         for (final (i, item) in descriptionRows.indexed) ...[
           Row(
             children: [

@@ -13,7 +13,6 @@ final class EventModel extends Equatable {
     required this.organization,
     required this.startDate,
     required this.startTime,
-    required this.endDate,
     required this.endTime,
   });
 
@@ -24,10 +23,11 @@ final class EventModel extends Equatable {
   final String title, description;
   @JsonKey(name: 'org')
   final OrganizationModel organization;
-  final DateTime? startDate, startTime, endDate, endTime;
+  final String startDate, startTime;
+  final String? endTime;
 
   @override
-  List<Object?> get props => [eventId, title, description, organization, startDate, startTime, endDate, endTime];
+  List<Object?> get props => [eventId, title, description, organization, startDate, startTime, endTime];
 
   Map<String, dynamic> toJson() => _$EventModelToJson(this);
 }
