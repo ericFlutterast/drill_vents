@@ -20,7 +20,7 @@ final class EventModel extends Equatable {
 
   @JsonKey(name: 'id')
   final String eventId;
-  final String title, description;
+  final String? title, description;
   @JsonKey(name: 'org')
   final OrganizationModel organization;
   final String startDate, startTime;

@@ -24,5 +24,8 @@ extension Routing on BuildContext {
   Future openSpotScreen(String spotID) => Navigator.pushNamed(this, Routes.spot, arguments: SpotScreenArgs(spotID));
   Future openOrgScreen(String orgID) => Navigator.pushNamed(this, Routes.org, arguments: OrgScreenArgs(orgID));
 
-  void openBottomSheet(Widget child) => Navigator.push(this, AppModalBottomSheetPage(child: child).createRoute(this));
+  Future<T?> openBottomSheet<T>(Widget child) =>
+      Navigator.push<T>(this, AppModalBottomSheetPage<T>(child: child).createRoute(this));
+
+  Future<T?> openCreateEventScreen<T>() => Navigator.pushNamed(this, Routes.createEvent);
 }

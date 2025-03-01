@@ -20,9 +20,14 @@ class AppTextField extends StatelessWidget {
     this.controller,
     this.formControl,
     this.keyboardType,
+    this.maxLines,
     this.obscureText = false,
     this.obscuringCharacter = '*',
     this.useReactiveForm = false,
+    this.isDense = false,
+    this.expands = false,
+    this.readOnly = false,
+    this.textAlign = TextAlign.start,
   });
 
   final String? hintText;
@@ -42,7 +47,12 @@ class AppTextField extends StatelessWidget {
   final Function(PointerUpEvent)? onTapUpOutside;
   final bool useReactiveForm;
   final bool obscureText;
+  final bool isDense;
+  final bool expands;
+  final bool readOnly;
   final String obscuringCharacter;
+  final int? maxLines;
+  final TextAlign textAlign;
 
   @override
   Widget build(BuildContext context) {
@@ -51,15 +61,20 @@ class AppTextField extends StatelessWidget {
         controller: controller,
         formControl: formControl,
         cursorColor: context.themes.main.colors.primary,
-        onTapOutside: onTapOutside,
+        onTapOutside: onTapOutside ?? (_) => FocusScope.of(context).unfocus(),
         onAppPrivateCommand: onAppPrivateCommand,
         keyboardType: keyboardType,
         obscureText: obscureText,
         obscuringCharacter: obscuringCharacter,
+        expands: expands,
+        maxLines: maxLines,
+        textAlign: textAlign,
+        readOnly: readOnly,
 
         decoration:
             decoration ??
             InputDecoration(
+              isDense: isDense,
               hintText: hintText,
               hintStyle:
                   hintStyle ?? context.themes.main.texts.body.copyWith(color: context.themes.main.colors.secondary),
@@ -81,7 +96,7 @@ class AppTextField extends StatelessWidget {
       cursorColor: context.themes.main.colors.primary,
       onChanged: onChanged,
       onTap: onTap,
-      onTapOutside: onTapOutside,
+      onTapOutside: onTapOutside ?? (_) => FocusScope.of(context).unfocus(),
       onEditingComplete: onEditingComplete,
       onAppPrivateCommand: onAppPrivateCommand,
       onSubmitted: onSubmitted,
@@ -89,10 +104,15 @@ class AppTextField extends StatelessWidget {
       keyboardType: keyboardType,
       obscureText: obscureText,
       obscuringCharacter: obscuringCharacter,
+      expands: expands,
+      maxLines: maxLines,
+      textAlign: textAlign,
+      readOnly: readOnly,
 
       decoration:
           decoration ??
           InputDecoration(
+            isDense: isDense,
             hintText: hintText,
             hintStyle:
                 hintStyle ?? context.themes.main.texts.body.copyWith(color: context.themes.main.colors.secondary),

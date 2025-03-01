@@ -18,7 +18,7 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin, AnimationForBackButton {
+class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin {
   late final ScrollController _scrollController = ScrollController();
   late final _animationController = AnimationController(
     vsync: this,
@@ -30,9 +30,9 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   void initState() {
     super.initState();
 
-    _scrollController.addListener(() {
-      buttonVisibility(animationController: _animationController, scrollController: _scrollController);
-    });
+    // _scrollController.addListener(() {
+    //   buttonVisibility(animationController: _animationController, scrollController: _scrollController);
+    // });
   }
 
   @override
