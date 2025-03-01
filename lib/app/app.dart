@@ -1,4 +1,3 @@
-import 'package:drill_events/app/blocs/detail_spot_bloc.dart';
 import 'package:drill_events/app/blocs/events/bloc.dart';
 import 'package:drill_events/app/blocs/events/events.dart';
 import 'package:drill_events/app/features/auth/auth_provider.dart';

@@ -31,7 +31,7 @@ final class Dependencies {
   late final AuthBloc authBloc;
   late final EventsBloc eventsBloc;
   late final DetailSpotBloc detailSpotBloc;
-  late final SignUpToEventBloc signUpToEventBloc;
+  late final BookingEventBloc signUpToEventBloc;
   late final DetailEventBloc detailEventBloc;
   late final RegistrationBloc registrationBloc;
 }

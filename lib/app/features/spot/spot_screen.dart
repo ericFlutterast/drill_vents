@@ -85,7 +85,7 @@ class _SpotScreenState extends State<SpotScreen> {
                         const SizedBox(height: 7),
                         Text(spot.address, style: context.themes.main.texts.bodySmall),
                         const SizedBox(height: 28),
-                        AppButton(title: "Подписаться", onTap: _onTapSubscribe),
+                        AppButton.primary(title: "Подписаться", onTap: _onTapSubscribe),
                         const SizedBox(height: 32),
                         // TODO: вынести в JsonConverter
                         Text(spot.description.replaceAll('\\n', '\n'), style: context.themes.main.texts.body),

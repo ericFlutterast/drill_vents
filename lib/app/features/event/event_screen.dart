@@ -7,14 +7,12 @@ import 'package:drill_events/app/blocs/registration/events.dart';
 import 'package:drill_events/app/blocs/sign_up_to_event/bloc.dart';
 import 'package:drill_events/app/blocs/sign_up_to_event/events.dart';
 import 'package:drill_events/app/features/event/widgets/creating_entry_for_event_modal.dart';
-import 'package:drill_events/app/features/event/widgets/event_description_tile.dart';
 import 'package:drill_events/app/features/event/widgets/join_event_modal.dart';
 import 'package:drill_events/app/features/event/widgets/participation_notification.dart';
-import 'package:drill_events/app/features/widgets/app_back_button.dart';
 import 'package:drill_events/app/features/widgets/app_button.dart';
-import 'package:drill_events/app/features/widgets/app_company_logo.dart';
 import 'package:drill_events/app/features/widgets/interpunct.dart';
 import 'package:drill_events/app/features/widgets/notification_manager.dart';
+import 'package:drill_events/app/features/widgets/screen_header.dart';
 import 'package:drill_events/app/generated/assets.gen.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:drill_events/common/navigation/modal_bottom_sheet.dart';
@@ -49,10 +47,17 @@ class EventScreen extends StatefulWidget {
 }
 
 class _EventScreenState extends State<EventScreen> {
+  bool _isAuthUser = false;
   bool _isRegistrationUserFlow = false;
   final _loadingBottomSheetName = 'Loading';
 
   late final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _isAuthUser = context.read<AuthBloc>().state.hasValue;
+  }
 
   @override
   void dispose() {
@@ -61,7 +66,8 @@ class _EventScreenState extends State<EventScreen> {
   }
 
   void _showErrorNotification(String message) {
-    // Этого не должно тут быть. Это зона ответственности NotificationManager а не этого скрина
+    //TODO: Этого не должно тут быть. Это зона ответственности NotificationManager а не этого скрина
+    //TODO: На рассмотрении
     NotificationManager.of(context).showNotification(
       notification: ParticipationNotification(status: ParticipationNotificationStatus.error, message: message),
     );
@@ -126,6 +132,11 @@ class _EventScreenState extends State<EventScreen> {
     setState(() => _isRegistrationUserFlow = false);
   }
 
+  void _bookToEvent() {
+    final email = context.read<AuthBloc>().state.value.email;
+    context.read<BookingEventBloc>().add(BookToEvent(email: email));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -142,128 +153,64 @@ class _EventScreenState extends State<EventScreen> {
               _showErrorNotification(state.errorMessage.toString());
             }
           },
-          child: BlocListener<SignUpToEventBloc, CommonBlocState<String>>(
-            listener: (_, state) {
-              if (state.isDone) {
-                Navigator.popUntil(context, (route) => route.settings.name != _loadingBottomSheetName);
-                Navigator.push(
-                  context,
-                  const AppModalBottomSheetPage(child: _SignUpDone.success()).createRoute(context),
-                );
-              }
-              if (state.isError) {
-                Navigator.popUntil(context, (route) => route.settings.name != _loadingBottomSheetName);
-                Navigator.push(context, const AppModalBottomSheetPage(child: _SignUpDone.error()).createRoute(context));
-              }
-              setState(() => _isRegistrationUserFlow = false);
-            },
+          child: BlocListener<BookingEventBloc, CommonBlocState<String>>(
+            listener: _signUpToEventBlocListener,
             child: Stack(
               children: [
-                // TODO: нада заменить на CustomScrollView походу, потому что вероятно верхний отступ от статус бара едет
-                ListView(
+                CustomScrollView(
                   controller: _scrollController,
-                  children: [
-                    const SizedBox(height: 130),
-                    const _ContentSection(
-                      title: 'The Future of Work. How technology is reshaping',
-                      description: 'Приглашаем на английский клуб! Давайте прокачаем свои знания по английскому 😉',
-                      orgName: 'Surf',
-                      spotName: 'Surf x Post',
-                      requirements: [
-                        'Уровень английского B1 и выше',
-                        'Уровень китайского 99 и выше',
-                        'Японское гражданство',
-                        'Звание глобала и 8к ммр в доте',
-                      ],
-                      bonuses: [
-                        'Стол и стул (или бутылка)',
-                        'Участникам скидка 10% на напитки собственного приготовления 😉',
-                      ],
+                  slivers: [
+                    const SliverPadding(padding: EdgeInsets.only(top: 130)),
+                    const SliverToBoxAdapter(
+                      child: _ContentSection(
+                        title: 'The Future of Work. How technology is reshaping',
+                        description: 'Приглашаем на английский клуб! Давайте прокачаем свои знания по английскому 😉',
+                        orgName: 'Surf',
+                        spotName: 'Surf x Post',
+                        requirements: [
+                          'Уровень английского B1 и выше',
+                          'Уровень китайского 99 и выше',
+                          'Японское гражданство',
+                          'Звание глобала и 8к ммр в доте',
+                        ],
+                        bonuses: [
+                          'Стол и стул (или бутылка)',
+                          'Участникам скидка 10% на напитки собственного приготовления 😉',
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 42),
-                    // TODO: это обязательно нужно отрефакторить, выглядит прям жуть, я не смог сходу
-                    //
-                    // context.read<AuthBloc>() из билда нужно срочно убрать это прям критично
-                    if (!context.read<AuthBloc>().state.hasValue)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: AppButton(
-                          title: _isRegistrationUserFlow ? 'Идет запись' : 'Записаться',
-                          isLoading: _isRegistrationUserFlow,
-                          // TODO: это нужно вынести в метод и дать этому осмысленное имя, а еще лучше разбить на несколько методов
-                          // Если честно я сколько ни смотрел я так и не смог понять что тут происходит(
-                          onTap: () async {
-                            final result = await Navigator.push<List<String>>(
-                              context,
-                              const AppModalBottomSheetPage<List<String>>(
-                                useSafeArea: true,
-                                child: JoinEventModal(
-                                  conditionsForParticipation: [
-                                    'Уровень английского B1 и выше',
-                                    'Уровень китайского 99 и выше',
-                                    'Японское гражданство',
-                                    'Звание глобала и 8к ммр в доте',
-                                  ],
-                                ),
-                              ).createRoute(context),
-                            );
-
-                            if (result case [String email, String password]) {
-                              if (context.mounted) {
-                                setState(() => _isRegistrationUserFlow = true);
-                                context.read<RegistrationBloc>().add(
-                                  CreateUserEvent(email: email, password: password, publishToPipe: true),
-                                );
-                                Navigator.push(
-                                  context,
-                                  AppModalBottomSheetPage(
-                                    name: _loadingBottomSheetName,
-                                    child: const CreatingEntryForEventModal(),
-                                  ).createRoute(context),
-                                );
-                              }
-                            }
-                          },
+                    const SliverPadding(padding: EdgeInsets.only(top: 42)),
+                    if (!_isAuthUser)
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child:
+                              _isRegistrationUserFlow
+                                  ? const AppButton.loading(title: 'Идет запись')
+                                  : AppButton.primary(title: 'Записаться', onTap: _startRegistration),
                         ),
                       )
                     else
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: BlocBuilder<SignUpToEventBloc, CommonBlocState<String>>(
-                          builder: (context, state) {
-                            if (state.isPending) {
-                              return const AppButton(title: 'Идет запись', isLoading: true);
-                            }
-                            if (state.isDone) {
-                              return AppButton(
-                                title: 'Отменить завявку',
-                                // TODO: У кнопки должны быть состояния - можно передавать туда енум типо warning,
-                                // error, loading, ... . Стили таким образом передавать прям не хорошо
-                                backgroundColor: context.themes.main.colors.warning100,
-                                titleStyle: context.themes.main.texts.body.copyWith(
-                                  color: context.themes.main.colors.warning600,
-                                ),
-                                // TODO: вынести и назвать
-                                onTap:
-                                    () => Navigator.push(
-                                      context,
-                                      const AppModalBottomSheetPage(child: _DeclineSignUpModal()).createRoute(context),
-                                    ),
-                              );
-                            }
-
-                            return AppButton(
-                              title: 'Записаться',
-                              // TODO: вынести. Почему тут происходит регистрация? нужно назвать осмысленно метод иначе ничего не понятно
-                              onTap: () {
-                                final email = context.read<AuthBloc>().state.value.email;
-                                context.read<SignUpToEventBloc>().add(SignUpEvent(email: email));
-                              },
-                            );
-                          },
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: BlocBuilder<BookingEventBloc, CommonBlocState<String>>(
+                            builder: (context, state) {
+                              if (state.isPending) {
+                                return const AppButton.loading(title: 'Идет запись');
+                              }
+                              if (state.isDone) {
+                                return AppButton.warning(
+                                  title: 'Отменить завявку',
+                                  onTap: () => context.openBottomSheet(const _DeclineBookingModal()),
+                                );
+                              }
+                              return AppButton.primary(title: 'Записаться', onTap: _bookToEvent);
+                            },
+                          ),
                         ),
                       ),
-                    const SizedBox(height: 25),
+                    const SliverPadding(padding: EdgeInsets.only(top: 25)),
                   ],
                 ),
                 PositionedScreenHeader(controller: _scrollController, onTapLogo: _onTapLogo),
@@ -312,7 +259,7 @@ class _ContentSection extends StatelessWidget {
           ),
           const SizedBox(height: 7),
           Text(title, style: context.themes.main.texts.h1),
-          BlocBuilder<SignUpToEventBloc, CommonBlocState<String>>(
+          BlocBuilder<BookingEventBloc, CommonBlocState<String>>(
             builder: (context, state) {
               if (!state.hasValue) const SizedBox.shrink();
 
@@ -466,15 +413,15 @@ class _SignUpDone extends StatelessWidget {
           const SizedBox(height: 5),
           Text(_message, textAlign: TextAlign.center, style: context.themes.main.texts.body),
           const SizedBox(height: 36),
-          AppButton(onTap: () => Navigator.pop(context), title: _buttonTitle),
+          AppButton.primary(onTap: () => Navigator.pop(context), title: _buttonTitle),
         ],
       ),
     );
   }
 }
 
-class _DeclineSignUpModal extends StatelessWidget {
-  const _DeclineSignUpModal();
+class _DeclineBookingModal extends StatelessWidget {
+  const _DeclineBookingModal();
 
   @override
   Widget build(BuildContext context) {
@@ -491,10 +438,8 @@ class _DeclineSignUpModal extends StatelessWidget {
             style: context.themes.main.texts.body,
           ),
           const SizedBox(height: 36),
-          AppButton(
+          AppButton.warning(
             title: 'Отменить завявку',
-            titleStyle: context.themes.main.texts.body.copyWith(color: context.themes.main.colors.warning600),
-            backgroundColor: context.themes.main.colors.warning100,
             onTap: () {
               //TODO: запрос отмены заявки
               Navigator.pop(context);

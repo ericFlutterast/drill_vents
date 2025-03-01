@@ -1,9 +1,6 @@
-import 'package:drill_events/app/blocs/common_bloc_event.dart';
-
-abstract class AuthEvents implements CommonBlocEvent {
+abstract class AuthEvents {
   AuthEvents({this.publishToPipe = false});
 
-  @override
   final bool publishToPipe;
 }
 

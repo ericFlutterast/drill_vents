@@ -69,7 +69,7 @@ class _InviteRequestToEventModalState extends State<JoinEventModal> {
               final isValid = form.valid && form.value != null && form.value!.isNotEmpty;
 
               if (_showPasswordField) {
-                return AppButton(
+                return AppButton.primary(
                   title: 'Создать аккаунт и записаться',
                   onTap:
                       isValid
@@ -81,7 +81,7 @@ class _InviteRequestToEventModalState extends State<JoinEventModal> {
                 );
               }
 
-              return AppButton(
+              return AppButton.primary(
                 title: 'Записаться',
                 onTap:
                     isValid
