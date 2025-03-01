@@ -87,7 +87,7 @@ class _OrgScreenState extends State<OrgScreen> {
                       ),
                     ),
                     const SizedBox(height: 32),
-                    AppButton(title: "Назад", onTap: () => Navigator.pop(context)),
+                    AppButton.primary(title: "Назад", onTap: () => Navigator.pop(context)),
                   ],
                 ),
               ),

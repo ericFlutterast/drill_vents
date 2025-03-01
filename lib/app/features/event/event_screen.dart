@@ -161,7 +161,7 @@ class _EventScreenState extends State<EventScreen> {
                 CustomScrollView(
                   controller: _scrollController,
                   slivers: [
-                    const SliverPadding(padding: EdgeInsets.only(top: 130)),
+                    const SliverPadding(padding: EdgeInsets.only(top: 180)),
                     SliverToBoxAdapter(
                       child: _ContentSection(
                         // TODO:
@@ -218,7 +218,10 @@ class _EventScreenState extends State<EventScreen> {
                     const SliverPadding(padding: EdgeInsets.only(top: 25)),
                   ],
                 ),
-                PositionedScreenHeader(controller: _scrollController, onTapLogo: _onTapOrg),
+                PositionedScreenHeader(
+                  controller: _scrollController,
+                  onTapLogo: () => context.openOrgScreen("7fdb5b3d-9de4-4dbb-a862-1a430feeb7fa"),
+                ),
               ],
             ),
           ),
