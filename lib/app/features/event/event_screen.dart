@@ -86,6 +86,58 @@ class _EventScreenState extends State<EventScreen> with SingleTickerProviderStat
     Navigator.popUntil(context, (route) => route.settings.name != _loadingBottomSheetName);
   }
 
+  void _startRegistration() async {
+    final userData = await _promptUserData();
+
+    if (userData case [String email, String password]) {
+      _startUserRegistrationChain(email, password);
+    }
+  }
+
+  Future<List<String>> _promptUserData() async {
+    return await Navigator.push<List<String>>(
+          context,
+          const AppModalBottomSheetPage<List<String>>(
+            useSafeArea: true,
+            child: JoinEventModal(
+              conditionsForParticipation: [
+                'Уровень английского B1 и выше',
+                'Уровень китайского 99 и выше',
+                'Японское гражданство',
+                'Звание глобала и 8к ммр в доте',
+              ],
+            ),
+          ).createRoute(context),
+        ) ??
+        [];
+  }
+
+  void _startUserRegistrationChain(String email, String password) {
+    if (mounted) {
+      setState(() => _isRegistrationUserFlow = true);
+      context.read<RegistrationBloc>().add(CreateUserEvent(email: email, password: password, publishToPipe: true));
+      Navigator.push(
+        context,
+        AppModalBottomSheetPage(
+          name: _loadingBottomSheetName,
+          child: const CreatingEntryForEventModal(),
+        ).createRoute(context),
+      );
+    }
+  }
+
+  void _signUpToEventBlocListener(BuildContext context, CommonBlocState<String> state) {
+    if (state.isDone) {
+      Navigator.popUntil(context, (route) => route.settings.name != _loadingBottomSheetName);
+      Navigator.push(context, const AppModalBottomSheetPage(child: _SignUpDone.success()).createRoute(context));
+    }
+    if (state.isError) {
+      Navigator.popUntil(context, (route) => route.settings.name != _loadingBottomSheetName);
+      Navigator.push(context, const AppModalBottomSheetPage(child: _SignUpDone.error()).createRoute(context));
+    }
+    setState(() => _isRegistrationUserFlow = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -105,23 +157,7 @@ class _EventScreenState extends State<EventScreen> with SingleTickerProviderStat
               }
             },
             child: BlocListener<SignUpToEventBloc, CommonBlocState<String>>(
-              listener: (_, state) {
-                if (state.isDone) {
-                  Navigator.popUntil(context, (route) => route.settings.name != _loadingBottomSheetName);
-                  Navigator.push(
-                    context,
-                    const AppModalBottomSheetPage(child: _SignUpDone.success()).createRoute(context),
-                  );
-                }
-                if (state.isError) {
-                  Navigator.popUntil(context, (route) => route.settings.name != _loadingBottomSheetName);
-                  Navigator.push(
-                    context,
-                    const AppModalBottomSheetPage(child: _SignUpDone.error()).createRoute(context),
-                  );
-                }
-                setState(() => _isRegistrationUserFlow = false);
-              },
+              listener: _signUpToEventBlocListener,
               child: Stack(
                 children: [
                   ListView(
@@ -203,38 +239,7 @@ class _EventScreenState extends State<EventScreen> with SingleTickerProviderStat
                           child: AppButton(
                             title: _isRegistrationUserFlow ? 'Идет запись' : 'Записаться',
                             isLoading: _isRegistrationUserFlow,
-                            onTap: () async {
-                              final result = await Navigator.push<List<String>>(
-                                context,
-                                const AppModalBottomSheetPage<List<String>>(
-                                  useSafeArea: true,
-                                  child: JoinEventModal(
-                                    conditionsForParticipation: [
-                                      'Уровень английского B1 и выше',
-                                      'Уровень китайского 99 и выше',
-                                      'Японское гражданство',
-                                      'Звание глобала и 8к ммр в доте',
-                                    ],
-                                  ),
-                                ).createRoute(context),
-                              );
-
-                              if (result case [String email, String password]) {
-                                if (context.mounted) {
-                                  setState(() => _isRegistrationUserFlow = true);
-                                  context.read<RegistrationBloc>().add(
-                                    CreateUserEvent(email: email, password: password, publishToPipe: true),
-                                  );
-                                  Navigator.push(
-                                    context,
-                                    AppModalBottomSheetPage(
-                                      name: _loadingBottomSheetName,
-                                      child: const CreatingEntryForEventModal(),
-                                    ).createRoute(context),
-                                  );
-                                }
-                              }
-                            },
+                            onTap: _startRegistration,
                           ),
                         )
                       else
@@ -340,7 +345,6 @@ class _ParticipationStatus extends StatelessWidget {
     final textStyles = context.themes.main.texts;
 
     final (textColor, icon, message) = switch (status) {
-      // Убери поля из енума и текст тут возвращай, когда интернационализацию подрубим все равно все текста в контексте будут
       ParticipationStatusEnum.processing => (
         colors.warning600,
         Assets.icons.processing.svg(),
