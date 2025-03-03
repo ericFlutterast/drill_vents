@@ -3,9 +3,10 @@ import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:flutter/material.dart';
 
 class OptionsTile extends StatefulWidget {
-  const OptionsTile({super.key, required this.title});
+  const OptionsTile({super.key, required this.title, required this.onEditingComplete});
 
   final String title;
+  final Function(Iterable<String> value) onEditingComplete;
 
   @override
   State<OptionsTile> createState() => _OptionsTileState();
@@ -31,6 +32,7 @@ class _OptionsTileState extends State<OptionsTile> {
     final texts = context.themes.main.texts;
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(widget.title, style: texts.body.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
@@ -40,20 +42,33 @@ class _OptionsTileState extends State<OptionsTile> {
             controller: entry.value,
             onAdd: () => setState(() => options[ValueKey(entry.value.text)] = TextEditingController()),
             onDelete: () => options.remove(entry.key),
+            onEditingComplete: onEditionComplete,
           ),
           if (index != options.length - 1) const SizedBox(height: 12),
         ],
       ],
     );
   }
+
+  void onEditionComplete() {
+    final result = options.values.map((textController) => textController.text);
+    widget.onEditingComplete(result);
+  }
 }
 
 class _Options extends StatefulWidget {
-  const _Options({required super.key, required this.controller, required this.onAdd, required this.onDelete});
+  const _Options({
+    required super.key,
+    required this.controller,
+    required this.onAdd,
+    required this.onDelete,
+    required this.onEditingComplete,
+  });
 
   final TextEditingController controller;
   final VoidCallback onAdd;
   final VoidCallback onDelete;
+  final VoidCallback onEditingComplete;
 
   @override
   State<_Options> createState() => _OptionsState();
@@ -66,7 +81,6 @@ class _OptionsState extends State<_Options> {
   @override
   void initState() {
     super.initState();
-
     widget.controller.addListener(_textControllerListener);
   }
 
@@ -76,6 +90,8 @@ class _OptionsState extends State<_Options> {
       setState(() => _isShowAddButton = true);
     }
   }
+
+  void _onEditingComplete() {}
 
   @override
   void dispose() {
@@ -105,7 +121,17 @@ class _OptionsState extends State<_Options> {
 
     return Row(
       children: [
-        Expanded(child: AppTextField(maxLines: 1, controller: widget.controller)),
+        Expanded(
+          child: AppTextField(
+            onTapOutside: (_) => widget.onEditingComplete(),
+            onEditingComplete: () {
+              FocusScope.of(context).unfocus();
+              widget.onEditingComplete();
+            },
+            maxLines: 1,
+            controller: widget.controller,
+          ),
+        ),
         if (_isShowAddButton) ...[
           const SizedBox(width: 8),
           _AddOptionButton(

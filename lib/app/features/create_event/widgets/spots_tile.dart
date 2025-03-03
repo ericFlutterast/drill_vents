@@ -25,6 +25,7 @@ class _SpotsTileState extends State<SpotsTile> {
     final texts = context.themes.main.texts;
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Опубликовать в', style: texts.body.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(height: 24),

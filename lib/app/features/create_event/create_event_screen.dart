@@ -1,9 +1,11 @@
+import 'package:drill_events/app/features/create_event/widgets/create_event_inherited_view_model.dart';
 import 'package:drill_events/app/features/create_event/widgets/date_time_picker.dart';
 import 'package:drill_events/app/features/create_event/widgets/options_tile.dart';
 import 'package:drill_events/app/features/create_event/widgets/spots_tile.dart';
 import 'package:drill_events/app/features/widgets/app_back_button.dart';
 import 'package:drill_events/app/features/widgets/app_button.dart';
 import 'package:drill_events/app/features/widgets/app_text_field.dart';
+import 'package:drill_events/app/models/new_event_model.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -17,6 +19,8 @@ class CreateEventScreen extends StatefulWidget {
 
 class _CreateEventScreenState extends State<CreateEventScreen> {
   late final _scrollController = ScrollController();
+  Iterable<String> _expectations = [];
+  Iterable<String> _suggestions = [];
 
   @override
   void dispose() {
@@ -30,42 +34,55 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
 
     return Scaffold(
       backgroundColor: colors.inverse,
-      body: Stack(
-        children: [
-          CustomScrollView(
-            controller: _scrollController,
-            slivers: [
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(20, 180, 20, 25),
-                sliver: SliverList.list(
-                  children: [
-                    const _Heading(),
-                    const SizedBox(height: 28),
-                    const DateTimePicker(),
-                    const SizedBox(height: 32),
-                    const _MainInformation(),
-                    const SizedBox(height: 24),
-                    const _CountOfSeats(),
-                    const SizedBox(height: 24),
-                    const OptionsTile(title: 'Ожидания от участников'),
-                    const SizedBox(height: 24),
-                    const OptionsTile(title: 'Мы обеспечим'),
-                    const SizedBox(height: 32),
-                    const SpotsTile(),
-                    const SizedBox(height: 24),
-                    AppButton.primary(
-                      title: 'Опубликовать',
-                      onTap: () {
-                        //TODO: create event
-                      },
+      body: NewEventInheritedViewModel(
+        model: const NewEventModel(),
+        child: Builder(
+          builder: (context) {
+            return SingleChildScrollView(
+              controller: _scrollController,
+              child: Stack(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 180, 20, 25),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const _Heading(),
+                        const SizedBox(height: 28),
+                        const DateTimePicker(),
+                        const SizedBox(height: 32),
+                        const _MainInformation(),
+                        const SizedBox(height: 24),
+                        const _Capacity(),
+                        const SizedBox(height: 24),
+                        OptionsTile(
+                          title: 'Ожидания от участников',
+                          onEditingComplete: (value) => _expectations = value,
+                        ),
+                        const SizedBox(height: 24),
+                        OptionsTile(title: 'Мы обеспечим', onEditingComplete: (value) => _suggestions = value),
+                        const SizedBox(height: 32),
+                        const SpotsTile(),
+                        const SizedBox(height: 24),
+                        AppButton.primary(
+                          title: 'Опубликовать',
+                          onTap: () {
+                            //TODO: create event
+                            NewEventInheritedViewModel.of(context).model = NewEventInheritedViewModel.of(
+                              context,
+                            ).model.copyWith(weSuggestOptions: _suggestions, expectingOptions: _expectations);
+                            print(NewEventInheritedViewModel.of(context).model.toString());
+                          },
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                  _PositionedBackButton(scrollController: _scrollController),
+                ],
               ),
-            ],
-          ),
-          _PositionedBackButton(scrollController: _scrollController),
-        ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -82,16 +99,71 @@ class _Heading extends StatelessWidget {
   }
 }
 
-class _MainInformation extends StatelessWidget {
+class _MainInformation extends StatefulWidget {
   const _MainInformation();
+
+  @override
+  State<_MainInformation> createState() => _MainInformationState();
+}
+
+class _MainInformationState extends State<_MainInformation> {
+  late final FocusNode _nameFocus;
+  late final FocusNode _descriptionFocus;
+  late final TextEditingController _nameTextController;
+  late final TextEditingController _descriptionTextController;
+  late final NewEventState _eventState;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameTextController = TextEditingController();
+    _descriptionTextController = TextEditingController();
+    _nameFocus = FocusNode();
+    _descriptionFocus = FocusNode();
+    _eventState = NewEventInheritedViewModel.of(context);
+
+    _nameTextController.addListener(_nameTextControllerListener);
+    _descriptionFocus.addListener(_descriptionFocusListener);
+  }
+
+  void _nameTextControllerListener() {
+    if (!_nameFocus.hasFocus) {
+      _eventState.model = _eventState.model.copyWith(title: _nameTextController.text);
+    }
+  }
+
+  void _descriptionFocusListener() {
+    if (!_descriptionFocus.hasFocus) {
+      _eventState.model = _eventState.model.copyWith(description: _descriptionTextController.text);
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameTextController.removeListener(_nameTextControllerListener);
+    _descriptionFocus.removeListener(_descriptionFocusListener);
+    _nameTextController.dispose();
+    _descriptionTextController.dispose();
+    _descriptionFocus.dispose();
+    _nameFocus.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const AppTextField(hintText: 'Имя', maxLines: 1),
+        AppTextField(
+          focusNode: _nameFocus,
+          controller: _nameTextController,
+          hintText: 'Имя',
+          maxLines: 1,
+          onEditingComplete: () => _nameFocus.nextFocus(),
+        ),
         const SizedBox(height: 12),
         AppTextField(
+          focusNode: _descriptionFocus,
+          controller: _descriptionTextController,
           maxLines: 3,
           decoration: InputDecoration(
             hintText: 'Описание',
@@ -110,8 +182,21 @@ class _MainInformation extends StatelessWidget {
   }
 }
 
-class _CountOfSeats extends StatelessWidget {
-  const _CountOfSeats();
+class _Capacity extends StatefulWidget {
+  const _Capacity();
+
+  @override
+  State<_Capacity> createState() => _CapacityState();
+}
+
+class _CapacityState extends State<_Capacity> {
+  late final NewEventState _eventState;
+
+  @override
+  void initState() {
+    super.initState();
+    _eventState = NewEventInheritedViewModel.of(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -123,8 +208,9 @@ class _CountOfSeats extends StatelessWidget {
         const SizedBox(width: 12),
         Text('Количество мест', style: texts.body.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(width: 12),
-        const Expanded(
+        Expanded(
           child: AppTextField(
+            onChanged: (count) => _eventState.model = _eventState.model.copyWith(),
             maxLines: 1,
             textAlign: TextAlign.center,
             hintText: '10',

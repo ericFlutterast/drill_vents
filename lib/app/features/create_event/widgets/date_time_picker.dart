@@ -1,3 +1,4 @@
+import 'package:drill_events/app/features/create_event/widgets/create_event_inherited_view_model.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:drill_events/common/utils/extensions.dart';
 import 'package:flutter/cupertino.dart';
@@ -12,22 +13,33 @@ class DateTimePicker extends StatefulWidget {
 }
 
 class _DateTimePickerState extends State<DateTimePicker> {
-  DateTime? _selectDate;
+  String? _selectDate;
+
+  late NewEventState _eventState;
+
+  @override
+  void initState() {
+    super.initState();
+    _eventState = NewEventInheritedViewModel.of(context);
+  }
+
+  void _onDateSelect(DateTime date) {
+    final String selectDate = DateFormat('yyyy-MM-dd').format(date);
+    setState(() => _selectDate = selectDate);
+    _eventState.model = _eventState.model.copyWith(startDate: selectDate);
+  }
+
+  void _onSelectTime(String startTime, String endTime) {
+    _eventState.model = _eventState.model.copyWith(startTime: startTime, endTime: endTime);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _PromptDatePicker(
-          selectDate: _selectDate != null ? DateFormat('dd.MM.yyyy').format(_selectDate!) : '',
-          onDateTimeChanged: (date) => setState(() => _selectDate = date),
-        ),
+        _PromptDatePicker(selectDate: _selectDate ?? '', onDateTimeChanged: _onDateSelect),
         const SizedBox(height: 12),
-        _PromptTime(
-          onSelected: (from, to) {
-            print('${from.toString()} ${to.toString()}');
-          },
-        ),
+        _PromptTime(onSelected: _onSelectTime),
       ],
     );
   }
@@ -97,39 +109,41 @@ class _DatePickerModal extends StatelessWidget {
 class _PromptTime extends StatefulWidget {
   const _PromptTime({required this.onSelected});
 
-  final Function(DateTime from, DateTime to) onSelected;
+  final Function(String from, String to) onSelected;
 
   @override
   State<_PromptTime> createState() => _PromptTimeState();
 }
 
 class _PromptTimeState extends State<_PromptTime> {
-  DateTime? from;
-  DateTime? to;
+  DateTime? start;
+  DateTime? end;
 
   void _selectSecondValue(DateTime time) {
-    setState(() => to = time);
-    if (from != null && to != null) {
-      widget.onSelected(from!, to!);
+    setState(() => end = time);
+    if (start != null && end != null) {
+      final startFormatted = DateFormat('HH:mm:ss').format(start!);
+      final endFormatted = DateFormat('HH:mm:ss').format(end!);
+      widget.onSelected(startFormatted, endFormatted);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final titleFrom = from != null ? DateFormat('HH:mm').format(from!) : null;
-    final titleTo = to != null ? DateFormat('HH:mm').format(to!) : null;
+    final titleStart = start != null ? DateFormat('HH:mm').format(start!) : null;
+    final titleEnd = end != null ? DateFormat('HH:mm').format(end!) : null;
 
     return Row(
       children: [
         Expanded(
           child: _PromptTimeItem(
-            title: titleFrom,
+            title: titleStart,
             hintText: '12:00',
-            onDateTimeChanged: (time) => setState(() => from = time),
+            onDateTimeChanged: (time) => setState(() => start = time),
           ),
         ),
         const SizedBox(width: 8),
-        Expanded(child: _PromptTimeItem(title: titleTo, hintText: '13:00', onDateTimeChanged: _selectSecondValue)),
+        Expanded(child: _PromptTimeItem(title: titleEnd, hintText: '13:00', onDateTimeChanged: _selectSecondValue)),
       ],
     );
   }

@@ -4,8 +4,8 @@ import 'package:json_annotation/json_annotation.dart';
 part 'new_event_model.g.dart';
 
 @JsonSerializable(createFactory: false, fieldRename: FieldRename.snake)
-final class NewEventViewModel extends Equatable {
-  const NewEventViewModel({
+final class NewEventModel extends Equatable {
+  const NewEventModel({
     this.title,
     this.spotId,
     this.startDate,
@@ -14,8 +14,10 @@ final class NewEventViewModel extends Equatable {
     this.startTime,
     this.expectingOptions,
     this.weSuggestOptions,
+    this.capacity = 0,
   });
 
+  final int capacity;
   final String? spotId, title, description, startDate, startTime, endTime;
   final Iterable<String>? expectingOptions, weSuggestOptions;
 
@@ -27,6 +29,7 @@ final class NewEventViewModel extends Equatable {
     startDate,
     startTime,
     endTime,
+    capacity,
     expectingOptions,
     weSuggestOptions,
   ];
@@ -38,7 +41,8 @@ final class NewEventViewModel extends Equatable {
     return true;
   }
 
-  NewEventViewModel copyWith({
+  NewEventModel copyWith({
+    int? capacity,
     String? spotId,
     title,
     description,
@@ -47,7 +51,8 @@ final class NewEventViewModel extends Equatable {
     endTime,
     Iterable<String>? expectingOptions,
     weSuggestOptions,
-  }) => NewEventViewModel(
+  }) => NewEventModel(
+    capacity: capacity ?? this.capacity,
     spotId: spotId ?? this.spotId,
     title: title ?? this.title,
     description: description ?? this.description,
@@ -58,5 +63,5 @@ final class NewEventViewModel extends Equatable {
     weSuggestOptions: weSuggestOptions ?? this.weSuggestOptions,
   );
 
-  Map<String, dynamic> toJson() => _$NewEventViewModelToJson(this);
+  Map<String, dynamic> toJson() => _$NewEventModelToJson(this);
 }

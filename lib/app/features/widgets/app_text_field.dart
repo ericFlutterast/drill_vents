@@ -28,6 +28,7 @@ class AppTextField extends StatelessWidget {
     this.expands = false,
     this.readOnly = false,
     this.textAlign = TextAlign.start,
+    this.focusNode,
   });
 
   final String? hintText;
@@ -53,6 +54,7 @@ class AppTextField extends StatelessWidget {
   final String obscuringCharacter;
   final int? maxLines;
   final TextAlign textAlign;
+  final FocusNode? focusNode;
 
   @override
   Widget build(BuildContext context) {
@@ -92,6 +94,7 @@ class AppTextField extends StatelessWidget {
     }
 
     return TextField(
+      focusNode: focusNode,
       controller: controller,
       cursorColor: context.themes.main.colors.primary,
       onChanged: onChanged,
