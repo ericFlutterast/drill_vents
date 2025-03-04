@@ -39,7 +39,7 @@ abstract interface class BackendAPI {
     required String eventId,
   });
   Future<DetailOrgModel> getOrg(String id);
-  Future<List<SpotCardModel>> getOrgSpots(String id);
+  Future<Iterable<SpotCardModel>> getOrgSpots(String id);
   Future<List<EventCardModel>> getOrgEvents(String id);
   Future<DetailSpotModel> getSpot(String id);
   Future<List<EventCardModel>> getSpotEvents(String id);

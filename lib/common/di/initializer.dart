@@ -3,6 +3,7 @@ import 'package:drill_events/app/blocs/auth/bloc.dart';
 import 'package:drill_events/app/blocs/booking_event/bloc.dart';
 import 'package:drill_events/app/blocs/detail_event/bloc.dart';
 import 'package:drill_events/app/blocs/events/bloc.dart';
+import 'package:drill_events/app/blocs/receiving_spots.dart';
 import 'package:drill_events/app/blocs/registration/bloc.dart';
 import 'package:drill_events/app/data/main_backend_api.dart';
 import 'package:drill_events/common/adapters/events_pipe/events_pipe.dart';
@@ -80,5 +81,6 @@ Map<String, Loader> _dependenciesSteps = {
       logger: dependencies.logger,
       pipe: dependencies.pipe,
     );
+    dependencies.receivingSpotsBloc = ReceivingSpotsBloc(dependencies.backendApi, dependencies.logger);
   },
 };

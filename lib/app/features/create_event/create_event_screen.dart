@@ -62,7 +62,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                         const SizedBox(height: 24),
                         OptionsTile(title: 'Мы обеспечим', onEditingComplete: (value) => _suggestions = value),
                         const SizedBox(height: 32),
-                        const SpotsTile(),
+                        SpotsTile.bloc(context),
                         const SizedBox(height: 24),
                         AppButton.primary(
                           title: 'Опубликовать',
