@@ -1,4 +1,5 @@
 import 'package:drill_events/app/features/create_event/widgets/create_event_inherited_view_model.dart';
+import 'package:drill_events/app/generated/assets.gen.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:drill_events/common/utils/extensions.dart';
 import 'package:flutter/cupertino.dart';
@@ -35,11 +36,16 @@ class _DateTimePickerState extends State<DateTimePicker> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Stack(
       children: [
-        _PromptDatePicker(selectDate: _selectDate ?? '', onDateTimeChanged: _onDateSelect),
-        const SizedBox(height: 12),
-        _PromptTime(onSelected: _onSelectTime),
+        Column(
+          children: [
+            _PromptDatePicker(selectDate: _selectDate ?? '', onDateTimeChanged: _onDateSelect),
+            const SizedBox(height: 12),
+            _PromptTime(onSelected: _onSelectTime),
+          ],
+        ),
+        Assets.icons.errorMark.svg(),
       ],
     );
   }
