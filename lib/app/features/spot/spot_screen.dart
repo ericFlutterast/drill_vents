@@ -1,6 +1,5 @@
-import 'package:drill_events/app/blocs/detail_spot_bloc.dart';
+import 'package:drill_events/app/blocs/detail_spot.dart';
 import 'package:drill_events/app/features/widgets/app_button.dart';
-import 'package:drill_events/app/features/widgets/event_list_item.dart';
 import 'package:drill_events/app/features/widgets/screen_header.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:drill_events/common/navigation/routes.dart';
@@ -19,7 +18,7 @@ class SpotScreen extends StatefulWidget {
 
   static Widget bloc(BuildContext context) {
     return BlocProvider<DetailSpotBloc>(
-      create: (_) => DetailSpotBloc(context.dependencies.repository, context.dependencies.logger),
+      create: (_) => DetailSpotBloc(context.dependencies.backendApi, context.dependencies.logger),
       child: const SpotScreen(),
     );
   }
@@ -41,7 +40,7 @@ class _SpotScreenState extends State<SpotScreen> {
     final args = context.getArgs<SpotScreenArgs>();
 
     final bloc = context.read<DetailSpotBloc>();
-    bloc.add(FetchDetailSpotEvent(args.spotId));
+    bloc.add(FetchDetailSpot(args.spotId));
   }
 
   void _onTapLogo() {
@@ -58,7 +57,7 @@ class _SpotScreenState extends State<SpotScreen> {
       backgroundColor: context.themes.main.colors.inverse,
       body: Stack(
         children: [
-          BlocBuilder<DetailSpotBloc, DetailSpotBlocState>(
+          BlocBuilder<DetailSpotBloc, DetailSpotState>(
             builder: (context, state) {
               if (state.hasError) {
                 // TODO:
@@ -104,14 +103,14 @@ class _SpotScreenState extends State<SpotScreen> {
                       ],
                     ),
                   ),
-                  SliverList.separated(
-                    itemCount: spot.events.length,
-                    itemBuilder: (context, index) {
-                      final event = spot.events[index];
-                      return EventListItem(title: event.title ?? '', onTap: () => _onTapEvent(event.eventId));
-                    },
-                    separatorBuilder: (context, index) => const SizedBox(height: 20),
-                  ),
+                  // SliverList.separated(
+                  //   itemCount: state.events.length,
+                  //   itemBuilder: (context, index) {
+                  //     final event = spot.events[index];
+                  //     return EventListItem(title: event.title ?? '', onTap: () => _onTapEvent(event.eventId));
+                  //   },
+                  //   separatorBuilder: (context, index) => const SizedBox(height: 20),
+                  // ),
                   const SliverToBoxAdapter(child: SizedBox(height: 80)),
                 ],
               );

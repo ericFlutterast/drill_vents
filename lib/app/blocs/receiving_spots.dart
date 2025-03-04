@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
-import 'package:drill_events/common/ports/data_repository.dart';
+import 'package:drill_events/common/ports/backend_api.dart';
 import 'package:drill_events/common/ports/logger.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -18,7 +18,7 @@ final class ReceivingSpotsBloc extends Bloc<ReceivingSpotsEvent, _State> {
     on<GetSpotsEvent>(_getSpots);
   }
 
-  final DataRepository _repository;
+  final BackendAPI _repository;
   final Logger _logger;
 
   Future<void> _getSpots(GetSpotsEvent event, _Emit emit) async {

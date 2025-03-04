@@ -1,4 +1,4 @@
-import 'package:drill_events/app/models/new_event_model.dart';
+import 'package:drill_events/app/new_models/models.dart';
 import 'package:flutter/material.dart';
 
 final class NewEventInheritedViewModel extends InheritedWidget {

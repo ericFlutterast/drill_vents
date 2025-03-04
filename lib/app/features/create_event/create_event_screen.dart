@@ -5,7 +5,7 @@ import 'package:drill_events/app/features/create_event/widgets/spots_tile.dart';
 import 'package:drill_events/app/features/widgets/app_back_button.dart';
 import 'package:drill_events/app/features/widgets/app_button.dart';
 import 'package:drill_events/app/features/widgets/app_text_field.dart';
-import 'package:drill_events/app/models/new_event_model.dart';
+import 'package:drill_events/app/new_models/models.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
