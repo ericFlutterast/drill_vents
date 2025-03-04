@@ -1,3 +1,4 @@
+import 'package:drill_events/common/utils/json_converters.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -376,7 +377,7 @@ class PaginationModel extends Equatable {
   List<Object?> get props => [page, size, next, itemCount, pageCount];
 }
 
-@JsonSerializable(createFactory: false, fieldRename: FieldRename.snake)
+@JsonSerializable(fieldRename: FieldRename.snake)
 final class NewEventModel extends Equatable {
   const NewEventModel({
     this.title,
@@ -390,8 +391,18 @@ final class NewEventModel extends Equatable {
     this.capacity = 0,
   });
 
-  final int capacity;
-  final String? spotId, title, description, startDate, startTime, endTime;
+  factory NewEventModel.fromJson(Map<String, dynamic> json) => _$NewEventModelFromJson(json);
+
+  final int? capacity;
+  final String? spotId, title, description;
+
+  @ToRFC3337DateConverter()
+  final DateTime? startDate;
+  @ToRFC3337TimeConverter()
+  final DateTime? startTime;
+  @ToRFC3337TimeConverter()
+  final DateTime? endTime;
+
   final Iterable<String>? expectingOptions, weSuggestOptions;
 
   @override
@@ -417,13 +428,13 @@ final class NewEventModel extends Equatable {
   NewEventModel copyWith({
     int? capacity,
     String? spotId,
-    title,
-    description,
-    startDate,
-    startTime,
-    endTime,
+    String? title,
+    String? description,
+    DateTime? startDate,
+    DateTime? startTime,
+    DateTime? endTime,
     Iterable<String>? expectingOptions,
-    weSuggestOptions,
+    Iterable<String>? weSuggestOptions,
   }) => NewEventModel(
     capacity: capacity ?? this.capacity,
     spotId: spotId ?? this.spotId,

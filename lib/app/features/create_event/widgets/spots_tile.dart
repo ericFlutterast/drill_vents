@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:drill_events/app/blocs/receiving_spots.dart';
+import 'package:drill_events/app/features/create_event/widgets/create_event_inherited_view_model.dart';
 import 'package:drill_events/app/features/event/widgets/participation_notification.dart';
 import 'package:drill_events/app/features/widgets/notification_manager.dart';
 import 'package:drill_events/app/features/widgets/shimmer.dart';
@@ -25,15 +26,32 @@ class SpotsTile extends StatefulWidget {
 }
 
 class _SpotsTileState extends State<SpotsTile> {
+  late final NewEventState _eventState;
   int? _selectedIndex;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _eventState = NewEventInheritedViewModel.of(context);
+  }
 
   void _selectSpot(int index) {
     if (index == _selectedIndex) {
       setState(() => _selectedIndex = null);
+      _removeSpotId();
       return;
     }
     setState(() => _selectedIndex = index);
+    _saveSpotId(index);
   }
+
+  void _saveSpotId(int index) {
+    final spotId = context.read<ReceivingSpotsBloc>().state.value.elementAt(index).id;
+    _eventState.model = _eventState.model.copyWith(spotId: spotId);
+  }
+
+  void _removeSpotId() => _eventState.model = _eventState.model.copyWith(spotId: null);
 
   @override
   Widget build(BuildContext context) {

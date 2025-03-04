@@ -40,7 +40,7 @@ class App extends StatelessWidget {
           Routes.event: (context) => EventScreen.bloc(context),
           Routes.spot: (context) => SpotScreen.bloc(context),
           Routes.org: (context) => OrgScreen.bloc(context),
-          Routes.createEvent: (context) => const CreateEventScreen(),
+          Routes.createEvent: (context) => CreateEventScreen.bloc(context),
         },
       ),
     );

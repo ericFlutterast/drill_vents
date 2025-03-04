@@ -17,14 +17,7 @@ abstract interface class BackendAPI {
   });
   Future<DetailEventModel> getEvent(String id);
   Future<List<ShortUserModel>> getParticipants(String id);
-  Future<DetailEventModel> createEvent({
-    required String spotID,
-    required String title,
-    required String description,
-    required DateTime startDate,
-    DateTime? startTime,
-    DateTime? endTime,
-  });
+  Future<DetailEventModel> createEvent(NewEventModel eventData);
   Future<DetailEventModel> updateEvent(
     String id, {
     String? title,

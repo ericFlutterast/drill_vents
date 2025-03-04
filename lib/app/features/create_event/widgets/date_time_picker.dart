@@ -27,10 +27,10 @@ class _DateTimePickerState extends State<DateTimePicker> {
   void _onDateSelect(DateTime date) {
     final String selectDate = DateFormat('yyyy-MM-dd').format(date);
     setState(() => _selectDate = selectDate);
-    _eventState.model = _eventState.model.copyWith(startDate: selectDate);
+    _eventState.model = _eventState.model.copyWith(startDate: date);
   }
 
-  void _onSelectTime(String startTime, String endTime) {
+  void _onSelectTime(DateTime startTime, DateTime endTime) {
     _eventState.model = _eventState.model.copyWith(startTime: startTime, endTime: endTime);
   }
 
@@ -115,7 +115,7 @@ class _DatePickerModal extends StatelessWidget {
 class _PromptTime extends StatefulWidget {
   const _PromptTime({required this.onSelected});
 
-  final Function(String from, String to) onSelected;
+  final Function(DateTime from, DateTime to) onSelected;
 
   @override
   State<_PromptTime> createState() => _PromptTimeState();
@@ -128,9 +128,7 @@ class _PromptTimeState extends State<_PromptTime> {
   void _selectSecondValue(DateTime time) {
     setState(() => end = time);
     if (start != null && end != null) {
-      final startFormatted = DateFormat('HH:mm:ss').format(start!);
-      final endFormatted = DateFormat('HH:mm:ss').format(end!);
-      widget.onSelected(startFormatted, endFormatted);
+      widget.onSelected(start!, end!);
     }
   }
 

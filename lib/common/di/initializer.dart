@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:drill_events/app/blocs/auth/bloc.dart';
 import 'package:drill_events/app/blocs/booking_event/bloc.dart';
+import 'package:drill_events/app/blocs/create_new_event.dart';
 import 'package:drill_events/app/blocs/detail_event/bloc.dart';
 import 'package:drill_events/app/blocs/events/bloc.dart';
 import 'package:drill_events/app/blocs/receiving_spots.dart';
@@ -55,7 +56,7 @@ Map<String, Loader> _dependenciesSteps = {
   },
   'data': (dependencies) async {
     dependencies.secureStorage = const FlutterSecureStorage();
-    dependencies.backendApi = MainBackendAPI(dependencies.httpApiClient);
+    dependencies.backendApi = MainBackendAPI(dependencies.httpApiClient, dependencies.logger);
     dependencies.sharedPreferences = await SharedPreferences.getInstance();
   },
   'blocs': (dependencies) async {
@@ -82,5 +83,6 @@ Map<String, Loader> _dependenciesSteps = {
       pipe: dependencies.pipe,
     );
     dependencies.receivingSpotsBloc = ReceivingSpotsBloc(dependencies.backendApi, dependencies.logger);
+    dependencies.createNewEventBloc = CreateNewEventBloc(dependencies.backendApi, dependencies.logger);
   },
 };

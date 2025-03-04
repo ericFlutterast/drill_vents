@@ -1,12 +1,14 @@
 import 'package:drill_events/app/new_models/models.dart';
 import 'package:drill_events/common/network/http_api_client.dart';
 import 'package:drill_events/common/ports/backend_api.dart';
+import 'package:drill_events/common/ports/logger.dart';
 import 'package:drill_events/common/utils/extensions.dart';
 
 class MainBackendAPI implements BackendAPI {
-  const MainBackendAPI(this._api);
+  const MainBackendAPI(this._api, this._logger);
 
   final HttpApiClient _api;
+  final Logger _logger;
 
   @override
   Future<List<CityModel>> getCities() async {
@@ -99,28 +101,18 @@ class MainBackendAPI implements BackendAPI {
   }
 
   @override
-  Future<DetailEventModel> createEvent({
-    required String spotID,
-    required String title,
-    required String description,
-    required DateTime startDate,
-    DateTime? startTime,
-    DateTime? endTime,
-  }) async {
-    final response = await _api.post(
-      '/events',
-      data: {
-        "spot_id": spotID,
-        "title": title,
-        "description": description,
-        "start_date": startDate.toRFC3337Date(),
-        "start_time": startTime?.toRFC3337Time(),
-        "end_time": endTime?.toRFC3337Time(),
-      },
-    );
-    final item = response.data['event'] as Map<String, dynamic>;
+  Future<DetailEventModel> createEvent(NewEventModel eventData) async {
+    try {
+      final data = eventData.toJson();
 
-    return DetailEventModel.fromJson(item);
+      final response = await _api.post('/events', data: data);
+      final item = response.data['event'] as Map<String, dynamic>;
+
+      return DetailEventModel.fromJson(item);
+    } catch (error, stackTrace) {
+      _logger.error(error, error: error, stackTrace: stackTrace);
+      rethrow;
+    }
   }
 
   @override
