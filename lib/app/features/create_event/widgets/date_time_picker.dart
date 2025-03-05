@@ -1,5 +1,5 @@
-import 'package:drill_events/app/features/create_event/widgets/create_event_inherited_view_model.dart';
-import 'package:drill_events/app/generated/assets.gen.dart';
+import 'package:drill_events/app/features/create_event/new_event_validators.dart';
+import 'package:drill_events/app/features/widgets/validation_builder.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:drill_events/common/utils/extensions.dart';
 import 'package:flutter/cupertino.dart';
@@ -7,7 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class DateTimePicker extends StatefulWidget {
-  const DateTimePicker({super.key});
+  const DateTimePicker({super.key, required this.validator});
+
+  final DateTimeValidator validator;
 
   @override
   State<DateTimePicker> createState() => _DateTimePickerState();
@@ -16,37 +18,36 @@ class DateTimePicker extends StatefulWidget {
 class _DateTimePickerState extends State<DateTimePicker> {
   String? _selectDate;
 
-  late NewEventState _eventState;
-
-  @override
-  void initState() {
-    super.initState();
-    _eventState = NewEventInheritedViewModel.of(context);
-  }
-
   void _onDateSelect(DateTime date) {
     final String selectDate = DateFormat('yyyy-MM-dd').format(date);
     setState(() => _selectDate = selectDate);
-    _eventState.model = _eventState.model.copyWith(startDate: date);
+    widget.validator.value?.startDate = date;
+    print(widget.validator);
   }
 
-  void _onSelectTime(DateTime startTime, DateTime endTime) {
-    _eventState.model = _eventState.model.copyWith(startTime: startTime, endTime: endTime);
+  void _onSelectTime(DateTime? startTime, DateTime? endTime) {
+    widget.validator.value?.startTime = startTime;
+    widget.validator.value?.endTime = endTime;
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Column(
+    return ValidationBuilder(
+      validator: widget.validator,
+      builder: (context, value, _) {
+        return Column(
           children: [
             _PromptDatePicker(selectDate: _selectDate ?? '', onDateTimeChanged: _onDateSelect),
             const SizedBox(height: 12),
             _PromptTime(onSelected: _onSelectTime),
           ],
-        ),
-        Assets.icons.errorMark.svg(),
-      ],
+        );
+      },
     );
   }
 }
@@ -115,7 +116,7 @@ class _DatePickerModal extends StatelessWidget {
 class _PromptTime extends StatefulWidget {
   const _PromptTime({required this.onSelected});
 
-  final Function(DateTime from, DateTime to) onSelected;
+  final Function(DateTime? from, DateTime? to) onSelected;
 
   @override
   State<_PromptTime> createState() => _PromptTimeState();
@@ -124,13 +125,6 @@ class _PromptTime extends StatefulWidget {
 class _PromptTimeState extends State<_PromptTime> {
   DateTime? start;
   DateTime? end;
-
-  void _selectSecondValue(DateTime time) {
-    setState(() => end = time);
-    if (start != null && end != null) {
-      widget.onSelected(start!, end!);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -143,11 +137,23 @@ class _PromptTimeState extends State<_PromptTime> {
           child: _PromptTimeItem(
             title: titleStart,
             hintText: '12:00',
-            onDateTimeChanged: (time) => setState(() => start = time),
+            onDateTimeChanged: (time) {
+              setState(() => start = time);
+              widget.onSelected(time, end);
+            },
           ),
         ),
         const SizedBox(width: 8),
-        Expanded(child: _PromptTimeItem(title: titleEnd, hintText: '13:00', onDateTimeChanged: _selectSecondValue)),
+        Expanded(
+          child: _PromptTimeItem(
+            title: titleEnd,
+            hintText: '13:00',
+            onDateTimeChanged: (time) {
+              setState(() => end = time);
+              widget.onSelected(start, end);
+            },
+          ),
+        ),
       ],
     );
   }

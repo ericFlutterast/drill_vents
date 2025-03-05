@@ -7,9 +7,23 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 ///Event
 final class CreateNewEvent {
-  CreateNewEvent(this.newEvent);
+  CreateNewEvent({
+    required this.title,
+    required this.capacity,
+    required this.description,
+    required this.endTime,
+    required this.startTime,
+    required this.startDate,
+    required this.spotId,
+  });
 
-  final NewEventModel newEvent;
+  final String spotId;
+  final String title;
+  final String description;
+  final DateTime startDate;
+  final DateTime startTime;
+  final DateTime? endTime;
+  final int capacity;
 }
 
 typedef CreateNewEventState = CommonBlocState<DetailEventModel>;
@@ -27,7 +41,15 @@ final class CreateNewEventBloc extends Bloc<CreateNewEvent, CreateNewEventState>
   Future<void> _createNewEvent(CreateNewEvent event, Emit emit) async {
     try {
       emit(state.pending());
-      final result = await _repository.createEvent(event.newEvent);
+      final newEvent = NewEventModel(
+        title: event.title,
+        description: event.description,
+        startDate: event.startDate,
+        startTime: event.startTime,
+        endTime: event.endTime,
+        spotId: event.spotId,
+      );
+      final result = await _repository.createEvent(newEvent);
       emit(state.done(result));
     } on DioException catch (error, stackTrace) {
       _logger.error(error, error: error, stackTrace: stackTrace);

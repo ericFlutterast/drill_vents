@@ -1,5 +1,5 @@
 import 'package:drill_events/app/blocs/create_new_event.dart';
-import 'package:drill_events/app/features/create_event/widgets/create_event_inherited_view_model.dart';
+import 'package:drill_events/app/features/create_event/new_event_validators.dart';
 import 'package:drill_events/app/features/create_event/widgets/date_time_picker.dart';
 import 'package:drill_events/app/features/create_event/widgets/options_tile.dart';
 import 'package:drill_events/app/features/create_event/widgets/spots_tile.dart';
@@ -8,7 +8,7 @@ import 'package:drill_events/app/features/widgets/app_back_button.dart';
 import 'package:drill_events/app/features/widgets/app_button.dart';
 import 'package:drill_events/app/features/widgets/app_text_field.dart';
 import 'package:drill_events/app/features/widgets/notification_manager.dart';
-import 'package:drill_events/app/new_models/models.dart';
+import 'package:drill_events/app/features/widgets/validation_builder.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:drill_events/common/utils/extensions.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +21,7 @@ class CreateEventScreen extends StatefulWidget {
   static Widget bloc(BuildContext context, {Key? key}) {
     return BlocProvider<CreateNewEventBloc>(
       create: (context) => context.dependencies.createNewEventBloc,
-      child: NewEventInheritedViewModel(model: const NewEventModel(), child: CreateEventScreen._(key: key)),
+      child: CreateEventScreen._(key: key),
     );
   }
 
@@ -31,8 +31,14 @@ class CreateEventScreen extends StatefulWidget {
 
 class _CreateEventScreenState extends State<CreateEventScreen> {
   late final _scrollController = ScrollController();
-  Iterable<String> _expectations = [];
-  Iterable<String> _suggestions = [];
+
+  EventValidation eventValidation = EventValidation({
+    'dateTime': DateTimeValidator(),
+    'title': TitleValidator(),
+    'description': DescriptionValidator(),
+    'capacity': CapacityValidator(),
+    'spotId': SpotIdValidator(),
+  });
 
   @override
   void dispose() {
@@ -41,9 +47,29 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   }
 
   void _createEvent() {
-    final event = NewEventInheritedViewModel.of(context).model;
-    context.read<CreateNewEventBloc>().add(CreateNewEvent(event));
-    Navigator.pop(context);
+    if (eventValidation.isValidate) {
+      if (eventValidation.validators case <String, Validator>{
+        'title': final title,
+        'description': final description,
+        'dateTime': final DateTimeValidator dateTime,
+        'capacity': final capacity,
+        'spotId': final spotId,
+      }) {
+        context.read<CreateNewEventBloc>().add(
+          CreateNewEvent(
+            title: title.value,
+            capacity: capacity.value,
+            description: description.value,
+            endTime: dateTime.value?.endTime,
+            startTime: dateTime.value?.startTime ?? DateTime.now(),
+            startDate: dateTime.value?.endTime ?? DateTime.now(),
+            spotId: spotId.value,
+          ),
+        );
+      }
+    } else {
+      _scrollController.animateTo(0, duration: const Duration(milliseconds: 600), curve: Curves.linear);
+    }
   }
 
   void _createEventBlocListener(BuildContext _, CreateNewEventState state) {
@@ -82,17 +108,20 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                   children: [
                     const _Heading(),
                     const SizedBox(height: 28),
-                    const DateTimePicker(),
+                    DateTimePicker(validator: eventValidation.validators['dateTime'] as DateTimeValidator),
                     const SizedBox(height: 32),
-                    const _MainInformation(),
+                    _MainInformation(
+                      titleValidator: eventValidation.validators['title']!,
+                      descriptionValidator: eventValidation.validators['description']!,
+                    ),
                     const SizedBox(height: 24),
-                    const _Capacity(),
+                    _Capacity(validator: eventValidation.validators['capacity']!),
                     const SizedBox(height: 24),
-                    OptionsTile(title: 'Ожидания от участников', onEditingComplete: (value) => _expectations = value),
+                    OptionsTile(title: 'Ожидания от участников', onEditingComplete: (value) {}),
                     const SizedBox(height: 24),
-                    OptionsTile(title: 'Мы обеспечим', onEditingComplete: (value) => _suggestions = value),
+                    OptionsTile(title: 'Мы обеспечим', onEditingComplete: (value) {}),
                     const SizedBox(height: 32),
-                    SpotsTile.bloc(context),
+                    SpotsTile.bloc(context, validator: eventValidation.validators['spotId']!),
                     const SizedBox(height: 24),
                     BlocBuilder<CreateNewEventBloc, CreateNewEventState>(
                       builder: (context, state) {
@@ -127,7 +156,10 @@ class _Heading extends StatelessWidget {
 }
 
 class _MainInformation extends StatefulWidget {
-  const _MainInformation();
+  const _MainInformation({required this.titleValidator, required this.descriptionValidator});
+
+  final Validator titleValidator;
+  final Validator descriptionValidator;
 
   @override
   State<_MainInformation> createState() => _MainInformationState();
@@ -138,7 +170,6 @@ class _MainInformationState extends State<_MainInformation> {
   late final FocusNode _descriptionFocus;
   late final TextEditingController _nameTextController;
   late final TextEditingController _descriptionTextController;
-  late final NewEventState _eventState;
 
   @override
   void initState() {
@@ -147,7 +178,6 @@ class _MainInformationState extends State<_MainInformation> {
     _descriptionTextController = TextEditingController();
     _nameFocus = FocusNode();
     _descriptionFocus = FocusNode();
-    _eventState = NewEventInheritedViewModel.of(context);
 
     _nameTextController.addListener(_nameTextControllerListener);
     _descriptionFocus.addListener(_descriptionFocusListener);
@@ -155,13 +185,13 @@ class _MainInformationState extends State<_MainInformation> {
 
   void _nameTextControllerListener() {
     if (!_nameFocus.hasFocus) {
-      _eventState.model = _eventState.model.copyWith(title: _nameTextController.text);
+      widget.titleValidator.value = _nameTextController.text;
     }
   }
 
   void _descriptionFocusListener() {
     if (!_descriptionFocus.hasFocus) {
-      _eventState.model = _eventState.model.copyWith(description: _descriptionTextController.text);
+      widget.descriptionValidator.value = _descriptionTextController.text;
     }
   }
 
@@ -180,29 +210,40 @@ class _MainInformationState extends State<_MainInformation> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        AppTextField(
-          focusNode: _nameFocus,
-          controller: _nameTextController,
-          hintText: 'Имя',
-          maxLines: 1,
-          onEditingComplete: () => _nameFocus.nextFocus(),
+        ValidationBuilder(
+          validator: widget.titleValidator,
+          builder: (context, value, child) {
+            return AppTextField(
+              focusNode: _nameFocus,
+              controller: _nameTextController,
+              hintText: 'Имя',
+              maxLines: 1,
+              onEditingComplete: () => _nameFocus.nextFocus(),
+              onTapUpOutside: (_) => widget.titleValidator.value = _nameTextController.text,
+            );
+          },
         ),
         const SizedBox(height: 12),
-        AppTextField(
-          focusNode: _descriptionFocus,
-          controller: _descriptionTextController,
-          maxLines: 3,
-          decoration: InputDecoration(
-            hintText: 'Описание',
-            hintStyle: context.themes.main.texts.body.copyWith(color: context.themes.main.colors.secondary),
-            filled: true,
-            fillColor: const Color(0xFFF5F5F5),
-            border: const OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(16)),
-              borderSide: BorderSide.none,
-            ),
-            contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 22),
-          ),
+        ValidationBuilder(
+          validator: widget.descriptionValidator,
+          builder: (context, value, child) {
+            return AppTextField(
+              focusNode: _descriptionFocus,
+              controller: _descriptionTextController,
+              maxLines: 3,
+              decoration: InputDecoration(
+                hintText: 'Описание',
+                hintStyle: context.themes.main.texts.body.copyWith(color: context.themes.main.colors.secondary),
+                filled: true,
+                fillColor: const Color(0xFFF5F5F5),
+                border: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(16)),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 22),
+              ),
+            );
+          },
         ),
       ],
     );
@@ -210,41 +251,39 @@ class _MainInformationState extends State<_MainInformation> {
 }
 
 class _Capacity extends StatefulWidget {
-  const _Capacity();
+  const _Capacity({required this.validator});
+
+  final Validator validator;
 
   @override
   State<_Capacity> createState() => _CapacityState();
 }
 
 class _CapacityState extends State<_Capacity> {
-  late final NewEventState _eventState;
-
-  @override
-  void initState() {
-    super.initState();
-    _eventState = NewEventInheritedViewModel.of(context);
-  }
-
   @override
   Widget build(BuildContext context) {
     final texts = context.themes.main.texts;
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(width: 12),
-        Text('Количество мест', style: texts.body.copyWith(fontWeight: FontWeight.bold)),
-        const SizedBox(width: 12),
-        Expanded(
-          child: AppTextField(
-            onChanged: (count) => _eventState.model = _eventState.model.copyWith(capacity: int.parse(count)),
-            maxLines: 1,
-            textAlign: TextAlign.center,
-            hintText: '10',
-            keyboardType: TextInputType.number,
+    return ValidationBuilder(
+      validator: widget.validator,
+      builder: (_, __, widget) => widget!,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(width: 12),
+          Text('Количество мест', style: texts.body.copyWith(fontWeight: FontWeight.bold)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: AppTextField(
+              onChanged: (count) => widget.validator.value = int.parse(count),
+              maxLines: 1,
+              textAlign: TextAlign.center,
+              hintText: '10',
+              keyboardType: TextInputType.number,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

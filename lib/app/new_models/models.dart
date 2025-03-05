@@ -387,7 +387,7 @@ final class NewEventModel extends Equatable {
     this.endTime,
     this.startTime,
     this.expectingOptions,
-    this.weSuggestOptions,
+    this.suggestOptions,
     this.capacity = 0,
   });
 
@@ -403,7 +403,7 @@ final class NewEventModel extends Equatable {
   @ToRFC3337TimeConverter()
   final DateTime? endTime;
 
-  final Iterable<String>? expectingOptions, weSuggestOptions;
+  final Iterable<String>? expectingOptions, suggestOptions;
 
   @override
   List<Object?> get props => [
@@ -415,15 +415,8 @@ final class NewEventModel extends Equatable {
     endTime,
     capacity,
     expectingOptions,
-    weSuggestOptions,
+    suggestOptions,
   ];
-
-  bool fieldsNoContainsNull() {
-    for (final field in props) {
-      if (field == null) return false;
-    }
-    return true;
-  }
 
   NewEventModel copyWith({
     int? capacity,
@@ -434,7 +427,7 @@ final class NewEventModel extends Equatable {
     DateTime? startTime,
     DateTime? endTime,
     Iterable<String>? expectingOptions,
-    Iterable<String>? weSuggestOptions,
+    Iterable<String>? suggestOptions,
   }) => NewEventModel(
     capacity: capacity ?? this.capacity,
     spotId: spotId ?? this.spotId,
@@ -444,7 +437,7 @@ final class NewEventModel extends Equatable {
     startTime: startTime ?? this.startTime,
     endTime: endTime ?? this.endTime,
     expectingOptions: expectingOptions ?? this.expectingOptions,
-    weSuggestOptions: weSuggestOptions ?? this.weSuggestOptions,
+    suggestOptions: suggestOptions ?? this.suggestOptions,
   );
 
   Map<String, dynamic> toJson() => _$NewEventModelToJson(this);

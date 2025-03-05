@@ -91,8 +91,6 @@ class _OptionsState extends State<_Options> {
     }
   }
 
-  void _onEditingComplete() {}
-
   @override
   void dispose() {
     widget.controller.removeListener(_textControllerListener);

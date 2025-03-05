@@ -1,23 +1,26 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:drill_events/app/blocs/receiving_spots.dart';
-import 'package:drill_events/app/features/create_event/widgets/create_event_inherited_view_model.dart';
+import 'package:drill_events/app/features/create_event/new_event_validators.dart';
 import 'package:drill_events/app/features/event/widgets/participation_notification.dart';
 import 'package:drill_events/app/features/widgets/notification_manager.dart';
 import 'package:drill_events/app/features/widgets/shimmer.dart';
+import 'package:drill_events/app/features/widgets/validation_builder.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:drill_events/common/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SpotsTile extends StatefulWidget {
-  const SpotsTile._({super.key});
+  const SpotsTile._({super.key, required this.validator});
 
-  static Widget bloc(BuildContext context, {Key? key}) {
+  final Validator validator;
+
+  static Widget bloc(BuildContext context, {Key? key, required Validator validator}) {
     return BlocProvider<ReceivingSpotsBloc>(
       create:
           (context) =>
               context.dependencies.receivingSpotsBloc..add(GetSpotsEvent('d3f037b8-c43f-4ec3-ba8f-65ea939d4327')),
-      child: SpotsTile._(key: key),
+      child: SpotsTile._(key: key, validator: validator),
     );
   }
 
@@ -26,32 +29,17 @@ class SpotsTile extends StatefulWidget {
 }
 
 class _SpotsTileState extends State<SpotsTile> {
-  late final NewEventState _eventState;
   int? _selectedIndex;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _eventState = NewEventInheritedViewModel.of(context);
-  }
 
   void _selectSpot(int index) {
     if (index == _selectedIndex) {
       setState(() => _selectedIndex = null);
-      _removeSpotId();
+      widget.validator.value = null;
       return;
     }
     setState(() => _selectedIndex = index);
-    _saveSpotId(index);
+    widget.validator.value = context.read<ReceivingSpotsBloc>().state.value.elementAt(index).id;
   }
-
-  void _saveSpotId(int index) {
-    final spotId = context.read<ReceivingSpotsBloc>().state.value.elementAt(index).id;
-    _eventState.model = _eventState.model.copyWith(spotId: spotId);
-  }
-
-  void _removeSpotId() => _eventState.model = _eventState.model.copyWith(spotId: null);
 
   @override
   Widget build(BuildContext context) {
@@ -71,21 +59,28 @@ class _SpotsTileState extends State<SpotsTile> {
       child: BlocBuilder<ReceivingSpotsBloc, ReceivingSpotsState>(
         builder: (context, state) {
           if (state.isDone && state.hasValue) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Опубликовать в', style: texts.body.copyWith(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 24),
-                for (final (index, spot) in state.value.indexed) ...[
-                  _Spot(
-                    title: spot.title,
-                    address: spot.address,
-                    onSelect: () => _selectSpot(index),
-                    isSelect: _selectedIndex == index,
+            return ValidationBuilder(
+              validator: widget.validator,
+              builder: (_, __, widget) => widget!,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 12),
+                    child: Text('Опубликовать в', style: texts.body.copyWith(fontWeight: FontWeight.bold)),
                   ),
-                  if (index != 3) const SizedBox(height: 20),
+                  const SizedBox(height: 24),
+                  for (final (index, spot) in state.value.indexed) ...[
+                    _Spot(
+                      title: spot.title,
+                      address: spot.address,
+                      onSelect: () => _selectSpot(index),
+                      isSelect: _selectedIndex == index,
+                    ),
+                    if (index != 3) const SizedBox(height: 20),
+                  ],
                 ],
-              ],
+              ),
             );
           }
 
