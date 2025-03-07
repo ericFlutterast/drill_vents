@@ -9,6 +9,7 @@ import 'package:drill_events/app/features/widgets/event_list_item.dart';
 import 'package:drill_events/app/new_models/models.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:drill_events/common/navigation/routes.dart';
+import 'package:drill_events/common/utils/extensions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,6 +23,7 @@ class HomeScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       body: SafeArea(
         top: false,
+        bottom: false,
         child: BlocBuilder<EventsBloc, CommonBlocState<Iterable<EventCardModel>>>(
           builder: (context, state) {
             return CustomScrollView(
@@ -38,50 +40,44 @@ class HomeScreen extends StatelessWidget {
                     titlePadding: EdgeInsets.only(bottom: 10),
                   ),
                 ),
-                // TODO: красивое но поведение прям супер не оч, хз может так у айоса принято но в андроиде
-                // противоположное вообще, нужно поменять в угоду UX и сделать похожим на RefreshIndicator
                 CupertinoSliverRefreshControl(
                   refreshIndicatorExtent: 60,
                   refreshTriggerPullDistance: 120,
                   onRefresh: () async => context.read<EventsBloc>().add(FetchEventsFeed()),
-                  builder: (context, _, __, ___, ____) {
-                    return const Center(child: AnimatedRefresh());
+                  builder: (context, _, pullExtent, __, ___) {
+                    return pullExtent > 85 ? const Center(child: AnimatedRefresh()) : const SizedBox.shrink();
                   },
                 ),
                 const _SoonEventsTitle(),
+                if (state.isPending)
+                  SliverList.separated(
+                    itemCount: 10,
+                    itemBuilder: (context, index) => const EventListItem.shimmer(),
+                    separatorBuilder: (_, __) => const SizedBox(height: 28),
+                  )
+                else if (state.hasValue && state.isDone) ...[
+                  SliverList.separated(
+                    itemCount: state.value.length,
+                    itemBuilder: (context, index) {
+                      final event = state.value.elementAt(index);
 
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  sliver:
-                      state.isPending
-                          ? SliverList.separated(
-                            itemCount: 10, //state.value.length,
-                            itemBuilder: (context, index) => const EventListItem.shimmer(),
-                            separatorBuilder: (_, __) => const SizedBox(height: 28),
-                          )
-                          : SliverList.separated(
-                            itemCount: 10, //state.value.length,
-                            itemBuilder:
-                                (context, index) => EventListItem(
-                                  title:
-                                      'Вечеринка для поддержания семеных отношений', //state.value.elementAt(index).title,
-                                  onTap: () => Navigator.pushNamed(context, Routes.event),
-                                ),
-                            separatorBuilder: (_, __) => const SizedBox(height: 28),
-                          ),
-                ),
-
-                // if (state.hasValue && state.value.isEmpty || state.hasError)
-                //   SliverToBoxAdapter(
-                //     child: Center(
-                //       child: Padding(
-                //         padding: EdgeInsets.only(top: MediaQuery.sizeOf(context).height * 0.2),
-                //         child: Text('Не удалось загрузить', style: context.themes.main.texts.body),
-                //       ),
-                //     ),
-                //   )
-                // else if (state.hasValue)
-                const SliverPadding(padding: EdgeInsets.only(top: 30)),
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: EventListItem(title: event.title, onTap: () => context.openEventScreen(event.id)),
+                      );
+                    },
+                    separatorBuilder: (_, __) => const SizedBox(height: 28),
+                  ),
+                  const SliverPadding(padding: EdgeInsets.only(top: 30)),
+                ] else if (state.hasValue && state.value.isEmpty || state.hasError)
+                  SliverToBoxAdapter(
+                    child: Center(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: MediaQuery.sizeOf(context).height * 0.2),
+                        child: Text('Не удалось загрузить', style: context.themes.main.texts.body),
+                      ),
+                    ),
+                  ),
               ],
             );
           },
