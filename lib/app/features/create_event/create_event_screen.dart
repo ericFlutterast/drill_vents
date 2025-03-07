@@ -3,9 +3,9 @@ import 'package:drill_events/app/features/create_event/new_event_validators.dart
 import 'package:drill_events/app/features/create_event/widgets/date_time_picker.dart';
 import 'package:drill_events/app/features/create_event/widgets/options_tile.dart';
 import 'package:drill_events/app/features/create_event/widgets/spots_tile.dart';
-import 'package:drill_events/app/features/event/widgets/participation_notification.dart';
 import 'package:drill_events/app/features/widgets/app_back_button.dart';
 import 'package:drill_events/app/features/widgets/app_button.dart';
+import 'package:drill_events/app/features/widgets/app_notification.dart';
 import 'package:drill_events/app/features/widgets/app_text_field.dart';
 import 'package:drill_events/app/features/widgets/notification_manager.dart';
 import 'package:drill_events/app/features/widgets/validation_builder.dart';
@@ -75,17 +75,14 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   void _createEventBlocListener(BuildContext _, CreateNewEventState state) {
     if (state.isDone) {
       NotificationManager.of(context).showNotification(
-        notification: const ParticipationNotification(
-          title: 'Событие успешно создано',
-          status: ParticipationNotificationStatus.success,
-        ),
+        notification: const AppNotification(title: 'Событие успешно создано', status: NotificationStatus.success),
       );
     }
 
     if (state.isError) {
-      NotificationManager.of(context).showNotification(
-        notification: const ParticipationNotification(message: 'Ошибка', status: ParticipationNotificationStatus.error),
-      );
+      NotificationManager.of(
+        context,
+      ).showNotification(notification: const AppNotification(message: 'Ошибка', status: NotificationStatus.error));
     }
   }
 

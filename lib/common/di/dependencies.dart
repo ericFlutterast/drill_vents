@@ -1,10 +1,10 @@
-import 'package:drill_events/app/blocs/auth/bloc.dart';
+import 'package:drill_events/app/blocs/auth.dart';
 import 'package:drill_events/app/blocs/booking_event/bloc.dart';
 import 'package:drill_events/app/blocs/create_new_event.dart';
 import 'package:drill_events/app/blocs/detail_event/bloc.dart';
 import 'package:drill_events/app/blocs/events/bloc.dart';
 import 'package:drill_events/app/blocs/receiving_spots.dart';
-import 'package:drill_events/app/blocs/registration/bloc.dart';
+import 'package:drill_events/app/blocs/registration.dart';
 import 'package:drill_events/common/network/http_api_client.dart';
 import 'package:drill_events/common/ports/backend_api.dart';
 import 'package:drill_events/common/ports/fast_cache.dart';

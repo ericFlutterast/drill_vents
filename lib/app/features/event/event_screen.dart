@@ -1,15 +1,14 @@
-import 'package:drill_events/app/blocs/auth/bloc.dart';
+import 'package:drill_events/app/blocs/auth.dart';
 import 'package:drill_events/app/blocs/booking_event/bloc.dart';
 import 'package:drill_events/app/blocs/booking_event/events.dart';
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
 import 'package:drill_events/app/blocs/detail_event/bloc.dart';
 import 'package:drill_events/app/blocs/detail_event/events.dart';
-import 'package:drill_events/app/blocs/registration/bloc.dart';
-import 'package:drill_events/app/blocs/registration/events.dart';
+import 'package:drill_events/app/blocs/registration.dart';
 import 'package:drill_events/app/features/event/widgets/creating_entry_for_event_modal.dart';
 import 'package:drill_events/app/features/event/widgets/join_event_modal.dart';
-import 'package:drill_events/app/features/event/widgets/participation_notification.dart';
 import 'package:drill_events/app/features/widgets/app_button.dart';
+import 'package:drill_events/app/features/widgets/app_notification.dart';
 import 'package:drill_events/app/features/widgets/interpunct.dart';
 import 'package:drill_events/app/features/widgets/notification_manager.dart';
 import 'package:drill_events/app/features/widgets/screen_header.dart';
@@ -75,9 +74,9 @@ class _EventScreenState extends State<EventScreen> {
   void _showErrorNotification(String message) {
     //TODO: Этого не должно тут быть. Это зона ответственности NotificationManager а не этого скрина
     //TODO: На рассмотрении
-    NotificationManager.of(context).showNotification(
-      notification: ParticipationNotification(status: ParticipationNotificationStatus.error, message: message),
-    );
+    NotificationManager.of(
+      context,
+    ).showNotification(notification: AppNotification(status: NotificationStatus.error, message: message));
     setState(() => _isRegistrationUserFlow = false);
     Navigator.popUntil(context, (route) => route.settings.name != _loadingBottomSheetName);
   }
@@ -111,7 +110,7 @@ class _EventScreenState extends State<EventScreen> {
   void _startUserRegistrationChain(String email, String password) {
     if (mounted) {
       setState(() => _isRegistrationUserFlow = true);
-      context.read<RegistrationBloc>().add(CreateUserEvent(email: email, password: password, publishToPipe: true));
+      context.read<RegistrationBloc>().add(CreateUserEvent(email: email, password: password, getUser: true));
       Navigator.push(
         context,
         AppModalBottomSheetPage(
