@@ -19,6 +19,8 @@ extension ContextExt on BuildContext {
 extension Routing on BuildContext {
   T getArgs<T>() => ModalRoute.of(this)!.settings.arguments as T;
 
+  void pop<T>() => Navigator.pop<T>(this);
+
   Future<T?> openEventScreen<T>(String eventID) =>
       Navigator.pushNamed<T>(this, Routes.event, arguments: EventScreenArgs(eventID));
 

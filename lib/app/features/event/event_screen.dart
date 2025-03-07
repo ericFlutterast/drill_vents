@@ -2,9 +2,7 @@ import 'package:drill_events/app/blocs/auth.dart';
 import 'package:drill_events/app/blocs/booking_event/bloc.dart';
 import 'package:drill_events/app/blocs/booking_event/events.dart';
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
-import 'package:drill_events/app/blocs/detail_event/bloc.dart';
-import 'package:drill_events/app/blocs/detail_event/events.dart';
-import 'package:drill_events/app/blocs/registration.dart';
+import 'package:drill_events/app/blocs/detail_event.dart';
 import 'package:drill_events/app/features/event/widgets/creating_entry_for_event_modal.dart';
 import 'package:drill_events/app/features/event/widgets/join_event_modal.dart';
 import 'package:drill_events/app/features/widgets/app_button.dart';
@@ -19,6 +17,7 @@ import 'package:drill_events/common/navigation/modal_bottom_sheet.dart';
 import 'package:drill_events/common/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 class EventScreenArgs {
   EventScreenArgs(this.eventId);
@@ -32,17 +31,20 @@ class EventScreen extends StatefulWidget {
   static Widget bloc(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        //TODO: В di
         BlocProvider<DetailEventBloc>(
-          create:
-              (_) => DetailEventBloc(
-                context.dependencies.fastCache,
-                context.dependencies.backendApi,
-                context.dependencies.logger,
-              )..add(FetchDetailEvent(id: '')),
+          create: (_) {
+            final id = context.getArgs<EventScreenArgs>().eventId;
+            return DetailEventBloc(
+              repository: context.dependencies.backendApi,
+              logger: context.dependencies.logger,
+              cache: context.dependencies.fastCache,
+            )..add(FetchDetailEvent(id: id));
+          },
         ),
-        BlocProvider(create: (_) => context.dependencies.signUpToEventBloc),
-        BlocProvider(create: (_) => context.dependencies.registrationBloc),
+        BlocProvider<BookingEventBloc>(
+          create:
+              (_) => BookingEventBloc(repository: context.dependencies.backendApi, logger: context.dependencies.logger),
+        ),
       ],
       child: const EventScreen(),
     );
@@ -85,7 +87,7 @@ class _EventScreenState extends State<EventScreen> {
     final userData = await _promptUserData();
 
     if (userData case [String email, String password]) {
-      _startUserRegistrationChain(email, password);
+      _startUserRegistration(email, password);
     }
   }
 
@@ -94,7 +96,7 @@ class _EventScreenState extends State<EventScreen> {
           context,
           const AppModalBottomSheetPage<List<String>>(
             useSafeArea: true,
-            child: JoinEventModal(
+            child: PromptEmailPassword(
               conditionsForParticipation: [
                 'Уровень английского B1 и выше',
                 'Уровень китайского 99 и выше',
@@ -107,10 +109,11 @@ class _EventScreenState extends State<EventScreen> {
         [];
   }
 
-  void _startUserRegistrationChain(String email, String password) {
+  void _startUserRegistration(String email, String password) {
     if (mounted) {
       setState(() => _isRegistrationUserFlow = true);
-      context.read<RegistrationBloc>().add(CreateUserEvent(email: email, password: password, getUser: true));
+      final eventId = context.read<DetailEventBloc>().state.value.id;
+      context.read<AuthBloc>().add(CreateAuthBook(password: password, email: email, eventId: eventId));
       Navigator.push(
         context,
         AppModalBottomSheetPage(
@@ -142,88 +145,103 @@ class _EventScreenState extends State<EventScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.themes.main.colors.inverse,
-      body: BlocListener<RegistrationBloc, CommonBlocState>(
-        listener: (_, state) {
+      body: BlocListener<AuthBloc, CommonBlocState>(
+        listener: (context, state) {
+          if (state.isDone) {
+            context.pop();
+          }
+
           if (state.isError) {
             _showErrorNotification(state.errorMessage.toString());
           }
         },
-        child: BlocListener<AuthBloc, CommonBlocState>(
-          listener: (context, state) {
-            if (state.isError) {
-              _showErrorNotification(state.errorMessage.toString());
-            }
-          },
-          child: BlocListener<BookingEventBloc, CommonBlocState<BookingModel>>(
-            listener: _signUpToEventBlocListener,
-            child: Stack(
-              children: [
-                CustomScrollView(
-                  controller: _scrollController,
-                  slivers: [
-                    const SliverPadding(padding: EdgeInsets.only(top: 180)),
-                    SliverToBoxAdapter(
-                      child: _ContentSection(
-                        // TODO:
-                        onTapOrgName: () => context.openOrgScreen("7fdb5b3d-9de4-4dbb-a862-1a430feeb7fa"),
-                        // TODO:
-                        onTapSpotName: () => context.openSpotScreen("2985f696-0ee6-4e2a-9ff6-e95b758526fc"),
-                        title: 'The Future of Work. How technology is reshaping',
-                        description: 'Приглашаем на английский клуб! Давайте прокачаем свои знания по английскому 😉',
-                        orgName: 'Surf',
-                        spotName: 'Surf x Post',
-                        requirements: [
-                          'Уровень английского B1 и выше',
-                          'Уровень китайского 99 и выше',
-                          'Японское гражданство',
-                          'Звание глобала и 8к ммр в доте',
-                        ],
-                        bonuses: [
-                          'Стол и стул (или бутылка)',
-                          'Участникам скидка 10% на напитки собственного приготовления 😉',
-                        ],
-                      ),
-                    ),
-                    const SliverPadding(padding: EdgeInsets.only(top: 42)),
-                    if (!_isAuthUser)
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child:
-                              _isRegistrationUserFlow
-                                  ? const AppButton.loading(title: 'Идет запись')
-                                  : AppButton.primary(title: 'Записаться', onTap: _startRegistration),
-                        ),
-                      )
-                    else
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: BlocBuilder<BookingEventBloc, CommonBlocState<BookingModel>>(
-                            builder: (context, state) {
-                              if (state.isPending) {
-                                return const AppButton.loading(title: 'Идет запись');
-                              }
-                              if (state.isDone) {
-                                return AppButton.warning(
-                                  title: 'Отменить завявку',
-                                  onTap: () => context.openBottomSheet(const _DeclineBookingModal()),
-                                );
-                              }
-                              return AppButton.primary(title: 'Записаться', onTap: _bookToEvent);
-                            },
+        child: BlocListener<BookingEventBloc, CommonBlocState<BookingModel>>(
+          listener: _signUpToEventBlocListener,
+          child: BlocBuilder<DetailEventBloc, DetailEventState>(
+            builder: (context, state) {
+              return Stack(
+                children: [
+                  if (state.hasError)
+                    const Center(child: Text('Не удалось получить информацию'))
+                  else if (state.isDone && state.hasValue)
+                    CustomScrollView(
+                      controller: _scrollController,
+                      slivers: [
+                        const SliverPadding(padding: EdgeInsets.only(top: 180)),
+                        SliverToBoxAdapter(
+                          child: _ContentSection(
+                            // TODO:
+                            onTapOrgName: () => context.openOrgScreen("7fdb5b3d-9de4-4dbb-a862-1a430feeb7fa"),
+                            // TODO:
+                            onTapSpotName: () => context.openSpotScreen("2985f696-0ee6-4e2a-9ff6-e95b758526fc"),
+                            title: state.value.title,
+                            description: state.value.description,
+                            orgName: state.value.org.title,
+                            spotName: state.value.spot.title,
+                            requirements: [
+                              'Уровень английского B1 и выше',
+                              'Уровень китайского 99 и выше',
+                              'Японское гражданство',
+                              'Звание глобала и 8к ммр в доте',
+                            ],
+                            bonuses: [
+                              'Стол и стул (или бутылка)',
+                              'Участникам скидка 10% на напитки собственного приготовления 😉',
+                            ],
+                            startTime: DateTime.tryParse(state.value.startTime ?? ''),
+                            address: '', //TODO:
+                            startDate: DateTime.tryParse(state.value.startDate),
                           ),
                         ),
-                      ),
-                    const SliverPadding(padding: EdgeInsets.only(top: 25)),
-                  ],
-                ),
-                PositionedScreenHeader(
-                  controller: _scrollController,
-                  onTapLogo: () => context.openOrgScreen("7fdb5b3d-9de4-4dbb-a862-1a430feeb7fa"),
-                ),
-              ],
-            ),
+                        const SliverPadding(padding: EdgeInsets.only(top: 42)),
+                        if (!_isAuthUser)
+                          SliverToBoxAdapter(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child:
+                                  _isRegistrationUserFlow
+                                      ? const AppButton.loading(title: 'Идет запись')
+                                      : AppButton.primary(title: 'Записаться', onTap: _startRegistration),
+                            ),
+                          )
+                        else
+                          SliverToBoxAdapter(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: BlocBuilder<AuthBloc, AuthState>(
+                                builder: (context, state) {
+                                  if (state.isPending) {
+                                    return const AppButton.loading(title: 'Идет запись');
+                                  }
+
+                                  return BlocBuilder<BookingEventBloc, CommonBlocState<BookingModel>>(
+                                    builder: (context, state) {
+                                      if (state.isPending) {
+                                        return const AppButton.loading(title: 'Идет запись');
+                                      }
+                                      if (state.isDone) {
+                                        return AppButton.warning(
+                                          title: 'Отменить завявку',
+                                          onTap: () => context.openBottomSheet(const _DeclineBookingModal()),
+                                        );
+                                      }
+                                      return AppButton.primary(title: 'Записаться', onTap: _bookToEvent);
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        const SliverPadding(padding: EdgeInsets.only(top: 25)),
+                      ],
+                    ),
+                  PositionedScreenHeader(
+                    controller: _scrollController,
+                    onTapLogo: () => context.openOrgScreen("7fdb5b3d-9de4-4dbb-a862-1a430feeb7fa"),
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),
@@ -239,6 +257,9 @@ class _ContentSection extends StatelessWidget {
     required this.spotName,
     required this.requirements,
     required this.bonuses,
+    this.startTime,
+    required this.address,
+    this.startDate,
     this.onTapOrgName,
     this.onTapSpotName,
   });
@@ -247,6 +268,9 @@ class _ContentSection extends StatelessWidget {
   final String description;
   final String orgName;
   final String spotName;
+  final String address;
+  final DateTime? startDate;
+  final DateTime? startTime;
   final List<String> requirements;
   final List<String> bonuses;
   final VoidCallback? onTapSpotName;
@@ -271,17 +295,21 @@ class _ContentSection extends StatelessWidget {
           ),
           const SizedBox(height: 7),
           Text(title, style: context.themes.main.texts.h1),
-          BlocBuilder<BookingEventBloc, CommonBlocState<BookingModel>>(
-            builder: (context, state) {
-              if (!state.hasValue) const SizedBox.shrink();
-
-              return const Column(
-                children: [SizedBox(height: 18), _ParticipationStatus(status: ParticipationStatusEnum.processing)],
-              );
-            },
-          ),
+          // BlocBuilder<BookingEventBloc, CommonBlocState<BookingModel>>(
+          //   builder: (context, state) {
+          //     if (!state.hasValue) const SizedBox.shrink();
+          //
+          //     return const Column(
+          //       children: [SizedBox(height: 18), _ParticipationStatus(status: ParticipationStatusEnum.processing)],
+          //     );
+          //   },
+          // ),
           const SizedBox(height: 38),
-          const _DateTimeInfo(),
+          _DateTimeInfo(
+            address: address,
+            date: startDate != null ? DateFormat('dd MMMM').format(startDate!) : '',
+            startTime: startTime != null ? DateFormat('HH:mm').format(startTime!) : '',
+          ),
           const SizedBox(height: 32),
           Text(description, style: context.themes.main.texts.body),
           const SizedBox(height: 24),
@@ -323,7 +351,11 @@ class _OptionsBlock extends StatelessWidget {
 }
 
 class _DateTimeInfo extends StatelessWidget {
-  const _DateTimeInfo();
+  const _DateTimeInfo({required this.address, required this.startTime, required this.date});
+
+  final String address;
+  final String date;
+  final String startTime;
 
   @override
   Widget build(BuildContext context) {
@@ -332,9 +364,9 @@ class _DateTimeInfo extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('16 февраля', style: context.themes.main.texts.h3),
+            Text(date, style: context.themes.main.texts.h3),
             const SizedBox(height: 6),
-            Text('Краснодар, Постовая 55', style: context.themes.main.texts.bodySmall),
+            Text(address, style: context.themes.main.texts.bodySmall), //'Краснодар, Постовая 55'
           ],
         ),
         const Spacer(),
@@ -345,7 +377,7 @@ class _DateTimeInfo extends StatelessWidget {
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 10),
-            child: Text('19:00', style: context.themes.main.texts.h3),
+            child: Text(startTime, style: context.themes.main.texts.h3),
           ),
         ),
       ],

@@ -42,7 +42,7 @@ class App extends StatelessWidget {
           Routes.auth: (context) => const AuthScreen(),
           Routes.profile: (context) {
             final authState = context.read<AuthBloc>().state;
-            if (authState.isDone && authState.hasValue) {
+            if (authState.hasValue) {
               return const ProfileScreen();
             }
             return const AuthScreen();

@@ -4,7 +4,7 @@ import 'package:drill_events/app/features/widgets/app_notification.dart';
 import 'package:drill_events/app/features/widgets/app_text_field.dart';
 import 'package:drill_events/app/features/widgets/notification_manager.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
-import 'package:drill_events/common/utils/extensions.dart';
+import 'package:drill_events/common/navigation/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:reactive_forms/reactive_forms.dart';
@@ -35,7 +35,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   void _blocListener(BuildContext context, AuthState state) {
     if (state.isDone && state.hasValue) {
-      context.openProfileScreen();
+      Navigator.pushReplacementNamed(context, Routes.profile);
     }
 
     if (state.hasError) {
