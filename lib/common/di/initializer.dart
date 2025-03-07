@@ -1,11 +1,11 @@
 import 'package:dio/dio.dart';
-import 'package:drill_events/app/blocs/auth/bloc.dart';
+import 'package:drill_events/app/blocs/auth.dart';
 import 'package:drill_events/app/blocs/booking_event/bloc.dart';
 import 'package:drill_events/app/blocs/create_new_event.dart';
 import 'package:drill_events/app/blocs/detail_event/bloc.dart';
 import 'package:drill_events/app/blocs/events/bloc.dart';
 import 'package:drill_events/app/blocs/receiving_spots.dart';
-import 'package:drill_events/app/blocs/registration/bloc.dart';
+import 'package:drill_events/app/blocs/registration.dart';
 import 'package:drill_events/app/data/main_backend_api.dart';
 import 'package:drill_events/common/adapters/events_pipe/events_pipe.dart';
 import 'package:drill_events/common/cache/map_cache.dart';
@@ -61,10 +61,9 @@ Map<String, Loader> _dependenciesSteps = {
   },
   'blocs': (dependencies) async {
     dependencies.authBloc = AuthBloc(
-      dependencies.backendApi,
-      dependencies.secureStorage,
-      dependencies.logger,
-      dependencies.pipe,
+      repository: dependencies.backendApi,
+      secureStorage: dependencies.secureStorage,
+      logger: dependencies.logger,
     );
     dependencies.eventsBloc = EventsBloc(dependencies.backendApi, dependencies.logger);
     dependencies.signUpToEventBloc = BookingEventBloc(

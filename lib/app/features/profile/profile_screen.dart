@@ -1,4 +1,4 @@
-import 'package:drill_events/app/blocs/auth/bloc.dart';
+import 'package:drill_events/app/blocs/auth.dart';
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
 import 'package:drill_events/app/features/widgets/app_back_button.dart';
 import 'package:drill_events/app/features/widgets/app_icon_button.dart';
