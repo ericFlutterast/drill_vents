@@ -1,5 +1,4 @@
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
-import 'package:drill_events/app/blocs/detail_event/events.dart';
 import 'package:drill_events/app/new_models/models.dart';
 import 'package:drill_events/common/ports/backend_api.dart';
 import 'package:drill_events/common/ports/fast_cache.dart';
@@ -7,11 +6,23 @@ import 'package:drill_events/common/ports/logger.dart';
 import 'package:drill_events/common/utils/cache_keys.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-typedef _State = CommonBlocState<DetailEventModel>;
-typedef Emit = Emitter<_State>;
+abstract class DetailEvents {}
 
-final class DetailEventBloc extends Bloc<DetailEvents, _State> {
-  DetailEventBloc(this._cache, this._repository, this._logger) : super(const CommonBlocState.init()) {
+final class FetchDetailEvent extends DetailEvents {
+  FetchDetailEvent({required this.id});
+
+  final String id;
+}
+
+typedef DetailEventState = CommonBlocState<DetailEventModel>;
+typedef Emit = Emitter<DetailEventState>;
+
+final class DetailEventBloc extends Bloc<DetailEvents, DetailEventState> {
+  DetailEventBloc({required FastCache cache, required BackendAPI repository, required Logger logger})
+    : _logger = logger,
+      _repository = repository,
+      _cache = cache,
+      super(const CommonBlocState.init()) {
     on<FetchDetailEvent>(_fetchDetailEvent);
   }
 

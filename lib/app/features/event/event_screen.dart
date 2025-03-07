@@ -4,7 +4,7 @@ import 'package:drill_events/app/blocs/booking_event/events.dart';
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
 import 'package:drill_events/app/blocs/detail_event.dart';
 import 'package:drill_events/app/features/event/widgets/creating_entry_for_event_modal.dart';
-import 'package:drill_events/app/features/event/widgets/join_event_modal.dart';
+import 'package:drill_events/app/features/event/widgets/prompt_email_password.dart';
 import 'package:drill_events/app/features/widgets/app_button.dart';
 import 'package:drill_events/app/features/widgets/app_notification.dart';
 import 'package:drill_events/app/features/widgets/interpunct.dart';

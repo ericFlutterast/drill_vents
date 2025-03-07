@@ -52,7 +52,7 @@ final class MainTheme implements IAppTheme {
         color: colors.primary,
         fontWeight: FontWeight.w400,
         fontSize: 15.4,
-        height: 1.6,
+        height: 1.2,
         letterSpacing: 0.2,
       ),
       bodySmall: GoogleFonts.poppins(
