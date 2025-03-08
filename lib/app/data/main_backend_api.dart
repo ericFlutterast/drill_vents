@@ -1,13 +1,19 @@
 import 'package:drill_events/app/new_models/models.dart';
+import 'package:drill_events/common/adapters/events_pipe/pipe_events.dart';
 import 'package:drill_events/common/network/http_api_client.dart';
 import 'package:drill_events/common/ports/backend_api.dart';
 import 'package:drill_events/common/ports/logger.dart';
+import 'package:drill_events/common/ports/pipe.dart';
 import 'package:drill_events/common/utils/extensions.dart';
 
 class MainBackendAPI implements BackendAPI {
-  const MainBackendAPI(this._api, this._logger);
+  const MainBackendAPI({required HttpApiClient api, required Pipe pipe, required Logger logger})
+    : _logger = logger,
+      _pipe = pipe,
+      _api = api;
 
   final HttpApiClient _api;
+  final Pipe _pipe;
   final Logger _logger;
 
   @override
@@ -150,6 +156,8 @@ class MainBackendAPI implements BackendAPI {
     final rawBooking = response.data['booking'] as Map<String, dynamic>;
     final booking = BookingModel.fromJson(rawBooking);
 
+    _pipe.publish(BookPipeEvent(booking));
+
     final rawSession = response.data['session'] as Map<String, dynamic>;
     final session = SessionModel.fromJson(rawSession);
 
@@ -211,12 +219,17 @@ class MainBackendAPI implements BackendAPI {
 
   @override
   Future<BookingModel> bookEvent(String eventId, String usrId) async {
-    final response = await _api.post(
-      '/bookings/events/$eventId/status',
-      queryParameters: {'usr_id': usrId, 'action': 'book'},
-    );
-    final item = response.data['booking'] as Map<String, dynamic>;
-    return BookingModel.fromJson(item);
+    try {
+      final response = await _api.post(
+        '/bookings/events/$eventId/status',
+        queryParameters: {'usr_id': usrId, 'action': 'book'},
+      );
+      final item = response.data['booking'] as Map<String, dynamic>;
+      return BookingModel.fromJson(item);
+    } catch (error, stackTrace) {
+      _logger.error('Main backend api error:', error: error, stackTrace: stackTrace);
+      rethrow;
+    }
   }
 
   @override

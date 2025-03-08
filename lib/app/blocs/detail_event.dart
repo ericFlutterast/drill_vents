@@ -1,8 +1,10 @@
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
 import 'package:drill_events/app/new_models/models.dart';
+import 'package:drill_events/common/adapters/events_pipe/pipe_events.dart';
 import 'package:drill_events/common/ports/backend_api.dart';
 import 'package:drill_events/common/ports/fast_cache.dart';
 import 'package:drill_events/common/ports/logger.dart';
+import 'package:drill_events/common/ports/pipe.dart';
 import 'package:drill_events/common/utils/cache_keys.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -14,21 +16,39 @@ final class FetchDetailEvent extends DetailEvents {
   final String id;
 }
 
+final class SetBookingInfoEvent extends DetailEvents {
+  SetBookingInfoEvent(this.booking);
+  final BookingModel booking;
+}
+
 typedef DetailEventState = CommonBlocState<DetailEventModel>;
 typedef Emit = Emitter<DetailEventState>;
 
 final class DetailEventBloc extends Bloc<DetailEvents, DetailEventState> {
-  DetailEventBloc({required FastCache cache, required BackendAPI repository, required Logger logger})
-    : _logger = logger,
-      _repository = repository,
-      _cache = cache,
-      super(const CommonBlocState.init()) {
+  DetailEventBloc({
+    required FastCache cache,
+    required BackendAPI repository,
+    required Logger logger,
+    required Pipe pipe,
+  }) : _logger = logger,
+       _repository = repository,
+       _cache = cache,
+       _pipe = pipe,
+       super(const CommonBlocState.init()) {
     on<FetchDetailEvent>(_fetchDetailEvent);
+    on<SetBookingInfoEvent>(_setBookingInfo);
+
+    _pipe.listen((event) {
+      if (event case BookPipeEvent event) {
+        add(SetBookingInfoEvent(event.booking));
+      }
+    });
   }
 
   final Logger _logger;
   final BackendAPI _repository;
   final FastCache _cache;
+  final Pipe _pipe;
 
   Future<void> _fetchDetailEvent(FetchDetailEvent event, Emit emit) async {
     try {
@@ -45,6 +65,17 @@ final class DetailEventBloc extends Bloc<DetailEvents, DetailEventState> {
       emit(state.done(item));
     } catch (error, stackTrace) {
       emit(state.error(error));
+      _logger.error(error, error: error, stackTrace: stackTrace);
+    }
+  }
+
+  Future<void> _setBookingInfo(SetBookingInfoEvent event, Emit emit) async {
+    try {
+      DetailEventModel detailEvent = state.value;
+      final booking = ShortBookingModal(reason: event.booking.reason, approved: event.booking.approved);
+      detailEvent = detailEvent.copyWith(booking: booking);
+      emit(state.copyWith(value: detailEvent));
+    } catch (error, stackTrace) {
       _logger.error(error, error: error, stackTrace: stackTrace);
     }
   }

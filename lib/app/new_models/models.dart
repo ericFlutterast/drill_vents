@@ -304,6 +304,32 @@ class DetailEventModel extends Equatable {
     spot,
     booking,
   ];
+
+  DetailEventModel copyWith({
+    String? id,
+    String? title,
+    String? description,
+    String? startDate,
+    String? startTime,
+    String? endTime,
+    int? capacity,
+    int? availableSeats,
+    ShortOrgModel? org,
+    ShortSpotModel? spot,
+    ShortBookingModal? booking,
+  }) => DetailEventModel(
+    id: id ?? this.id,
+    title: title ?? this.title,
+    description: description ?? this.description,
+    capacity: capacity ?? this.capacity,
+    availableSeats: availableSeats ?? this.availableSeats,
+    org: org ?? this.org,
+    spot: spot ?? this.spot,
+    startDate: startDate ?? this.description,
+    startTime: startTime ?? this.startTime,
+    endTime: endTime ?? this.endTime,
+    booking: booking ?? this.booking,
+  );
 }
 
 @JsonSerializable()

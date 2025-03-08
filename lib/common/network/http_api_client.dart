@@ -12,7 +12,7 @@ final class HttpApiClient {
   }
 
   Future<HttpResponse> post<T>(String path, {Object? data, Map<String, dynamic>? queryParameters}) async {
-    final response = await _dio.post<T>(path, data: data);
+    final response = await _dio.post<T>(path, data: data, queryParameters: queryParameters);
     return HttpResponse(response.data, statusCode: response.statusCode, statusMessage: response.statusMessage);
   }
 

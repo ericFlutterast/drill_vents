@@ -1,13 +1,9 @@
+import 'package:drill_events/app/new_models/models.dart';
+
 abstract class PipeEvent {}
 
-final class UserIsCreated extends PipeEvent {
-  UserIsCreated(this.uid);
+final class BookPipeEvent extends PipeEvent {
+  BookPipeEvent(this.booking);
 
-  final String uid;
-}
-
-final class UserIsReceived extends PipeEvent {
-  UserIsReceived(this.email);
-
-  final String email;
+  final BookingModel booking;
 }

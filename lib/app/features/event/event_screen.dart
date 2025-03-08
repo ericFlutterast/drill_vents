@@ -1,6 +1,5 @@
 import 'package:drill_events/app/blocs/auth.dart';
-import 'package:drill_events/app/blocs/booking_event/bloc.dart';
-import 'package:drill_events/app/blocs/booking_event/events.dart';
+import 'package:drill_events/app/blocs/booking_event.dart';
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
 import 'package:drill_events/app/blocs/detail_event.dart';
 import 'package:drill_events/app/features/event/widgets/creating_entry_for_event_modal.dart';
@@ -38,6 +37,7 @@ class EventScreen extends StatefulWidget {
               repository: context.dependencies.backendApi,
               logger: context.dependencies.logger,
               cache: context.dependencies.fastCache,
+              pipe: context.dependencies.pipe,
             )..add(FetchDetailEvent(id: id));
           },
         ),
@@ -55,17 +55,9 @@ class EventScreen extends StatefulWidget {
 }
 
 class _EventScreenState extends State<EventScreen> {
-  bool _isAuthUser = false;
-  bool _isRegistrationUserFlow = false;
   final _loadingBottomSheetName = 'Loading';
 
   late final ScrollController _scrollController = ScrollController();
-
-  @override
-  void initState() {
-    super.initState();
-    _isAuthUser = context.read<AuthBloc>().state.hasValue;
-  }
 
   @override
   void dispose() {
@@ -74,12 +66,9 @@ class _EventScreenState extends State<EventScreen> {
   }
 
   void _showErrorNotification(String message) {
-    //TODO: Этого не должно тут быть. Это зона ответственности NotificationManager а не этого скрина
-    //TODO: На рассмотрении
     NotificationManager.of(
       context,
     ).showNotification(notification: AppNotification(status: NotificationStatus.error, message: message));
-    setState(() => _isRegistrationUserFlow = false);
     Navigator.popUntil(context, (route) => route.settings.name != _loadingBottomSheetName);
   }
 
@@ -111,7 +100,6 @@ class _EventScreenState extends State<EventScreen> {
 
   void _startUserRegistration(String email, String password) {
     if (mounted) {
-      setState(() => _isRegistrationUserFlow = true);
       final eventId = context.read<DetailEventBloc>().state.value.id;
       context.read<AuthBloc>().add(CreateAuthBook(password: password, email: email, eventId: eventId));
       Navigator.push(
@@ -133,12 +121,12 @@ class _EventScreenState extends State<EventScreen> {
       Navigator.popUntil(context, (route) => route.settings.name != _loadingBottomSheetName);
       Navigator.push(context, const AppModalBottomSheetPage(child: _SignUpDone.error()).createRoute(context));
     }
-    setState(() => _isRegistrationUserFlow = false);
   }
 
   void _bookToEvent() {
-    final email = context.read<AuthBloc>().state.value.email;
-    context.read<BookingEventBloc>().add(BookToEvent(email: email));
+    final userId = context.read<AuthBloc>().state.value.id;
+    final eventId = context.read<DetailEventBloc>().state.value.id;
+    context.read<BookingEventBloc>().add(BookToEvent(userId: userId, eventId: eventId));
   }
 
   @override
@@ -194,44 +182,27 @@ class _EventScreenState extends State<EventScreen> {
                           ),
                         ),
                         const SliverPadding(padding: EdgeInsets.only(top: 42)),
-                        if (!_isAuthUser)
-                          SliverToBoxAdapter(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20),
-                              child:
-                                  _isRegistrationUserFlow
-                                      ? const AppButton.loading(title: 'Идет запись')
-                                      : AppButton.primary(title: 'Записаться', onTap: _startRegistration),
-                            ),
-                          )
-                        else
-                          SliverToBoxAdapter(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20),
-                              child: BlocBuilder<AuthBloc, AuthState>(
-                                builder: (context, state) {
-                                  if (state.isPending) {
-                                    return const AppButton.loading(title: 'Идет запись');
-                                  }
+                        _BookingButtonBuilder(
+                          builder: (context) {
+                            final authState = context.watch<AuthBloc>().state;
+                            final bookingState = context.watch<BookingEventBloc>().state;
 
-                                  return BlocBuilder<BookingEventBloc, CommonBlocState<BookingModel>>(
-                                    builder: (context, state) {
-                                      if (state.isPending) {
-                                        return const AppButton.loading(title: 'Идет запись');
-                                      }
-                                      if (state.isDone) {
-                                        return AppButton.warning(
-                                          title: 'Отменить завявку',
-                                          onTap: () => context.openBottomSheet(const _DeclineBookingModal()),
-                                        );
-                                      }
-                                      return AppButton.primary(title: 'Записаться', onTap: _bookToEvent);
-                                    },
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
+                            VoidCallback onTap = _bookToEvent;
+                            if (!authState.hasValue) {
+                              onTap = _startRegistration;
+                            }
+                            if (state.hasValue && state.value.booking != null ||
+                                bookingState.hasValue && bookingState.isDone) {
+                              onTap = () => context.openBottomSheet(const _DeclineBookingModal());
+                              return AppButton.warning(onTap: onTap, title: 'Отменить завявку');
+                            }
+
+                            return authState.isPending || bookingState.isPending
+                                ? const AppButton.loading(title: 'Идет запись')
+                                : AppButton.primary(onTap: onTap, title: 'Записаться');
+                          },
+                        ),
+
                         const SliverPadding(padding: EdgeInsets.only(top: 25)),
                       ],
                     ),
@@ -460,6 +431,19 @@ class _SignUpDone extends StatelessWidget {
           AppButton.primary(onTap: () => Navigator.pop(context), title: _buttonTitle),
         ],
       ),
+    );
+  }
+}
+
+class _BookingButtonBuilder extends StatelessWidget {
+  const _BookingButtonBuilder({required this.builder});
+
+  final Widget Function(BuildContext context) builder;
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverToBoxAdapter(
+      child: Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: builder.call(context)),
     );
   }
 }

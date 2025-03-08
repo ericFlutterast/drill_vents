@@ -41,4 +41,7 @@ class CommonBlocState<T> extends Equatable {
 
   @override
   List<Object?> get props => [_value, _error, _status];
+
+  CommonBlocState<T> copyWith({T? value, Object? error, StateStatus? status}) =>
+      CommonBlocState<T>(status: status ?? this.status, value: value ?? value, error: error ?? error);
 }

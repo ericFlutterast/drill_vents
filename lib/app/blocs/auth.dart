@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
 import 'package:drill_events/app/new_models/models.dart';
 import 'package:drill_events/common/ports/backend_api.dart';
+import 'package:drill_events/common/ports/fast_cache.dart';
 import 'package:drill_events/common/ports/logger.dart';
 import 'package:drill_events/common/secure_storage/secure_storage_keys.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -35,11 +36,16 @@ typedef AuthState = CommonBlocState<UserModel>;
 typedef Emit = Emitter<AuthState>;
 
 final class AuthBloc extends Bloc<AuthEvents, AuthState> {
-  AuthBloc({required BackendAPI repository, required FlutterSecureStorage secureStorage, required Logger logger})
-    : _repository = repository,
-      _secureStorage = secureStorage,
-      _logger = logger,
-      super(const CommonBlocState.init()) {
+  AuthBloc({
+    required BackendAPI repository,
+    required FlutterSecureStorage secureStorage,
+    required Logger logger,
+    required FastCache fastCache,
+  }) : _repository = repository,
+       _secureStorage = secureStorage,
+       _logger = logger,
+       _fastCache = fastCache,
+       super(const CommonBlocState.init()) {
     on<CreateSessionEvent>(_createSession);
     on<GetUserInfo>(_getUser);
     on<CreateAuthBook>(_createAuthorizeAndBook);
@@ -47,6 +53,7 @@ final class AuthBloc extends Bloc<AuthEvents, AuthState> {
   }
 
   final Logger _logger;
+  final FastCache _fastCache;
   final BackendAPI _repository;
   final FlutterSecureStorage _secureStorage;
 
@@ -75,11 +82,18 @@ final class AuthBloc extends Bloc<AuthEvents, AuthState> {
     try {
       emit(state.pending());
       String? accessToken = await _secureStorage.read(key: SecureStorageKeys.accessToken);
-      if (accessToken == null) {
-        final session = await _repository.createSession(event.email, event.password);
-        accessToken = session.tokens.accessToken;
-        await _saveTokens(session.tokens);
-      }
+
+      //TODO: пока не работает рефреш
+      //
+      // if (accessToken == null) {
+      //   final session = await _repository.createSession(event.email, event.password);
+      //   accessToken = session.tokens.accessToken;
+      //   await _saveTokens(session.tokens);
+      // }
+
+      final session = await _repository.createSession(event.email, event.password);
+      accessToken = session.tokens.accessToken;
+      await _saveTokens(session.tokens);
 
       add(GetUserInfo());
     } on DioException catch (error, stackTrace) {
@@ -117,6 +131,7 @@ final class AuthBloc extends Bloc<AuthEvents, AuthState> {
     try {
       emit(state.pending());
       await _clearTokens();
+      _fastCache.clear();
       emit(state.idle(value: null));
     } on DioException catch (error, stackTrace) {
       emit(state.error(error.response?.data['message'] ?? 'Сетевая ошибка'));

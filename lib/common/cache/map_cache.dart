@@ -47,4 +47,10 @@ class MapCache implements FastCache {
     }
     _cache.remove(key);
   }
+
+  @override
+  void clear() {
+    _cache.clear();
+    _miss.clear();
+  }
 }

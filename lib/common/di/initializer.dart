@@ -60,7 +60,11 @@ Map<String, Loader> _dependenciesSteps = {
     dependencies.httpApiClient = HttpApiClient(dioClient);
   },
   'data': (dependencies) async {
-    dependencies.backendApi = MainBackendAPI(dependencies.httpApiClient, dependencies.logger);
+    dependencies.backendApi = MainBackendAPI(
+      api: dependencies.httpApiClient,
+      logger: dependencies.logger,
+      pipe: dependencies.pipe,
+    );
     dependencies.sharedPreferences = await SharedPreferences.getInstance();
   },
   'blocs': (dependencies) async {
@@ -68,6 +72,7 @@ Map<String, Loader> _dependenciesSteps = {
       repository: dependencies.backendApi,
       secureStorage: dependencies.secureStorage,
       logger: dependencies.logger,
+      fastCache: dependencies.fastCache,
     );
     dependencies.authBloc.add(GetUserInfo());
     dependencies.eventsBloc = EventsBloc(dependencies.backendApi, dependencies.logger);
