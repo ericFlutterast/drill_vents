@@ -97,28 +97,28 @@ class _AppNotificationState extends State<AppNotification> with SingleTickerProv
                   ),
                 ),
                 const SizedBox(width: 12),
-                SizedBox(
-                  width: MediaQuery.sizeOf(context).width * 0.6,
+                Expanded(
+                  flex: 4,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(widget.title ?? 'Ошибка', style: textStyles.body.copyWith(color: textColor)),
-                      const SizedBox(height: 2),
-                      if (widget.message case String message)
-                        Expanded(
-                          child: Text(
-                            message,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: textStyles.caption.copyWith(color: textColor),
-                          ),
+
+                      if (widget.message case String message) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          message,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: textStyles.caption.copyWith(color: textColor),
                         ),
+                      ],
                     ],
                   ),
                 ),
-                const Spacer(),
+                const Spacer(flex: 2),
                 Icon(CupertinoIcons.chevron_forward, size: 24, color: textColor),
               ],
             ),
