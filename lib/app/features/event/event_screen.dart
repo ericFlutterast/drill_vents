@@ -166,19 +166,21 @@ class _EventScreenState extends State<EventScreen> {
                             description: state.value.description,
                             orgName: state.value.org.title,
                             spotName: state.value.spot.title,
+                            //TODO:
                             requirements: [
                               'Уровень английского B1 и выше',
                               'Уровень китайского 99 и выше',
                               'Японское гражданство',
                               'Звание глобала и 8к ммр в доте',
                             ],
+                            //TODO:
                             bonuses: [
                               'Стол и стул (или бутылка)',
                               'Участникам скидка 10% на напитки собственного приготовления 😉',
                             ],
-                            startTime: DateTime.tryParse(state.value.startTime ?? ''),
-                            address: '', //TODO:
-                            startDate: DateTime.tryParse(state.value.startDate),
+                            startTime: state.value.startTime,
+                            address: '${state.value.spotCity}, ${state.value.spot.address}',
+                            startDate: state.value.startDate,
                           ),
                         ),
                         const SliverPadding(padding: EdgeInsets.only(top: 42)),
@@ -228,9 +230,9 @@ class _ContentSection extends StatelessWidget {
     required this.spotName,
     required this.requirements,
     required this.bonuses,
-    this.startTime,
+    required this.startTime,
     required this.address,
-    this.startDate,
+    required this.startDate,
     this.onTapOrgName,
     this.onTapSpotName,
   });
@@ -240,8 +242,8 @@ class _ContentSection extends StatelessWidget {
   final String orgName;
   final String spotName;
   final String address;
-  final DateTime? startDate;
-  final DateTime? startTime;
+  final String startDate;
+  final String startTime;
   final List<String> requirements;
   final List<String> bonuses;
   final VoidCallback? onTapSpotName;
@@ -276,11 +278,7 @@ class _ContentSection extends StatelessWidget {
             },
           ),
           const SizedBox(height: 38),
-          _DateTimeInfo(
-            address: address,
-            date: startDate != null ? DateFormat('dd MMMM').format(startDate!) : '',
-            startTime: startTime != null ? DateFormat('HH:mm').format(startTime!) : '',
-          ),
+          _DateTimeInfo(address: address, date: startDate, startTime: startTime),
           const SizedBox(height: 32),
           Text(description, style: context.themes.main.texts.body),
           const SizedBox(height: 24),
@@ -328,6 +326,16 @@ class _DateTimeInfo extends StatelessWidget {
   final String date;
   final String startTime;
 
+  String formattedTime(String time) {
+    final startTime = DateTime.tryParse(time);
+    return startTime != null ? DateFormat('HH:mm').format(startTime) : '';
+  }
+
+  String formattedDate(String date) {
+    final startDate = DateTime.tryParse(date);
+    return startDate != null ? DateFormat('dd MMMM').format(startDate) : '';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -335,7 +343,7 @@ class _DateTimeInfo extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(date, style: context.themes.main.texts.h3),
+            Text(formattedDate(date), style: context.themes.main.texts.h3),
             const SizedBox(height: 6),
             Text(address, style: context.themes.main.texts.bodySmall), //'Краснодар, Постовая 55'
           ],
@@ -348,7 +356,7 @@ class _DateTimeInfo extends StatelessWidget {
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 10),
-            child: Text(startTime, style: context.themes.main.texts.h3),
+            child: Text(formattedTime(startTime), style: context.themes.main.texts.h3),
           ),
         ),
       ],

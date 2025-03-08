@@ -18,7 +18,7 @@ class MainBackendAPI implements BackendAPI {
 
   @override
   Future<List<CityModel>> getCities() async {
-    final response = await _api.get('/cities');
+    final response = await _api.post('/cities');
     final items = response.data['cities'] as List;
     return items.map((e) => CityModel.fromJson(e)).toList();
   }
