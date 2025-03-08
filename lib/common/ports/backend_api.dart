@@ -17,14 +17,7 @@ abstract interface class BackendAPI {
   });
   Future<DetailEventModel> getEvent(String id);
   Future<List<ShortUserModel>> getParticipants(String id);
-  Future<DetailEventModel> createEvent({
-    required String spotID,
-    required String title,
-    required String description,
-    required DateTime startDate,
-    DateTime? startTime,
-    DateTime? endTime,
-  });
+  Future<DetailEventModel> createEvent(NewEventModel eventData);
   Future<DetailEventModel> updateEvent(
     String id, {
     String? title,
@@ -39,7 +32,7 @@ abstract interface class BackendAPI {
     required String eventId,
   });
   Future<DetailOrgModel> getOrg(String id);
-  Future<List<SpotCardModel>> getOrgSpots(String id);
+  Future<Iterable<SpotCardModel>> getOrgSpots(String id);
   Future<List<EventCardModel>> getOrgEvents(String id);
   Future<DetailSpotModel> getSpot(String id);
   Future<List<EventCardModel>> getSpotEvents(String id);

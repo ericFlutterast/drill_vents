@@ -4,4 +4,5 @@ abstract final class Routes {
   static const event = '/event';
   static const spot = '/spot';
   static const org = '/org';
+  static const createEvent = '/createEvent';
 }

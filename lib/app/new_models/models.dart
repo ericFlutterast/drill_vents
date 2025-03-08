@@ -1,3 +1,4 @@
+import 'package:drill_events/common/utils/json_converters.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -374,4 +375,70 @@ class PaginationModel extends Equatable {
 
   @override
   List<Object?> get props => [page, size, next, itemCount, pageCount];
+}
+
+@JsonSerializable(fieldRename: FieldRename.snake)
+final class NewEventModel extends Equatable {
+  const NewEventModel({
+    this.title,
+    this.spotId,
+    this.startDate,
+    this.description,
+    this.endTime,
+    this.startTime,
+    this.expectingOptions,
+    this.suggestOptions,
+    this.capacity = 0,
+  });
+
+  factory NewEventModel.fromJson(Map<String, dynamic> json) => _$NewEventModelFromJson(json);
+
+  final int? capacity;
+  final String? spotId, title, description;
+
+  @ToRFC3337DateConverter()
+  final DateTime? startDate;
+  @ToRFC3337TimeConverter()
+  final DateTime? startTime;
+  @ToRFC3337TimeConverter()
+  final DateTime? endTime;
+
+  final Iterable<String>? expectingOptions, suggestOptions;
+
+  @override
+  List<Object?> get props => [
+    spotId,
+    title,
+    description,
+    startDate,
+    startTime,
+    endTime,
+    capacity,
+    expectingOptions,
+    suggestOptions,
+  ];
+
+  NewEventModel copyWith({
+    int? capacity,
+    String? spotId,
+    String? title,
+    String? description,
+    DateTime? startDate,
+    DateTime? startTime,
+    DateTime? endTime,
+    Iterable<String>? expectingOptions,
+    Iterable<String>? suggestOptions,
+  }) => NewEventModel(
+    capacity: capacity ?? this.capacity,
+    spotId: spotId ?? this.spotId,
+    title: title ?? this.title,
+    description: description ?? this.description,
+    startDate: startDate ?? this.startDate,
+    startTime: startTime ?? this.startTime,
+    endTime: endTime ?? this.endTime,
+    expectingOptions: expectingOptions ?? this.expectingOptions,
+    suggestOptions: suggestOptions ?? this.suggestOptions,
+  );
+
+  Map<String, dynamic> toJson() => _$NewEventModelToJson(this);
 }

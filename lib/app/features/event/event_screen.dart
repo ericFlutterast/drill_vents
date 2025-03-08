@@ -1,11 +1,11 @@
 import 'package:drill_events/app/blocs/auth/bloc.dart';
+import 'package:drill_events/app/blocs/booking_event/bloc.dart';
+import 'package:drill_events/app/blocs/booking_event/events.dart';
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
 import 'package:drill_events/app/blocs/detail_event/bloc.dart';
 import 'package:drill_events/app/blocs/detail_event/events.dart';
 import 'package:drill_events/app/blocs/registration/bloc.dart';
 import 'package:drill_events/app/blocs/registration/events.dart';
-import 'package:drill_events/app/blocs/sign_up_to_event/bloc.dart';
-import 'package:drill_events/app/blocs/sign_up_to_event/events.dart';
 import 'package:drill_events/app/features/event/widgets/creating_entry_for_event_modal.dart';
 import 'package:drill_events/app/features/event/widgets/join_event_modal.dart';
 import 'package:drill_events/app/features/event/widgets/participation_notification.dart';
@@ -14,6 +14,7 @@ import 'package:drill_events/app/features/widgets/interpunct.dart';
 import 'package:drill_events/app/features/widgets/notification_manager.dart';
 import 'package:drill_events/app/features/widgets/screen_header.dart';
 import 'package:drill_events/app/generated/assets.gen.dart';
+import 'package:drill_events/app/new_models/models.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:drill_events/common/navigation/modal_bottom_sheet.dart';
 import 'package:drill_events/common/utils/extensions.dart';
@@ -37,7 +38,7 @@ class EventScreen extends StatefulWidget {
           create:
               (_) => DetailEventBloc(
                 context.dependencies.fastCache,
-                context.dependencies.repository,
+                context.dependencies.backendApi,
                 context.dependencies.logger,
               )..add(FetchDetailEvent(id: '')),
         ),
@@ -121,7 +122,7 @@ class _EventScreenState extends State<EventScreen> {
     }
   }
 
-  void _signUpToEventBlocListener(BuildContext context, CommonBlocState<String> state) {
+  void _signUpToEventBlocListener(BuildContext context, CommonBlocState<BookingModel> state) {
     if (state.isDone) {
       Navigator.popUntil(context, (route) => route.settings.name != _loadingBottomSheetName);
       Navigator.push(context, const AppModalBottomSheetPage(child: _SignUpDone.success()).createRoute(context));
@@ -154,7 +155,7 @@ class _EventScreenState extends State<EventScreen> {
               _showErrorNotification(state.errorMessage.toString());
             }
           },
-          child: BlocListener<BookingEventBloc, CommonBlocState<String>>(
+          child: BlocListener<BookingEventBloc, CommonBlocState<BookingModel>>(
             listener: _signUpToEventBlocListener,
             child: Stack(
               children: [
@@ -199,7 +200,7 @@ class _EventScreenState extends State<EventScreen> {
                       SliverToBoxAdapter(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: BlocBuilder<BookingEventBloc, CommonBlocState<String>>(
+                          child: BlocBuilder<BookingEventBloc, CommonBlocState<BookingModel>>(
                             builder: (context, state) {
                               if (state.isPending) {
                                 return const AppButton.loading(title: 'Идет запись');
@@ -271,7 +272,7 @@ class _ContentSection extends StatelessWidget {
           ),
           const SizedBox(height: 7),
           Text(title, style: context.themes.main.texts.h1),
-          BlocBuilder<BookingEventBloc, CommonBlocState<String>>(
+          BlocBuilder<BookingEventBloc, CommonBlocState<BookingModel>>(
             builder: (context, state) {
               if (!state.hasValue) const SizedBox.shrink();
 

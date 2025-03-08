@@ -1,6 +1,6 @@
 import 'package:drill_events/app/features/event/event_screen.dart';
 import 'package:drill_events/app/features/org_screen.dart';
-import 'package:drill_events/app/features/spot_screen.dart';
+import 'package:drill_events/app/features/spot/spot_screen.dart';
 import 'package:drill_events/common/di/dependencies.dart';
 import 'package:drill_events/common/di/dependencies_scope.dart';
 import 'package:drill_events/common/navigation/modal_bottom_sheet.dart';
@@ -21,8 +21,13 @@ extension Routing on BuildContext {
 
   Future openEventScreen(String eventID) =>
       Navigator.pushNamed(this, Routes.event, arguments: EventScreenArgs(eventID));
+
   Future openSpotScreen(String spotID) => Navigator.pushNamed(this, Routes.spot, arguments: SpotScreenArgs(spotID));
+
   Future openOrgScreen(String orgID) => Navigator.pushNamed(this, Routes.org, arguments: OrgScreenArgs(orgID));
 
-  void openBottomSheet(Widget child) => Navigator.push(this, AppModalBottomSheetPage(child: child).createRoute(this));
+  Future<T?> openBottomSheet<T>(Widget child) =>
+      Navigator.push<T>(this, AppModalBottomSheetPage<T>(child: child).createRoute(this));
+
+  Future<T?> openCreateEventScreen<T>() => Navigator.pushNamed(this, Routes.createEvent);
 }

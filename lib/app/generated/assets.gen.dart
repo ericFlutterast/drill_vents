@@ -18,6 +18,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/error.svg
   SvgGenImage get error => const SvgGenImage('assets/icons/error.svg');
 
+  /// File path: assets/icons/error_mark.svg
+  SvgGenImage get errorMark => const SvgGenImage('assets/icons/error_mark.svg');
+
   /// File path: assets/icons/processing.svg
   SvgGenImage get processing => const SvgGenImage('assets/icons/processing.svg');
 
@@ -31,7 +34,7 @@ class $AssetsIconsGen {
   SvgGenImage get telegram => const SvgGenImage('assets/icons/telegram.svg');
 
   /// List of all assets
-  List<SvgGenImage> get values => [error, processing, refresh, success, telegram];
+  List<SvgGenImage> get values => [error, errorMark, processing, refresh, success, telegram];
 }
 
 class $AssetsImagesGen {

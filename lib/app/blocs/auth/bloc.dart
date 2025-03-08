@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:drill_events/app/blocs/auth/events.dart';
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
-import 'package:drill_events/app/models/user.dart';
+import 'package:drill_events/app/new_models/models.dart';
 import 'package:drill_events/common/adapters/events_pipe/pipe_events.dart';
-import 'package:drill_events/common/ports/data_repository.dart';
+import 'package:drill_events/common/ports/backend_api.dart';
 import 'package:drill_events/common/ports/logger.dart';
 import 'package:drill_events/common/ports/pipe.dart';
 import 'package:drill_events/common/secure_storage/secure_storage_keys.dart';
@@ -28,7 +28,7 @@ final class AuthBloc extends Bloc<AuthEvents, _State> {
 
   final Pipe _pipe;
   final Logger _logger;
-  final DataRepository _repository;
+  final BackendAPI _repository;
   final FlutterSecureStorage _secureStorage;
 
   Future<void> _getJwtToken(GetJwtTokenEvent event, Emit emit) async {
@@ -36,7 +36,7 @@ final class AuthBloc extends Bloc<AuthEvents, _State> {
       emit(state.pending());
       String? currentToken = await _secureStorage.read(key: SecureStorageKeys.jwt);
       if (true) {
-        currentToken = await _repository.getJwtToken();
+        //currentToken = await _repository.getJwtToken();
         await _secureStorage.write(key: SecureStorageKeys.jwt, value: currentToken);
       }
 
@@ -62,12 +62,12 @@ final class AuthBloc extends Bloc<AuthEvents, _State> {
 
   Future<void> _getUser(GetUserInfo event, Emit emit) async {
     try {
-      emit(state.pending());
-      final user = await _repository.fetchUserInfo(event.uid);
-      emit(state.done(user));
-      if (event.publishToPipe) {
-        _pipe.publish(UserIsReceived(user.email));
-      }
+      // emit(state.pending());
+      // final user = await _repository.fetchUserInfo(event.uid);
+      // emit(state.done(user));
+      // if (event.publishToPipe) {
+      //   _pipe.publish(UserIsReceived(user.email));
+      // }
     } on DioException catch (error, stackTrace) {
       emit(state.error(error.response?.data['message'] ?? 'Сетевая ошибка'));
       _logger.error(error, error: error, stackTrace: stackTrace);

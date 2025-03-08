@@ -2,9 +2,9 @@ import 'package:drill_events/app/blocs/auth/bloc.dart';
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
 import 'package:drill_events/app/features/widgets/app_back_button.dart';
 import 'package:drill_events/app/features/widgets/app_icon_button.dart';
-import 'package:drill_events/app/features/widgets/circle_avata_decoration.dart';
+import 'package:drill_events/app/features/widgets/circle_avatar_decoration.dart';
 import 'package:drill_events/app/features/widgets/event_list_item.dart';
-import 'package:drill_events/app/models/user.dart';
+import 'package:drill_events/app/new_models/models.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +18,7 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin, AnimationForBackButton {
+class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin {
   late final ScrollController _scrollController = ScrollController();
   late final _animationController = AnimationController(
     vsync: this,
@@ -30,9 +30,9 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   void initState() {
     super.initState();
 
-    _scrollController.addListener(() {
-      buttonVisibility(animationController: _animationController, scrollController: _scrollController);
-    });
+    // _scrollController.addListener(() {
+    //   buttonVisibility(animationController: _animationController, scrollController: _scrollController);
+    // });
   }
 
   @override
@@ -141,9 +141,9 @@ class _UserInfo extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(user.info.name, style: textStyles.h3),
+              Text(user.info.name ?? '', style: textStyles.h3),
               const SizedBox(height: 5),
-              Text(user.info.phone, style: textStyles.bodySmall),
+              Text(user.info.phone ?? '', style: textStyles.bodySmall),
               const SizedBox(height: 5),
               Text(user.email, style: textStyles.bodySmall),
               const SizedBox(height: 5),

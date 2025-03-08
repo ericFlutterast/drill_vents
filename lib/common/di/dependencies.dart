@@ -1,11 +1,12 @@
 import 'package:drill_events/app/blocs/auth/bloc.dart';
+import 'package:drill_events/app/blocs/booking_event/bloc.dart';
+import 'package:drill_events/app/blocs/create_new_event.dart';
 import 'package:drill_events/app/blocs/detail_event/bloc.dart';
 import 'package:drill_events/app/blocs/events/bloc.dart';
+import 'package:drill_events/app/blocs/receiving_spots.dart';
 import 'package:drill_events/app/blocs/registration/bloc.dart';
-import 'package:drill_events/app/blocs/sign_up_to_event/bloc.dart';
 import 'package:drill_events/common/network/http_api_client.dart';
 import 'package:drill_events/common/ports/backend_api.dart';
-import 'package:drill_events/common/ports/data_repository.dart';
 import 'package:drill_events/common/ports/fast_cache.dart';
 import 'package:drill_events/common/ports/logger.dart';
 import 'package:drill_events/common/ports/pipe.dart';
@@ -24,8 +25,6 @@ final class Dependencies {
 
   // Data
   late final BackendAPI backendApi;
-  // TODO: remove
-  late final DataRepository repository;
   late final SharedPreferences sharedPreferences;
   late final FlutterSecureStorage secureStorage;
 
@@ -35,4 +34,6 @@ final class Dependencies {
   late final BookingEventBloc signUpToEventBloc;
   late final DetailEventBloc detailEventBloc;
   late final RegistrationBloc registrationBloc;
+  late final ReceivingSpotsBloc receivingSpotsBloc;
+  late final CreateNewEventBloc createNewEventBloc;
 }
