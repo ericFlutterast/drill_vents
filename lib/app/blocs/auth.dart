@@ -100,7 +100,7 @@ final class AuthBloc extends Bloc<AuthEvents, AuthState> {
       emit(state.error(error.response?.data['message'] ?? 'Сетевая ошибка'));
       _logger.error(error, error: error, stackTrace: stackTrace);
 
-      if (error.response case <String, dynamic>{'statusCode': final int code, 'message': final String message}) {
+      if (error.response?.data case <String, dynamic>{'status': final int code, 'message': final String message}) {
         if (code == 403 && message == 'token is expired') {
           await _refresh();
         }
