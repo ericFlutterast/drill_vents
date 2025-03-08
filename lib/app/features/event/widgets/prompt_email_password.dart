@@ -5,16 +5,16 @@ import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:flutter/material.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
-class JoinEventModal extends StatefulWidget {
-  const JoinEventModal({super.key, required this.conditionsForParticipation});
+class PromptEmailPassword extends StatefulWidget {
+  const PromptEmailPassword({super.key, required this.conditionsForParticipation});
 
   final Iterable<String> conditionsForParticipation;
 
   @override
-  State<JoinEventModal> createState() => _InviteRequestToEventModalState();
+  State<PromptEmailPassword> createState() => _InviteRequestToEventModalState();
 }
 
-class _InviteRequestToEventModalState extends State<JoinEventModal> {
+class _InviteRequestToEventModalState extends State<PromptEmailPassword> {
   bool _showPasswordField = false;
   String _title = 'Условия';
 
@@ -46,6 +46,7 @@ class _InviteRequestToEventModalState extends State<JoinEventModal> {
           if (_showPasswordField) ...[
             AppTextField(
               key: UniqueKey(),
+              maxLines: 1,
               useReactiveForm: true,
               obscureText: true,
               hintText: 'Password',
@@ -56,6 +57,7 @@ class _InviteRequestToEventModalState extends State<JoinEventModal> {
             AppTextField(
               key: UniqueKey(),
               useReactiveForm: true,
+              maxLines: 1,
               hintText: 'Email',
               formControl: _emailControl,
               keyboardType: TextInputType.emailAddress,

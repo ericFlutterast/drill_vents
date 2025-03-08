@@ -1,6 +1,8 @@
+import 'package:drill_events/app/blocs/auth.dart';
 import 'package:drill_events/app/blocs/events/bloc.dart';
 import 'package:drill_events/app/blocs/events/events.dart';
 import 'package:drill_events/app/features/auth/auth_provider.dart';
+import 'package:drill_events/app/features/auth/auth_screen.dart';
 import 'package:drill_events/app/features/create_event/create_event_screen.dart';
 import 'package:drill_events/app/features/event/event_screen.dart';
 import 'package:drill_events/app/features/home/home_screen.dart';
@@ -25,6 +27,7 @@ class App extends StatelessWidget {
         ValidationMessage.email: (_) => 'Неверный email',
         ValidationMessage.required: (_) => 'Обязательное поле',
         ValidationMessage.number: (_) => 'Необходимо ввести число',
+        ValidationMessage.minLength: (value) => 'Минимальная длина ${(value as Map)['requiredLength']}',
       },
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -36,7 +39,14 @@ class App extends StatelessWidget {
                 create: (_) => context.dependencies.eventsBloc..add(FetchEventsFeed()),
                 child: const HomeScreen(),
               ),
-          Routes.profile: (context) => const ProfileScreen(),
+          Routes.auth: (context) => const AuthScreen(),
+          Routes.profile: (context) {
+            final authState = context.read<AuthBloc>().state;
+            if (authState.hasValue) {
+              return const ProfileScreen();
+            }
+            return const AuthScreen();
+          },
           Routes.event: (context) => EventScreen.bloc(context),
           Routes.spot: (context) => SpotScreen.bloc(context),
           Routes.org: (context) => OrgScreen.bloc(context),

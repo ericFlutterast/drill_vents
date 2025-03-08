@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:drill_events/app/blocs/receiving_spots.dart';
 import 'package:drill_events/app/features/create_event/new_event_validators.dart';
-import 'package:drill_events/app/features/event/widgets/participation_notification.dart';
+import 'package:drill_events/app/features/widgets/app_notification.dart';
 import 'package:drill_events/app/features/widgets/notification_manager.dart';
 import 'package:drill_events/app/features/widgets/shimmer.dart';
 import 'package:drill_events/app/features/widgets/validation_builder.dart';
@@ -49,10 +49,7 @@ class _SpotsTileState extends State<SpotsTile> {
       listener: (_, state) {
         if (state.isError) {
           NotificationManager.of(context).showNotification(
-            notification: ParticipationNotification(
-              status: ParticipationNotificationStatus.error,
-              title: state.errorMessage.toString(),
-            ),
+            notification: AppNotification(status: NotificationStatus.error, title: state.errorMessage.toString()),
           );
         }
       },

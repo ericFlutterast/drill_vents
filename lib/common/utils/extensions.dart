@@ -19,15 +19,21 @@ extension ContextExt on BuildContext {
 extension Routing on BuildContext {
   T getArgs<T>() => ModalRoute.of(this)!.settings.arguments as T;
 
-  Future openEventScreen(String eventID) =>
-      Navigator.pushNamed(this, Routes.event, arguments: EventScreenArgs(eventID));
+  void pop<T>() => Navigator.pop<T>(this);
 
-  Future openSpotScreen(String spotID) => Navigator.pushNamed(this, Routes.spot, arguments: SpotScreenArgs(spotID));
+  Future<T?> openEventScreen<T>(String eventID) =>
+      Navigator.pushNamed<T>(this, Routes.event, arguments: EventScreenArgs(eventID));
 
-  Future openOrgScreen(String orgID) => Navigator.pushNamed(this, Routes.org, arguments: OrgScreenArgs(orgID));
+  Future<T?> openProfileScreen<T>() => Navigator.pushNamed<T>(this, Routes.profile);
+
+  Future<T?> openSpotScreen<T>(String spotID) =>
+      Navigator.pushNamed<T>(this, Routes.spot, arguments: SpotScreenArgs(spotID));
+
+  Future<T?> openOrgScreen<T>(String orgID) =>
+      Navigator.pushNamed<T>(this, Routes.org, arguments: OrgScreenArgs(orgID));
 
   Future<T?> openBottomSheet<T>(Widget child) =>
       Navigator.push<T>(this, AppModalBottomSheetPage<T>(child: child).createRoute(this));
 
-  Future<T?> openCreateEventScreen<T>() => Navigator.pushNamed(this, Routes.createEvent);
+  Future<T?> openCreateEventScreen<T>() => Navigator.pushNamed<T>(this, Routes.createEvent);
 }

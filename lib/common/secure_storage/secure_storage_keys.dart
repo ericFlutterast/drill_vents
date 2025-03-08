@@ -1,3 +1,4 @@
 abstract class SecureStorageKeys {
-  static const jwt = 'jwt';
+  static const accessToken = 'access';
+  static const refreshToken = 'refresh';
 }

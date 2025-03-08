@@ -16,6 +16,8 @@ class AppTextField extends StatelessWidget {
     this.hintStyle,
     this.decoration,
     this.border,
+    this.focusBorder,
+    this.errorBorder,
     this.contentPadding,
     this.controller,
     this.formControl,
@@ -35,6 +37,8 @@ class AppTextField extends StatelessWidget {
   final TextStyle? hintStyle;
   final InputDecoration? decoration;
   final InputBorder? border;
+  final InputBorder? focusBorder;
+  final InputBorder? errorBorder;
   final EdgeInsets? contentPadding;
   final TextInputType? keyboardType;
   final TextEditingController? controller;
@@ -58,12 +62,16 @@ class AppTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themes.main.colors;
+
     if (useReactiveForm) {
       return ReactiveTextField(
+        focusNode: focusNode,
         controller: controller,
         formControl: formControl,
         cursorColor: context.themes.main.colors.primary,
         onTapOutside: onTapOutside ?? (_) => FocusScope.of(context).unfocus(),
+        onEditingComplete: onEditingComplete != null ? (_) => onEditingComplete?.call() : null,
         onAppPrivateCommand: onAppPrivateCommand,
         keyboardType: keyboardType,
         obscureText: obscureText,
@@ -82,6 +90,14 @@ class AppTextField extends StatelessWidget {
                   hintStyle ?? context.themes.main.texts.body.copyWith(color: context.themes.main.colors.secondary),
               filled: true,
               fillColor: const Color(0xFFF5F5F5),
+              focusedBorder: focusBorder,
+
+              errorBorder:
+                  errorBorder ??
+                  OutlineInputBorder(
+                    borderRadius: const BorderRadius.all(Radius.circular(50)),
+                    borderSide: BorderSide(width: 1.5, color: colors.error600),
+                  ),
               border:
                   border ??
                   const OutlineInputBorder(
@@ -120,7 +136,13 @@ class AppTextField extends StatelessWidget {
             hintStyle:
                 hintStyle ?? context.themes.main.texts.body.copyWith(color: context.themes.main.colors.secondary),
             filled: true,
-            fillColor: const Color(0xFFF5F5F5),
+            fillColor: colors.background,
+            errorBorder:
+                errorBorder ??
+                OutlineInputBorder(
+                  borderRadius: const BorderRadius.all(Radius.circular(50)),
+                  borderSide: BorderSide(width: 1.5, color: colors.error600),
+                ),
             border:
                 border ??
                 const OutlineInputBorder(

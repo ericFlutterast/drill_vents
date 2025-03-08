@@ -2,13 +2,13 @@ import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-enum ParticipationNotificationStatus { error, success, processing }
+enum NotificationStatus { error, success, processing }
 
-class ParticipationNotification extends StatefulWidget {
-  const ParticipationNotification({
+class AppNotification extends StatefulWidget {
+  const AppNotification({
     super.key,
     this.duration = const Duration(seconds: 8),
-    this.status = ParticipationNotificationStatus.success,
+    this.status = NotificationStatus.success,
     this.title,
     this.message,
   });
@@ -16,13 +16,13 @@ class ParticipationNotification extends StatefulWidget {
   final String? title;
   final String? message;
   final Duration duration;
-  final ParticipationNotificationStatus status;
+  final NotificationStatus status;
 
   @override
-  State<ParticipationNotification> createState() => _ParticipationNotificationState();
+  State<AppNotification> createState() => _AppNotificationState();
 }
 
-class _ParticipationNotificationState extends State<ParticipationNotification> with SingleTickerProviderStateMixin {
+class _AppNotificationState extends State<AppNotification> with SingleTickerProviderStateMixin {
   late final AnimationController _animationController;
 
   @override
@@ -43,21 +43,21 @@ class _ParticipationNotificationState extends State<ParticipationNotification> w
     final textStyles = context.themes.main.texts;
 
     final (icon, backgroundColor, fillColor, textColor, iconBackgroundColor) = switch (widget.status) {
-      ParticipationNotificationStatus.success => (
+      NotificationStatus.success => (
         Icons.check,
         colors.success100,
         colors.success200,
         colors.success900,
         colors.success600,
       ),
-      ParticipationNotificationStatus.processing => (
+      NotificationStatus.processing => (
         CupertinoIcons.exclamationmark,
         colors.warning100,
         colors.warning200,
         colors.warning900,
         colors.warning600,
       ),
-      ParticipationNotificationStatus.error => (
+      NotificationStatus.error => (
         Icons.close_rounded,
         colors.error100,
         colors.error200,
@@ -97,28 +97,28 @@ class _ParticipationNotificationState extends State<ParticipationNotification> w
                   ),
                 ),
                 const SizedBox(width: 12),
-                SizedBox(
-                  width: MediaQuery.sizeOf(context).width * 0.6,
+                Expanded(
+                  flex: 4,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(widget.title ?? 'Ошибка', style: textStyles.body.copyWith(color: textColor)),
-                      const SizedBox(height: 2),
-                      if (widget.message case String message)
-                        Expanded(
-                          child: Text(
-                            message,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: textStyles.caption.copyWith(color: textColor),
-                          ),
+
+                      if (widget.message case String message) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          message,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: textStyles.caption.copyWith(color: textColor),
                         ),
+                      ],
                     ],
                   ),
                 ),
-                const Spacer(),
+                const Spacer(flex: 2),
                 Icon(CupertinoIcons.chevron_forward, size: 24, color: textColor),
               ],
             ),
