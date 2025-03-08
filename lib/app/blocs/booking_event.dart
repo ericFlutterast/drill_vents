@@ -7,9 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 ///Events
 abstract class BookingEvent {
-  const BookingEvent({this.publishToPipe = false});
-
-  final bool publishToPipe;
+  const BookingEvent();
 }
 
 final class BookToEvent extends BookingEvent {

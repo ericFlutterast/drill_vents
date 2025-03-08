@@ -266,15 +266,15 @@ class _ContentSection extends StatelessWidget {
           ),
           const SizedBox(height: 7),
           Text(title, style: context.themes.main.texts.h1),
-          // BlocBuilder<BookingEventBloc, CommonBlocState<BookingModel>>(
-          //   builder: (context, state) {
-          //     if (!state.hasValue) const SizedBox.shrink();
-          //
-          //     return const Column(
-          //       children: [SizedBox(height: 18), _ParticipationStatus(status: ParticipationStatusEnum.processing)],
-          //     );
-          //   },
-          // ),
+          BlocBuilder<BookingEventBloc, CommonBlocState<BookingModel>>(
+            builder: (context, state) {
+              if (!state.hasValue) return const SizedBox.shrink();
+
+              return const Column(
+                children: [SizedBox(height: 18), _ParticipationStatus(status: ParticipationStatusEnum.processing)],
+              );
+            },
+          ),
           const SizedBox(height: 38),
           _DateTimeInfo(
             address: address,
