@@ -19,18 +19,24 @@ class AppButton extends StatelessWidget {
     : _state = AppButtonState.primary,
       titleStyle = null,
       loadingIconColor = null,
+      splashColor = null,
+      highlightColor = null,
       backgroundColor = null;
 
   const AppButton.secondary({super.key, this.onTap, this.title})
     : _state = AppButtonState.secondary,
       titleStyle = null,
       loadingIconColor = null,
+      splashColor = null,
+      highlightColor = null,
       backgroundColor = null;
 
   const AppButton.loading({super.key, this.title, this.loadingIconColor})
     : _state = AppButtonState.loading,
       titleStyle = null,
       onTap = null,
+      splashColor = null,
+      highlightColor = null,
       backgroundColor = null;
 
   const AppButton.custom({
@@ -40,6 +46,8 @@ class AppButton extends StatelessWidget {
     this.titleStyle,
     this.backgroundColor,
     this.loadingIconColor,
+    this.splashColor,
+    this.highlightColor,
   }) : _state = AppButtonState.custom;
 
   const AppButton.error({super.key, this.title})
@@ -47,12 +55,16 @@ class AppButton extends StatelessWidget {
       onTap = null,
       titleStyle = null,
       loadingIconColor = null,
+      splashColor = null,
+      highlightColor = null,
       backgroundColor = null;
 
   const AppButton.warning({super.key, this.title, this.onTap})
     : _state = AppButtonState.warning,
       backgroundColor = null,
       loadingIconColor = null,
+      splashColor = null,
+      highlightColor = null,
       titleStyle = null;
 
   final Color? backgroundColor;
@@ -61,6 +73,8 @@ class AppButton extends StatelessWidget {
   final String? title;
   final Color? loadingIconColor;
   final AppButtonState _state;
+  final Color? splashColor;
+  final Color? highlightColor;
 
   Color _setBackgroundColor(AppColors colors) {
     if (onTap == null) return colors.background;
@@ -92,6 +106,8 @@ class AppButton extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       borderRadius: const BorderRadius.all(Radius.circular(50)),
+      splashColor: splashColor,
+      highlightColor: highlightColor,
       child: Ink(
         decoration: BoxDecoration(
           color: backgroundColor ?? _setBackgroundColor(colors),
