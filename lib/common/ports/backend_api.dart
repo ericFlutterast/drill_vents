@@ -6,7 +6,7 @@ abstract interface class BackendAPI {
   Future<SessionModel> refreshSession();
   Future<String> createUser({required String email, required String password});
   Future<UserModel> getMyProfile();
-  Future updateMyProfile({String? name, String? phone, String? telegram, String? whatsApp, String? vk});
+  Future updateMyProfile({String? name, String? email, String? phone, String? telegram, String? whatsapp, String? vk});
   Future<List<OrgCardModel>> getMyOrgs();
   Future<List<SpotCardModel>> getMySubscriptions();
   Future<(List<EventCardModel>, PaginationModel)> getEvents({

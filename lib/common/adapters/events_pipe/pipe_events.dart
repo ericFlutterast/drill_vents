@@ -7,3 +7,5 @@ final class BookPipeEvent extends PipeEvent {
 
   final BookingModel booking;
 }
+
+final class UpdateUserDataPipeEvent extends PipeEvent {}

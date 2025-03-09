@@ -35,20 +35,20 @@ class TokensModel extends Equatable {
 
 @JsonSerializable()
 class UserInfoModel extends Equatable {
-  const UserInfoModel({this.name, this.phone, this.telegram, this.whatsApp, this.vk});
+  const UserInfoModel({this.name, this.phone, this.telegram, this.whatsapp, this.vk});
 
   factory UserInfoModel.fromJson(Map<String, dynamic> json) => _$UserInfoModelFromJson(json);
 
   final String? name;
   final String? phone;
   final String? telegram;
-  final String? whatsApp;
+  final String? whatsapp;
   final String? vk;
 
   Map<String, dynamic> toJson() => _$UserInfoModelToJson(this);
 
   @override
-  List<Object?> get props => [name, phone, telegram, whatsApp, vk];
+  List<Object?> get props => [name, phone, telegram, whatsapp, vk];
 }
 
 @JsonSerializable()

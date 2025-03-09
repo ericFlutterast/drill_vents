@@ -53,8 +53,23 @@ class MainBackendAPI implements BackendAPI {
   }
 
   @override
-  Future updateMyProfile({String? name, String? phone, String? telegram, String? whatsApp, String? vk}) =>
-      _api.patch('/users', data: {'name': name, 'phone': phone, 'telegram': telegram, 'whatsapp': whatsApp, 'vk': vk});
+  Future<void> updateMyProfile({
+    String? name,
+    String? email,
+    String? phone,
+    String? telegram,
+    String? whatsapp,
+    String? vk,
+  }) async {
+    try {
+      final data = {'name': name, 'phone': phone, 'telegram': telegram, 'whatsapp': whatsapp, 'vk': vk, 'email': email};
+      await _api.patch('/users', data: data);
+    } catch (error, stackTrace) {
+      _logger.error(error, error: error, stackTrace: stackTrace);
+      rethrow;
+    }
+  }
+
   @override
   Future<List<OrgCardModel>> getMyOrgs() async {
     final response = await _api.get('/users/me/orgs');

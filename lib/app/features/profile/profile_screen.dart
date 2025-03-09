@@ -1,9 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:drill_events/app/blocs/auth.dart';
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
+import 'package:drill_events/app/blocs/profile_bloc.dart';
 import 'package:drill_events/app/features/widgets/app_back_button.dart';
 import 'package:drill_events/app/features/widgets/app_button.dart';
 import 'package:drill_events/app/features/widgets/app_icon_button.dart';
+import 'package:drill_events/app/features/widgets/app_text_field.dart';
 import 'package:drill_events/app/features/widgets/circle_avatar_decoration.dart';
 import 'package:drill_events/app/generated/assets.gen.dart';
 import 'package:drill_events/app/new_models/models.dart';
@@ -11,10 +13,15 @@ import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:drill_events/common/utils/extensions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  const ProfileScreen._();
+
+  static Widget bloc(BuildContext context) {
+    return BlocProvider(create: (_) => context.dependencies.profileBloc, child: const ProfileScreen._());
+  }
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -59,7 +66,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.only(left: 28),
-                      child: Text('Вы участвуете', style: textsStyles.bodySmall),
+                      child: Text('Записи', style: textsStyles.body),
                     ),
                   ),
                   const SliverPadding(padding: EdgeInsets.only(top: 12)),
@@ -93,6 +100,7 @@ class _ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.read<AuthBloc>();
     final avatarDiameter = 100.0;
     return Padding(
       padding: EdgeInsets.only(left: MediaQuery.sizeOf(context).width / 2 - avatarDiameter / 2, right: 25),
@@ -110,7 +118,17 @@ class _ProfileHeader extends StatelessWidget {
               decoration: const BoxDecoration(color: Colors.orange, shape: BoxShape.circle),
             ),
           ),
-          AppIconButton(icon: CupertinoIcons.pencil, onTap: () {}),
+          AppIconButton(
+            icon: CupertinoIcons.pencil,
+            onTap:
+                () => context.openBottomSheet(
+                  _EditingProfileModal.blocValue(
+                    context,
+                    authBloc: context.read<AuthBloc>(),
+                    profileBloc: context.read<ProfileBloc>(),
+                  ),
+                ),
+          ),
           //TODO: настройки
           //
           // Column(
@@ -120,6 +138,165 @@ class _ProfileHeader extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class _EditingProfileModal extends StatefulWidget {
+  const _EditingProfileModal._();
+
+  static Widget blocValue(BuildContext context, {required AuthBloc authBloc, required ProfileBloc profileBloc}) {
+    return MultiBlocProvider(
+      providers: [BlocProvider<AuthBloc>.value(value: authBloc), BlocProvider<ProfileBloc>.value(value: profileBloc)],
+      child: const _EditingProfileModal._(),
+    );
+  }
+
+  @override
+  State<_EditingProfileModal> createState() => _EditingProfileModalState();
+}
+
+class _EditingProfileModalState extends State<_EditingProfileModal> {
+  late final _nameController = TextEditingController();
+  late final _mailController = TextEditingController();
+  late final _phoneController = TextEditingController();
+  late final _telegramController = TextEditingController();
+  late final _whatsAppController = TextEditingController();
+  late final _vkController = TextEditingController();
+
+  late final _phoneFocusNode = FocusNode();
+  late final _whatsappFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    final user = context.read<AuthBloc>().state.value;
+    _nameController.text = user.info.name ?? '';
+    _mailController.text = user.email;
+    _phoneController.text = user.info.phone ?? '';
+    _telegramController.text = user.info.telegram ?? '';
+    _whatsAppController.text = user.info.whatsapp ?? '';
+    _vkController.text = user.info.vk ?? '';
+
+    _phoneFocusNode.addListener(() {
+      if (!_phoneFocusNode.hasFocus) {
+        context.read<ProfileBloc>().add(UpdateProfileInfoEvent(phone: _phoneController.text));
+      }
+    });
+    _whatsappFocusNode.addListener(() {
+      if (!_whatsappFocusNode.hasFocus) {
+        context.read<ProfileBloc>().add(UpdateProfileInfoEvent(whatsapp: _whatsAppController.text));
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _mailController.dispose();
+    _phoneController.dispose();
+    _telegramController.dispose();
+    _whatsAppController.dispose();
+    _vkController.dispose();
+    _phoneFocusNode.dispose();
+    _whatsappFocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final texts = context.themes.main.texts;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(padding: const EdgeInsets.only(left: 8), child: Text('Контактные данные', style: texts.h3)),
+          const SizedBox(height: 32),
+          AppTextField(
+            controller: _nameController,
+            hintText: 'Имя',
+            keyboardType: TextInputType.name,
+            maxLines: 1,
+            onEditingComplete: () {
+              context.read<ProfileBloc>().add(UpdateProfileInfoEvent(name: _nameController.text));
+            },
+          ),
+          const SizedBox(height: 8),
+          AppTextField(
+            controller: _mailController,
+            hintText: 'Эл. почта',
+            keyboardType: TextInputType.emailAddress,
+            maxLines: 1,
+            onEditingComplete: () {
+              context.read<ProfileBloc>().add(UpdateProfileInfoEvent(email: _mailController.text));
+            },
+          ),
+          const SizedBox(height: 8),
+          AppTextField(
+            focusNode: _phoneFocusNode,
+            controller: _phoneController,
+            hintText: '+7777777777 (номер)',
+            keyboardType: TextInputType.phone,
+            maxLines: 1,
+            inputFormatters: [_PhoneNumberFormatter()],
+          ),
+          const SizedBox(height: 8),
+          AppTextField(
+            controller: _telegramController,
+            hintText: '@telegram',
+            keyboardType: TextInputType.emailAddress,
+            prefixIcon: Padding(
+              padding: const EdgeInsets.only(left: 16),
+              child: SizedBox.square(dimension: 25, child: Assets.icons.telegram.svg()),
+            ),
+            prefixIconConstraints: const BoxConstraints(maxWidth: 40, maxHeight: 25),
+            maxLines: 1,
+            onEditingComplete: () {
+              context.read<ProfileBloc>().add(UpdateProfileInfoEvent(telegram: _telegramController.text));
+            },
+          ),
+          const SizedBox(height: 8),
+          AppTextField(
+            focusNode: _whatsappFocusNode,
+            controller: _whatsAppController,
+            hintText: '+7777777777 (WhatsApp)',
+            keyboardType: TextInputType.phone,
+            prefixIcon: Padding(
+              padding: const EdgeInsets.only(left: 16),
+              child: SizedBox.square(dimension: 25, child: Assets.icons.telegram.svg()),
+            ),
+            prefixIconConstraints: const BoxConstraints(maxWidth: 40, maxHeight: 25),
+            maxLines: 1,
+            inputFormatters: [_PhoneNumberFormatter()],
+          ),
+          const SizedBox(height: 8),
+          AppTextField(
+            controller: _vkController,
+            hintText: 'link (vk)',
+            prefixIcon: Padding(
+              padding: const EdgeInsets.only(left: 16),
+              child: SizedBox.square(dimension: 25, child: Assets.icons.telegram.svg()),
+            ),
+            prefixIconConstraints: const BoxConstraints(maxWidth: 40, maxHeight: 25),
+            maxLines: 1,
+            onEditingComplete: () {
+              context.read<ProfileBloc>().add(UpdateProfileInfoEvent(vk: _vkController.text));
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+final class _PhoneNumberFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    if (newValue.text.length > 12) return oldValue;
+    if (oldValue.text.isEmpty) return TextEditingValue(text: '+7${newValue.text}');
+    return newValue;
   }
 }
 
@@ -143,15 +320,25 @@ class _UserInfo extends StatelessWidget {
               if (user.info.phone case String phone) Text(phone, style: textStyles.bodySmall),
               const SizedBox(height: 5),
               Text(user.email, style: textStyles.bodySmall),
-              const SizedBox(height: 5),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Assets.icons.telegram.svg(),
-                  const SizedBox(width: 8),
-                  Text('t.me/${user.info.telegram}', style: textStyles.bodySmall),
-                ],
-              ),
+              if (user.info.whatsapp != null) ...[
+                const SizedBox(height: 5),
+                Text('whatsapp: ${user.info.whatsapp}', style: textStyles.bodySmall),
+              ],
+              if (user.info.whatsapp != null) ...[
+                const SizedBox(height: 5),
+                Text('vk: ${user.info.vk}', style: textStyles.bodySmall),
+              ],
+              if (user.info.telegram != null) ...[
+                const SizedBox(height: 5),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Assets.icons.telegram.svg(),
+                    const SizedBox(width: 8),
+                    Text('t.me/${user.info.telegram}', style: textStyles.bodySmall),
+                  ],
+                ),
+              ],
             ],
           );
         }
