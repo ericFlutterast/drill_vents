@@ -93,7 +93,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
                             return Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 20),
-                              child: _OrgListItem(title: item.title, onTap: () {}),
+                              child: _OrgListItem(title: item.title, onTap: () => context.openOrgScreen(item.id)),
                             );
                           },
                           separatorBuilder: (_, __) => const SizedBox(height: 28),
@@ -115,7 +115,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
                             return Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 20),
-                              child: _EventListItem(title: item.title),
+                              child: _EventListItem(title: item.title, onTap: () => context.openEventScreen(item.id)),
                             );
                           },
                           separatorBuilder: (_, __) => const SizedBox(height: 28),
@@ -322,6 +322,7 @@ class _OrgListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
+      borderRadius: const BorderRadius.all(Radius.circular(16)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -365,6 +366,7 @@ class _EventListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
+      borderRadius: const BorderRadius.all(Radius.circular(16)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
