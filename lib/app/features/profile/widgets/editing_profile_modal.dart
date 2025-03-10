@@ -6,6 +6,7 @@ import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:reactive_forms/reactive_forms.dart';
 
 //TODO: Сделать валидацию
 class EditingProfileModal extends StatefulWidget {
@@ -29,11 +30,12 @@ class EditingProfileModal extends StatefulWidget {
 
 class _EditingProfileModalState extends State<EditingProfileModal> {
   late final _nameController = TextEditingController();
-  late final _mailController = TextEditingController();
-  late final _phoneController = TextEditingController();
   late final _telegramController = TextEditingController();
-  late final _whatsAppController = TextEditingController();
   late final _vkController = TextEditingController();
+
+  late final _emailControl = FormControl<String>(validators: [Validators.email]);
+  late final _phoneControl = FormControl<String>(validators: [_PhoneNumberValidator()]);
+  late final _whatsappControl = FormControl<String>(validators: [_PhoneNumberValidator()]);
 
   late final _phoneFocusNode = FocusNode();
   late final _whatsappFocusNode = FocusNode();
@@ -43,20 +45,20 @@ class _EditingProfileModalState extends State<EditingProfileModal> {
     super.initState();
     final user = context.read<AuthBloc>().state.value;
     _nameController.text = user.info.name ?? '';
-    _mailController.text = user.email;
-    _phoneController.text = user.info.phone ?? '';
+    _emailControl.value = user.email;
+    _phoneControl.value = user.info.phone ?? '';
     _telegramController.text = user.info.telegram ?? '';
-    _whatsAppController.text = user.info.whatsapp ?? '';
+    _whatsappControl.value = user.info.whatsapp ?? '';
     _vkController.text = user.info.vk ?? '';
 
     _phoneFocusNode.addListener(() {
       if (!_phoneFocusNode.hasFocus) {
-        context.read<ProfileBloc>().add(UpdateProfileInfoEvent(phone: _phoneController.text));
+        context.read<ProfileBloc>().add(UpdateProfileInfoEvent(phone: _phoneControl.value));
       }
     });
     _whatsappFocusNode.addListener(() {
       if (!_whatsappFocusNode.hasFocus) {
-        context.read<ProfileBloc>().add(UpdateProfileInfoEvent(whatsapp: _whatsAppController.text));
+        context.read<ProfileBloc>().add(UpdateProfileInfoEvent(whatsapp: _whatsappControl.value));
       }
     });
   }
@@ -64,14 +66,19 @@ class _EditingProfileModalState extends State<EditingProfileModal> {
   @override
   void dispose() {
     _nameController.dispose();
-    _mailController.dispose();
-    _phoneController.dispose();
+    _emailControl.dispose();
+    _phoneControl.dispose();
     _telegramController.dispose();
-    _whatsAppController.dispose();
+    _whatsappControl.dispose();
     _vkController.dispose();
     _phoneFocusNode.dispose();
     _whatsappFocusNode.dispose();
     super.dispose();
+  }
+
+  void _onEditingComplete(VoidCallback? cb) {
+    cb?.call();
+    FocusScope.of(context).unfocus();
   }
 
   @override
@@ -91,24 +98,33 @@ class _EditingProfileModalState extends State<EditingProfileModal> {
             hintText: 'Имя',
             keyboardType: TextInputType.name,
             maxLines: 1,
-            onEditingComplete: () {
-              context.read<ProfileBloc>().add(UpdateProfileInfoEvent(name: _nameController.text));
-            },
+            onEditingComplete:
+                () => _onEditingComplete(() {
+                  context.read<ProfileBloc>().add(UpdateProfileInfoEvent(name: _nameController.text));
+                }),
           ),
           const SizedBox(height: 8),
           AppTextField(
-            controller: _mailController,
+            useReactiveForm: true,
+            formControl: _emailControl,
             hintText: 'Эл. почта',
             keyboardType: TextInputType.emailAddress,
             maxLines: 1,
-            onEditingComplete: () {
-              context.read<ProfileBloc>().add(UpdateProfileInfoEvent(email: _mailController.text));
-            },
+            onEditingComplete:
+                () => _onEditingComplete(() {
+                  if (_emailControl.valid) {
+                    context.read<ProfileBloc>().add(UpdateProfileInfoEvent(email: _emailControl.value));
+                  } else {
+                    _emailControl.markAsDirty();
+                    _emailControl.markAsTouched();
+                  }
+                }),
           ),
           const SizedBox(height: 8),
           AppTextField(
+            useReactiveForm: true,
+            formControl: _phoneControl,
             focusNode: _phoneFocusNode,
-            controller: _phoneController,
             hintText: '+7777777777 (номер)',
             keyboardType: TextInputType.phone,
             maxLines: 1,
@@ -125,14 +141,16 @@ class _EditingProfileModalState extends State<EditingProfileModal> {
             ),
             prefixIconConstraints: const BoxConstraints(maxWidth: 40, maxHeight: 25),
             maxLines: 1,
-            onEditingComplete: () {
-              context.read<ProfileBloc>().add(UpdateProfileInfoEvent(telegram: _telegramController.text));
-            },
+            onEditingComplete:
+                () => _onEditingComplete(() {
+                  context.read<ProfileBloc>().add(UpdateProfileInfoEvent(telegram: _telegramController.text));
+                }),
           ),
           const SizedBox(height: 8),
           AppTextField(
+            useReactiveForm: true,
+            formControl: _whatsappControl,
             focusNode: _whatsappFocusNode,
-            controller: _whatsAppController,
             hintText: '+7777777777 (WhatsApp)',
             keyboardType: TextInputType.phone,
             prefixIcon: Padding(
@@ -153,9 +171,10 @@ class _EditingProfileModalState extends State<EditingProfileModal> {
             ),
             prefixIconConstraints: const BoxConstraints(maxWidth: 40, maxHeight: 25),
             maxLines: 1,
-            onEditingComplete: () {
-              context.read<ProfileBloc>().add(UpdateProfileInfoEvent(vk: _vkController.text));
-            },
+            onEditingComplete:
+                () => _onEditingComplete(() {
+                  context.read<ProfileBloc>().add(UpdateProfileInfoEvent(vk: _vkController.text));
+                }),
           ),
         ],
       ),
@@ -169,5 +188,18 @@ final class _PhoneNumberFormatter extends TextInputFormatter {
     if (newValue.text.length > 12) return oldValue;
     if (oldValue.text.isEmpty) return TextEditingValue(text: '+7${newValue.text}');
     return newValue;
+  }
+}
+
+final class _PhoneNumberValidator extends Validator<String> {
+  @override
+  Map<String, dynamic>? validate(AbstractControl<String> control) {
+    if (control.value != null) {
+      if (control.value!.contains(RegExp(r'^\+[0-9]+$')) && control.value!.length == 12) {
+        return null;
+      }
+    }
+
+    return {'Неверный формат': true};
   }
 }
