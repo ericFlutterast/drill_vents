@@ -1,22 +1,22 @@
 import 'package:drill_events/app/new_models/models.dart';
 
 abstract interface class BackendAPI {
-  Future<List<CityModel>> getCities();
+  Future<Iterable<CityModel>> getCities();
   Future<SessionModel> createSession(String email, String password);
   Future<SessionModel> refreshSession();
   Future<String> createUser({required String email, required String password});
   Future<UserModel> getMyProfile();
   Future updateMyProfile({String? name, String? email, String? phone, String? telegram, String? whatsapp, String? vk});
-  Future<List<OrgCardModel>> getMyOrgs();
-  Future<List<SpotCardModel>> getMySubscriptions();
-  Future<(List<EventCardModel>, PaginationModel)> getEvents({
+  Future<Iterable<OrgCardModel>> getMyOrgs();
+  Future<Iterable<SpotCardModel>> getMySubscriptions();
+  Future<(Iterable<EventCardModel>, PaginationModel)> getEvents({
     required int page,
     String? search,
     int size = 10,
     bool subs = false,
   });
   Future<DetailEventModel> getEvent(String id);
-  Future<List<ShortUserModel>> getParticipants(String id);
+  Future<Iterable<ShortUserModel>> getParticipants(String id);
   Future<DetailEventModel> createEvent(NewEventModel eventData);
   Future<DetailEventModel> updateEvent(
     String id, {
@@ -33,9 +33,9 @@ abstract interface class BackendAPI {
   });
   Future<DetailOrgModel> getOrg(String id);
   Future<Iterable<SpotCardModel>> getOrgSpots(String id);
-  Future<List<EventCardModel>> getOrgEvents(String id);
+  Future<Iterable<EventCardModel>> getOrgEvents(String id);
   Future<DetailSpotModel> getSpot(String id);
-  Future<List<EventCardModel>> getSpotEvents(String id);
+  Future<Iterable<EventCardModel>> getSpotEvents(String id);
   Future subscribeToSpot(String id);
   Future unsubscribeFromSpot(String id);
   Future<BookingModel> getBookingStatus(String eventId, String usrId);

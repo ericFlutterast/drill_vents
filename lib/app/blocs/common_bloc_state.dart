@@ -32,7 +32,7 @@ class CommonBlocState<T> extends Equatable {
   bool get isDone => status == StateStatus.done;
 
   CommonBlocState<T> idle({T? value}) => CommonBlocState<T>(status: StateStatus.idle, value: value);
-  CommonBlocState<T> pending() => CommonBlocState<T>(status: StateStatus.pending);
+  CommonBlocState<T> pending({T? value}) => CommonBlocState<T>(status: StateStatus.pending, value: value);
   CommonBlocState<T> refreshing() => CommonBlocState<T>(status: StateStatus.refreshing);
   CommonBlocState<T> pagination() => CommonBlocState<T>(status: StateStatus.pagination);
   CommonBlocState<T> error(Object error, {T? value}) =>

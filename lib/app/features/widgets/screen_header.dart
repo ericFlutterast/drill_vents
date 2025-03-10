@@ -5,11 +5,19 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 class PositionedScreenHeader extends StatelessWidget {
-  const PositionedScreenHeader({super.key, this.controller, this.onTapLogo, this.isPending = false});
+  const PositionedScreenHeader({
+    super.key,
+    this.controller,
+    this.onTapLogo,
+    this.isPending = false,
+    this.leading,
+    this.trailing,
+  });
 
   final bool isPending;
   final VoidCallback? onTapLogo;
   final ScrollController? controller;
+  final Widget? leading, trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -17,18 +25,25 @@ class PositionedScreenHeader extends StatelessWidget {
       top: 5 + MediaQuery.sizeOf(context).height * 0.1,
       left: 0,
       right: 0,
-      child: ScreenHeader(controller: controller, onTapLogo: onTapLogo, isPending: isPending),
+      child: ScreenHeader(
+        controller: controller,
+        onTapLogo: onTapLogo,
+        isPending: isPending,
+        leading: leading,
+        trailing: trailing,
+      ),
     );
   }
 }
 
 // TODO: Из-за BouncingScrollPhysics есть бага, при offset = 0 - контролы не появляются
 class ScreenHeader extends StatefulWidget {
-  const ScreenHeader({super.key, this.controller, this.onTapLogo, this.isPending = false});
+  const ScreenHeader({super.key, this.controller, this.onTapLogo, this.isPending = false, this.trailing, this.leading});
 
   final bool isPending;
   final VoidCallback? onTapLogo;
   final ScrollController? controller;
+  final Widget? leading, trailing;
 
   @override
   State<ScreenHeader> createState() => _ScreenHeaderState();
@@ -114,9 +129,15 @@ class _ScreenHeaderState extends State<ScreenHeader> with TickerProviderStateMix
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SlideTransition(position: _buttonOffsetAnimation, child: AppBackButton(onTap: () => Navigator.pop(context))),
+          SlideTransition(
+            position: _buttonOffsetAnimation,
+            child: widget.leading ?? AppBackButton(onTap: () => Navigator.pop(context)),
+          ),
           if (widget.onTapLogo != null)
-            SlideTransition(position: _controlsOffsetAnimation, child: AppCompanyLogo(onTap: widget.onTapLogo)),
+            SlideTransition(
+              position: _controlsOffsetAnimation,
+              child: widget.trailing ?? AppCompanyLogo(onTap: widget.onTapLogo),
+            ),
         ],
       ),
     );

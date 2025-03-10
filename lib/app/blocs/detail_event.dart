@@ -60,7 +60,7 @@ final class DetailEventBloc extends Bloc<DetailEvents, DetailEventState> {
       if (item == null) {
         item = await _repository.getEvent(event.id);
         final cities = await _repository.getCities();
-        final necessaryCity = _findCity(cities, item.spot.cityId);
+        final necessaryCity = _findCity(cities.toList(), item.spot.cityId);
         item = item.copyWith(spotCity: necessaryCity?.title);
         _cache.set(cacheKey, item, duration: const Duration(seconds: 10));
       }

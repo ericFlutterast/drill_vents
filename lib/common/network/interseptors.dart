@@ -12,6 +12,5 @@ final class AuthInterceptor extends Interceptor {
     final token = await _flutterSecureStorage.read(key: SecureStorageKeys.accessToken);
     options.headers = {'Authorization': 'Bearer $token'};
     handler.next(options);
-    super.onRequest(options, handler);
   }
 }
