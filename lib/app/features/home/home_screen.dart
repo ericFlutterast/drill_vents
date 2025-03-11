@@ -1,5 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:drill_events/app/blocs/home_bloc.dart';
+import 'package:drill_events/app/features/scroll_physics/loading_scroll_physic.dart';
+import 'package:drill_events/app/features/scroll_physics/pagination_scroll_physic.dart';
 import 'package:drill_events/app/features/widgets/animated_refresh.dart';
 import 'package:drill_events/app/features/widgets/app_text_field.dart';
 import 'package:drill_events/app/features/widgets/circle_avatar_decoration.dart';
@@ -10,29 +12,6 @@ import 'package:drill_events/common/utils/extensions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-class PaginationScrollPhysics extends ScrollPhysics {
-  const PaginationScrollPhysics({super.parent});
-
-  @override
-  PaginationScrollPhysics applyTo(ScrollPhysics? ancestor) {
-    return PaginationScrollPhysics(parent: buildParent(ancestor));
-  }
-
-  @override
-  bool get allowUserScrolling => true;
-
-  @override
-  Simulation? createBallisticSimulation(ScrollMetrics position, double velocity) {
-    return BouncingScrollSimulation(
-      position: position.pixels,
-      velocity: velocity,
-      leadingExtent: position.minScrollExtent,
-      trailingExtent: position.maxScrollExtent - position.viewportDimension * 0.75,
-      spring: SpringDescription(mass: 0.4, stiffness: 70, damping: spring.damping),
-    );
-  }
-}
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -54,7 +33,8 @@ class _HomeScreenState extends State<HomeScreen> {
   void _scrollListener() {
     final maxScrollExtent = _scrollController.position.maxScrollExtent;
     final delta = _scrollController.position.viewportDimension * 0.1;
-    if (_scrollController.offset >= maxScrollExtent - delta) {
+    final isPending = context.read<EventsBloc>().state.isPending;
+    if (_scrollController.offset >= maxScrollExtent - delta && !isPending) {
       context.read<EventsBloc>().add(PaginationEvent());
     }
   }
@@ -74,11 +54,21 @@ class _HomeScreenState extends State<HomeScreen> {
         bottom: false,
         child: BlocBuilder<EventsBloc, EventsState>(
           builder: (context, state) {
-            final countsLength = state.isPagination ? state.value.events.length + 8 : state.value.events.length;
+            int countsLength = 10;
+            ScrollPhysics physics = const BouncingScrollPhysics();
+            if (state.hasValue) {
+              countsLength = state.isPagination ? state.value.events.length + 8 : state.value.events.length;
+            }
+            if (state.isPending) {
+              physics = const LoadingScrollPhysic();
+            }
+            if (state.isPagination) {
+              physics = const PaginationScrollPhysic();
+            }
 
             return CustomScrollView(
               controller: _scrollController,
-              physics: state.isPagination ? const PaginationScrollPhysics() : const BouncingScrollPhysics(),
+              physics: physics,
               slivers: [
                 SliverAppBar(
                   collapsedHeight: MediaQuery.sizeOf(context).height * 0.1,
@@ -94,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 CupertinoSliverRefreshControl(
                   refreshIndicatorExtent: 60,
-                  refreshTriggerPullDistance: 120,
+                  refreshTriggerPullDistance: 180,
                   onRefresh: () async => context.read<EventsBloc>().add(FetchEventsFeed()),
                   builder: (context, _, pullExtent, __, ___) {
                     return pullExtent > 85 ? const Center(child: AnimatedRefresh()) : const SizedBox.shrink();
@@ -103,7 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 const _SoonEventsTitle(),
                 if (state.isPending)
                   SliverList.separated(
-                    itemCount: 10,
+                    itemCount: 20,
                     itemBuilder: (context, index) => const EventListItem.shimmer(),
                     separatorBuilder: (_, __) => const SizedBox(height: 28),
                   )
