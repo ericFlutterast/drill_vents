@@ -1,6 +1,5 @@
 import 'package:drill_events/app/blocs/auth.dart';
-import 'package:drill_events/app/blocs/events/bloc.dart';
-import 'package:drill_events/app/blocs/events/events.dart';
+import 'package:drill_events/app/blocs/home_bloc.dart';
 import 'package:drill_events/app/features/auth/auth_provider.dart';
 import 'package:drill_events/app/features/auth/auth_screen.dart';
 import 'package:drill_events/app/features/create_event/create_event_screen.dart';

@@ -43,7 +43,7 @@ final class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     : _logger = logger,
       _repository = repository,
       _pipe = pipe,
-      super(const ProfileState.init()..idle(value: const ProfileStateModel())) {
+      super(const ProfileState.init(value: ProfileStateModel())) {
     on<UpdateProfileInfoEvent>(_updateProfileInfo);
     on<UserEventsReceivingEvent>(_fetchUserEvents);
   }

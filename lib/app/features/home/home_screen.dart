@@ -1,12 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:drill_events/app/blocs/common_bloc_state.dart';
-import 'package:drill_events/app/blocs/events/bloc.dart';
-import 'package:drill_events/app/blocs/events/events.dart';
+import 'package:drill_events/app/blocs/home_bloc.dart';
 import 'package:drill_events/app/features/widgets/animated_refresh.dart';
 import 'package:drill_events/app/features/widgets/app_text_field.dart';
 import 'package:drill_events/app/features/widgets/circle_avatar_decoration.dart';
 import 'package:drill_events/app/features/widgets/event_list_item.dart';
-import 'package:drill_events/app/new_models/models.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:drill_events/common/navigation/routes.dart';
 import 'package:drill_events/common/utils/extensions.dart';
@@ -14,8 +11,59 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class HomeScreen extends StatelessWidget {
+class PaginationScrollPhysics extends ScrollPhysics {
+  const PaginationScrollPhysics({super.parent});
+
+  @override
+  PaginationScrollPhysics applyTo(ScrollPhysics? ancestor) {
+    return PaginationScrollPhysics(parent: buildParent(ancestor));
+  }
+
+  @override
+  bool get allowUserScrolling => true;
+
+  @override
+  Simulation? createBallisticSimulation(ScrollMetrics position, double velocity) {
+    return BouncingScrollSimulation(
+      position: position.pixels,
+      velocity: velocity,
+      leadingExtent: position.minScrollExtent,
+      trailingExtent: position.maxScrollExtent - position.viewportDimension * 0.75,
+      spring: SpringDescription(mass: 0.4, stiffness: 70, damping: spring.damping),
+    );
+  }
+}
+
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  late final _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    _scrollController.addListener(_scrollListener);
+  }
+
+  void _scrollListener() {
+    final maxScrollExtent = _scrollController.position.maxScrollExtent;
+    final delta = _scrollController.position.viewportDimension * 0.1;
+    if (_scrollController.offset >= maxScrollExtent - delta) {
+      context.read<EventsBloc>().add(PaginationEvent());
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +72,13 @@ class HomeScreen extends StatelessWidget {
       body: SafeArea(
         top: false,
         bottom: false,
-        child: BlocBuilder<EventsBloc, CommonBlocState<Iterable<EventCardModel>>>(
+        child: BlocBuilder<EventsBloc, EventsState>(
           builder: (context, state) {
+            final countsLength = state.isPagination ? state.value.events.length + 8 : state.value.events.length;
+
             return CustomScrollView(
+              controller: _scrollController,
+              physics: state.isPagination ? const PaginationScrollPhysics() : const BouncingScrollPhysics(),
               slivers: [
                 SliverAppBar(
                   collapsedHeight: MediaQuery.sizeOf(context).height * 0.1,
@@ -55,11 +107,15 @@ class HomeScreen extends StatelessWidget {
                     itemBuilder: (context, index) => const EventListItem.shimmer(),
                     separatorBuilder: (_, __) => const SizedBox(height: 28),
                   )
-                else if (state.hasValue && state.isDone) ...[
+                else if (state.hasValue) ...[
                   SliverList.separated(
-                    itemCount: state.value.length,
+                    itemCount: countsLength,
                     itemBuilder: (context, index) {
-                      final event = state.value.elementAt(index);
+                      if (index > state.value.events.length - 1) {
+                        return const EventListItem.shimmer();
+                      }
+
+                      final event = state.value.events.elementAt(index);
 
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -69,7 +125,7 @@ class HomeScreen extends StatelessWidget {
                     separatorBuilder: (_, __) => const SizedBox(height: 28),
                   ),
                   const SliverPadding(padding: EdgeInsets.only(top: 30)),
-                ] else if (state.hasValue && state.value.isEmpty || state.hasError)
+                ] else if (state.hasValue && state.value.events.isEmpty || state.hasError)
                   SliverToBoxAdapter(
                     child: Center(
                       child: Padding(
