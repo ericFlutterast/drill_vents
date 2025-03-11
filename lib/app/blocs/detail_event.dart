@@ -75,7 +75,7 @@ final class DetailEventBloc extends Bloc<DetailEvents, DetailEventState> {
   Future<void> _setBookingInfo(SetBookingInfoEvent event, Emit emit) async {
     try {
       DetailEventModel detailEvent = state.value;
-      final booking = ShortBookingModal(reason: event.booking.reason, approved: event.booking.approved);
+      final booking = ShortBookingModel(reason: event.booking.reason, approved: event.booking.approved);
       detailEvent = detailEvent.copyWith(booking: booking);
       emit(state.copyWith(value: detailEvent));
     } catch (error, stackTrace) {

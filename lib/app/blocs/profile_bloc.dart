@@ -78,8 +78,8 @@ final class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       final result = await Future.wait([_repository.getEvents(page: 1, size: 20), _repository.getMyOrgs()]);
       if (result case [(Iterable<EventCardModel> events, PaginationModel _), Iterable<OrgCardModel> organizations]) {
         //TODO: должен появиться эндпоит для получения ивентов только для конкретного узера вместо where
-        final userEvents = events.where((element) => element.booking != null);
-        final newStateValue = state.value.copyWith(events: userEvents, organization: organizations);
+        final userEvents = events.where((element) => element.booking != null).toList();
+        final newStateValue = state.value.copyWith(events: userEvents.reversed, organization: organizations);
         emit(state.done(newStateValue));
       } else {
         throw Exception('Не удалось получить данные');

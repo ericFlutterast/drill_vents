@@ -244,15 +244,15 @@ class BookingModel extends Equatable {
 }
 
 @JsonSerializable()
-class ShortBookingModal extends Equatable {
-  const ShortBookingModal({this.approved, this.reason});
+class ShortBookingModel extends Equatable {
+  const ShortBookingModel({this.approved, this.reason});
 
-  factory ShortBookingModal.fromJson(Map<String, dynamic> json) => _$ShortBookingModalFromJson(json);
+  factory ShortBookingModel.fromJson(Map<String, dynamic> json) => _$ShortBookingModelFromJson(json);
 
   final bool? approved;
   final String? reason;
 
-  Map<String, dynamic> toJson() => _$ShortBookingModalToJson(this);
+  Map<String, dynamic> toJson() => _$ShortBookingModelToJson(this);
 
   @override
   List<Object?> get props => [approved, reason];
@@ -288,7 +288,7 @@ class DetailEventModel extends Equatable {
   final int availableSeats;
   final ShortOrgModel org;
   final ShortSpotModel spot;
-  final ShortBookingModal? booking;
+  final ShortBookingModel? booking;
 
   Map<String, dynamic> toJson() => _$DetailEventModelToJson(this);
 
@@ -319,7 +319,7 @@ class DetailEventModel extends Equatable {
     int? availableSeats,
     ShortOrgModel? org,
     ShortSpotModel? spot,
-    ShortBookingModal? booking,
+    ShortBookingModel? booking,
   }) => DetailEventModel(
     spotCity: spotCity ?? this.spotCity,
     id: id ?? this.id,
@@ -360,7 +360,7 @@ class EventCardModel extends Equatable {
   final int availableSeats;
   final ShortOrgModel org;
   final ShortSpotModel spot;
-  final ShortBookingModal? booking;
+  final ShortBookingModel? booking;
 
   Map<String, dynamic> toJson() => _$EventCardModelToJson(this);
 
