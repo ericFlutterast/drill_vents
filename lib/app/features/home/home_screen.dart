@@ -1,12 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:drill_events/app/blocs/common_bloc_state.dart';
-import 'package:drill_events/app/blocs/events/bloc.dart';
-import 'package:drill_events/app/blocs/events/events.dart';
+import 'package:drill_events/app/blocs/home_bloc.dart';
+import 'package:drill_events/app/features/scroll_physics/loading_scroll_physic.dart';
+import 'package:drill_events/app/features/scroll_physics/pagination_scroll_physic.dart';
 import 'package:drill_events/app/features/widgets/animated_refresh.dart';
 import 'package:drill_events/app/features/widgets/app_text_field.dart';
 import 'package:drill_events/app/features/widgets/circle_avatar_decoration.dart';
-import 'package:drill_events/app/features/widgets/event_list_item.dart';
-import 'package:drill_events/app/new_models/models.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:drill_events/common/navigation/routes.dart';
 import 'package:drill_events/common/utils/extensions.dart';
@@ -14,8 +12,37 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  late final _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    _scrollController.addListener(_scrollListener);
+  }
+
+  void _scrollListener() {
+    final maxScrollExtent = _scrollController.position.maxScrollExtent;
+    final delta = _scrollController.position.viewportDimension * 0.1;
+    final isPending = context.read<EventsBloc>().state.isPending;
+    if (_scrollController.offset >= maxScrollExtent - delta && !isPending) {
+      context.read<EventsBloc>().add(PaginationEvent());
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +51,23 @@ class HomeScreen extends StatelessWidget {
       body: SafeArea(
         top: false,
         bottom: false,
-        child: BlocBuilder<EventsBloc, CommonBlocState<Iterable<EventCardModel>>>(
+        child: BlocBuilder<EventsBloc, EventsState>(
           builder: (context, state) {
+            int countsLength = 10;
+            ScrollPhysics physics = const BouncingScrollPhysics();
+            if (state.hasValue) {
+              countsLength = state.isPagination ? state.value.events.length + 8 : state.value.events.length;
+            }
+            if (state.isPending) {
+              physics = const LoadingScrollPhysic();
+            }
+            if (state.isPagination) {
+              physics = const PaginationScrollPhysic();
+            }
+
             return CustomScrollView(
+              controller: _scrollController,
+              physics: physics,
               slivers: [
                 SliverAppBar(
                   collapsedHeight: MediaQuery.sizeOf(context).height * 0.1,
@@ -42,7 +83,7 @@ class HomeScreen extends StatelessWidget {
                 ),
                 CupertinoSliverRefreshControl(
                   refreshIndicatorExtent: 60,
-                  refreshTriggerPullDistance: 120,
+                  refreshTriggerPullDistance: 180,
                   onRefresh: () async => context.read<EventsBloc>().add(FetchEventsFeed()),
                   builder: (context, _, pullExtent, __, ___) {
                     return pullExtent > 85 ? const Center(child: AnimatedRefresh()) : const SizedBox.shrink();
@@ -51,25 +92,29 @@ class HomeScreen extends StatelessWidget {
                 const _SoonEventsTitle(),
                 if (state.isPending)
                   SliverList.separated(
-                    itemCount: 10,
-                    itemBuilder: (context, index) => const EventListItem.shimmer(),
+                    itemCount: 20,
+                    itemBuilder: (context, index) => const _EventListItem.shimmer(),
                     separatorBuilder: (_, __) => const SizedBox(height: 28),
                   )
-                else if (state.hasValue && state.isDone) ...[
+                else if (state.hasValue) ...[
                   SliverList.separated(
-                    itemCount: state.value.length,
+                    itemCount: countsLength,
                     itemBuilder: (context, index) {
-                      final event = state.value.elementAt(index);
+                      if (index > state.value.events.length - 1) {
+                        return const _EventListItem.shimmer();
+                      }
+
+                      final event = state.value.events.elementAt(index);
 
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: EventListItem(title: event.title, onTap: () => context.openEventScreen(event.id)),
+                        child: _EventListItem(title: event.title, onTap: () => context.openEventScreen(event.id)),
                       );
                     },
                     separatorBuilder: (_, __) => const SizedBox(height: 28),
                   ),
                   const SliverPadding(padding: EdgeInsets.only(top: 30)),
-                ] else if (state.hasValue && state.value.isEmpty || state.hasError)
+                ] else if (state.hasValue && state.value.events.isEmpty || state.hasError)
                   SliverToBoxAdapter(
                     child: Center(
                       child: Padding(
@@ -141,6 +186,127 @@ class _SoonEventsTitle extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(28, 35, 28, 28),
         child: Text('Ближайшие события', style: context.themes.main.texts.body),
+      ),
+    );
+  }
+}
+
+//TODO
+const _items = ['Завтра', 'Surf x Post', 'English club'];
+
+class _EventListItem extends StatelessWidget {
+  const _EventListItem({super.key, required this.title, this.imgUrl, this.onTap}) : _showSimmer = false;
+
+  const _EventListItem.shimmer({super.key}) : _showSimmer = true, onTap = null, imgUrl = null, title = '';
+
+  final String title;
+  final String? imgUrl;
+  final VoidCallback? onTap;
+  final bool _showSimmer;
+
+  @override
+  Widget build(BuildContext context) {
+    if (_showSimmer) return const _EventItemShimmer();
+
+    return InkWell(
+      onTap: onTap,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          CachedNetworkImage(
+            imageUrl: '',
+            errorWidget:
+                (_, __, ___) => Container(
+                  height: 52,
+                  width: 52,
+                  decoration: BoxDecoration(color: context.themes.main.colors.secondary, shape: BoxShape.circle),
+                ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: context.themes.main.texts.body.copyWith(fontWeight: FontWeight.w600, height: 1.3)),
+                const SizedBox(height: 8),
+                Wrap(
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    for (final (i, item) in _items.indexed) ...[
+                      Text(item, style: context.themes.main.texts.bodySmall),
+                      if (i != _items.length - 1)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 7.5),
+                          child: SizedBox.square(
+                            dimension: 5,
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                color: context.themes.main.colors.secondary,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _EventItemShimmer extends StatelessWidget {
+  const _EventItemShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        children: [
+          SizedBox(
+            height: 52,
+            width: 52,
+            child: DecoratedBox(
+              decoration: BoxDecoration(color: context.themes.main.colors.background, shape: BoxShape.circle),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: 23,
+                  width: MediaQuery.sizeOf(context).width,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: context.themes.main.colors.background,
+                      borderRadius: const BorderRadius.all(Radius.circular(6)),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                SizedBox(
+                  height: 23,
+                  width: MediaQuery.sizeOf(context).width * 0.3,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: context.themes.main.colors.background,
+                      borderRadius: const BorderRadius.all(Radius.circular(6)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 40),
+        ],
       ),
     );
   }

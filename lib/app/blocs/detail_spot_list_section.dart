@@ -5,7 +5,7 @@ import 'package:drill_events/common/ports/backend_api.dart';
 import 'package:drill_events/common/ports/logger.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-typedef DetailSpotListSectionState = CommonBlocState<List<EventCardModel>>;
+typedef DetailSpotListSectionState = CommonBlocState<Iterable<EventCardModel>>;
 typedef _Emit = Emitter<DetailSpotListSectionState>;
 
 abstract class DetailSpotListSectionEvent {}

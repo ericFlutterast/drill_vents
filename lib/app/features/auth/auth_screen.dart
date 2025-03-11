@@ -21,8 +21,8 @@ class _AuthScreenState extends State<AuthScreen> {
   late final FocusNode _passwordFocus = FocusNode();
 
   late final _authFormGroup = FormGroup({
-    'email': FormControl<String>(validators: [Validators.email, Validators.required]),
-    'password': FormControl<String>(validators: [Validators.minLength(8), Validators.required]),
+    'email': FormControl<String>(value: 'test11@mail.com', validators: [Validators.email, Validators.required]),
+    'password': FormControl<String>(value: '123456789', validators: [Validators.minLength(8), Validators.required]),
   });
 
   @override

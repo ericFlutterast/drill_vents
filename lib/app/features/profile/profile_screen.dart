@@ -1,20 +1,36 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:drill_events/app/blocs/auth.dart';
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
-import 'package:drill_events/app/features/widgets/app_back_button.dart';
+import 'package:drill_events/app/blocs/profile_bloc.dart';
+import 'package:drill_events/app/features/profile/widgets/editing_profile_modal.dart';
 import 'package:drill_events/app/features/widgets/app_button.dart';
 import 'package:drill_events/app/features/widgets/app_icon_button.dart';
 import 'package:drill_events/app/features/widgets/circle_avatar_decoration.dart';
+import 'package:drill_events/app/features/widgets/screen_header.dart';
+import 'package:drill_events/app/features/widgets/shimmer.dart';
+import 'package:drill_events/app/generated/assets.gen.dart';
 import 'package:drill_events/app/new_models/models.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
+import 'package:drill_events/app/themes/colors_theme.dart';
 import 'package:drill_events/common/utils/extensions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  const ProfileScreen._();
+
+  static Widget bloc(BuildContext context) {
+    return BlocProvider(
+      create:
+          (_) => ProfileBloc(
+            logger: context.dependencies.logger,
+            repository: context.dependencies.backendApi,
+            pipe: context.dependencies.pipe,
+          )..add(UserEventsReceivingEvent()),
+      child: const ProfileScreen._(),
+    );
+  }
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -22,26 +38,11 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin {
   late final ScrollController _scrollController = ScrollController();
-  late final _animationController = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 1200),
-    reverseDuration: const Duration(milliseconds: 1200),
-  );
-
-  @override
-  void initState() {
-    super.initState();
-
-    // _scrollController.addListener(() {
-    //   buttonVisibility(animationController: _animationController, scrollController: _scrollController);
-    // });
-  }
 
   @override
   void dispose() {
     super.dispose();
     _scrollController.dispose();
-    _animationController.dispose();
   }
 
   @override
@@ -59,51 +60,120 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               context.pop();
             }
           },
-          child: Stack(
-            children: [
-              CustomScrollView(
-                controller: _scrollController,
-                slivers: [
-                  SliverPadding(padding: EdgeInsets.only(top: MediaQuery.sizeOf(context).height * 0.1)),
-                  const SliverToBoxAdapter(child: _ProfileHeader()),
-                  const SliverPadding(padding: EdgeInsets.only(top: 10)),
-                  const SliverToBoxAdapter(child: _UserInfo()),
-                  const SliverPadding(padding: EdgeInsets.only(top: 26)),
-                  const _LogoutButton(),
-                  const SliverPadding(padding: EdgeInsets.only(top: 35)),
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 28),
-                      child: Text('Вы участвуете', style: textsStyles.bodySmall),
+          child: BlocBuilder<ProfileBloc, ProfileState>(
+            builder: (context, state) {
+              if (state.isPending) {
+                return shimmer(context);
+              }
+
+              return Stack(
+                children: [
+                  CustomScrollView(
+                    controller: _scrollController,
+                    slivers: [
+                      SliverPadding(padding: EdgeInsets.only(top: MediaQuery.sizeOf(context).height * 0.1)),
+                      const SliverToBoxAdapter(child: _ProfileHeader()),
+                      const SliverPadding(padding: EdgeInsets.only(top: 10)),
+                      const SliverToBoxAdapter(child: _UserInfo()),
+                      const SliverPadding(padding: EdgeInsets.only(top: 26)),
+                      const _LogoutButton(),
+                      const SliverPadding(padding: EdgeInsets.only(top: 35)),
+
+                      if (state.isDone && state.hasValue && state.value.organization.isNotEmpty) ...[
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 28),
+                            child: Text('Организации', style: textsStyles.body),
+                          ),
+                        ),
+                        const SliverPadding(padding: EdgeInsets.only(top: 16)),
+                        SliverList.separated(
+                          itemCount: state.value.organization.length,
+                          itemBuilder: (context, index) {
+                            final item = state.value.events.elementAt(index);
+
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: _OrgListItem(title: item.title, onTap: () => context.openOrgScreen(item.id)),
+                            );
+                          },
+                          separatorBuilder: (_, __) => const SizedBox(height: 28),
+                        ),
+                        const SliverPadding(padding: EdgeInsets.only(top: 42)),
+                      ],
+
+                      if (state.isDone && state.hasValue && state.value.events.isNotEmpty) ...[
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 28),
+                            child: Text('Записи', style: textsStyles.body),
+                          ),
+                        ),
+                        const SliverPadding(padding: EdgeInsets.only(top: 16)),
+                        SliverList.separated(
+                          itemCount: state.value.events.length,
+                          itemBuilder: (context, index) {
+                            final item = state.value.events.elementAt(index);
+
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: _EventListItem(
+                                title: item.title,
+                                booking: item.booking ?? (throw 'Никогда не null'),
+                                onTap: () => context.openEventScreen(item.id),
+                              ),
+                            );
+                          },
+                          separatorBuilder: (_, __) => const SizedBox(height: 28),
+                        ),
+                      ],
+
+                      const SliverPadding(padding: EdgeInsets.only(top: 30)),
+                    ],
+                  ),
+                  PositionedScreenHeader(
+                    controller: _scrollController,
+                    onTapLogo: () => context.openOrgScreen("7fdb5b3d-9de4-4dbb-a862-1a430feeb7fa"),
+                    trailing: AppIconButton(
+                      icon: CupertinoIcons.pencil,
+                      onTap:
+                          () => context.openBottomSheet(
+                            EditingProfileModal.blocValue(
+                              context,
+                              authBloc: context.read<AuthBloc>(),
+                              profileBloc: context.read<ProfileBloc>(),
+                            ),
+                          ),
                     ),
                   ),
-                  const SliverPadding(padding: EdgeInsets.only(top: 12)),
-                  SliverList.separated(
-                    itemCount: 5,
-                    itemBuilder:
-                        (context, index) => const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20),
-                          child: EventListItem(title: 'Винный вечер'),
-                        ),
-                    separatorBuilder: (_, __) => const SizedBox(height: 28),
-                  ),
-                  const SliverPadding(padding: EdgeInsets.only(top: 30)),
                 ],
-              ),
-              Positioned(
-                top: MediaQuery.sizeOf(context).height * 0.1,
-                left: 15,
-                child: SlideTransition(
-                  position: Tween<Offset>(begin: Offset.zero, end: const Offset(-50, 0)).animate(_animationController),
-                  child: AppBackButton(onTap: () => Navigator.pop(context)),
-                ),
-              ),
-            ],
+              );
+            },
           ),
         ),
       ),
     );
   }
+
+  static Widget shimmer(BuildContext context) => SingleChildScrollView(
+    physics: const NeverScrollableScrollPhysics(),
+    padding: const EdgeInsets.symmetric(horizontal: 20),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: MediaQuery.sizeOf(context).height * 0.1),
+        Center(child: _ProfileHeader.shimmer()),
+        const SizedBox(height: 15),
+        Center(child: Shimmer(height: 24, width: MediaQuery.sizeOf(context).width * 0.35)),
+        const SizedBox(height: 10),
+        Center(child: _UserInfo.shimmer(context)),
+        const SizedBox(height: 45),
+        Shimmer(height: 16, width: MediaQuery.sizeOf(context).width * 0.35),
+        const SizedBox(height: 16),
+        for (int i = 0; i < 5; i++) ...[_EventListItem.shimmer(), const SizedBox(height: 28)],
+      ],
+    ),
+  );
 }
 
 class _ProfileHeader extends StatelessWidget {
@@ -111,34 +181,21 @@ class _ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final avatarDiameter = 100.0;
-    return Padding(
-      padding: EdgeInsets.only(left: MediaQuery.sizeOf(context).width / 2 - avatarDiameter / 2, right: 25),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          CircleAvatarDecoration(
-            diameter: avatarDiameter,
-            strokeWidth: 7,
-            onTap: () {},
-            child: Container(
-              height: 80,
-              width: 80,
-              decoration: const BoxDecoration(color: Colors.orange, shape: BoxShape.circle),
-            ),
-          ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              AppIconButton(icon: CupertinoIcons.pencil, onTap: () {}),
-              const SizedBox(height: 13),
-              AppIconButton(icon: Icons.settings, onTap: () {}),
-            ],
-          ),
-        ],
+    return Center(
+      child: CircleAvatarDecoration(
+        diameter: 100,
+        strokeWidth: 7,
+        onTap: () {},
+        child: Container(
+          height: 80,
+          width: 80,
+          decoration: const BoxDecoration(color: Colors.orange, shape: BoxShape.circle),
+        ),
       ),
     );
   }
+
+  static Widget shimmer() => const Shimmer(height: 80, width: 80, borderRadius: 100);
 }
 
 class _UserInfo extends StatelessWidget {
@@ -161,15 +218,25 @@ class _UserInfo extends StatelessWidget {
               if (user.info.phone case String phone) Text(phone, style: textStyles.bodySmall),
               const SizedBox(height: 5),
               Text(user.email, style: textStyles.bodySmall),
-              const SizedBox(height: 5),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SvgPicture.asset('assets/icons/telegram.svg'),
-                  const SizedBox(width: 8),
-                  Text('t.me/${user.info.telegram}', style: textStyles.bodySmall),
-                ],
-              ),
+              if (user.info.whatsapp != null) ...[
+                const SizedBox(height: 5),
+                Text('whatsapp: ${user.info.whatsapp}', style: textStyles.bodySmall),
+              ],
+              if (user.info.whatsapp != null) ...[
+                const SizedBox(height: 5),
+                Text('vk: ${user.info.vk}', style: textStyles.bodySmall),
+              ],
+              if (user.info.telegram != null) ...[
+                const SizedBox(height: 5),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Assets.icons.telegram.svg(),
+                    const SizedBox(width: 8),
+                    Text('t.me/${user.info.telegram}', style: textStyles.bodySmall),
+                  ],
+                ),
+              ],
             ],
           );
         }
@@ -177,46 +244,91 @@ class _UserInfo extends StatelessWidget {
       },
     );
   }
+
+  static Widget shimmer(BuildContext context) => Column(
+    children: [
+      Shimmer(height: 16, width: MediaQuery.sizeOf(context).width / 2),
+      const SizedBox(height: 8),
+      Shimmer(height: 16, width: MediaQuery.sizeOf(context).width / 2),
+      const SizedBox(height: 8),
+      Shimmer(height: 16, width: MediaQuery.sizeOf(context).width / 2),
+    ],
+  );
 }
 
 class _LogoutButton extends StatelessWidget {
   const _LogoutButton();
 
   @override
-  Widget build(BuildContext context) => SliverToBoxAdapter(
-    child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 115),
-      child: BlocBuilder<AuthBloc, AuthState>(
-        builder: (context, state) {
-          if (state.isPending) {
-            return const AppButton.loading(title: 'Выйти');
-          }
-          return AppButton.secondary(onTap: () => context.read<AuthBloc>().add(Logout()), title: 'Выйти');
-        },
+  Widget build(BuildContext context) {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 115),
+        child: BlocBuilder<AuthBloc, AuthState>(
+          builder: (context, state) {
+            if (state.isPending) {
+              return const AppButton.loading(title: 'Выйти');
+            }
+            return AppButton.secondary(onTap: () => _LogoutDialog.show<bool>(context), title: 'Выйти');
+          },
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
-//TODO
-const _items = ['Завтра', 'Surf x Post', 'English club'];
+class _LogoutDialog extends StatelessWidget {
+  const _LogoutDialog();
 
-class EventListItem extends StatelessWidget {
-  const EventListItem({super.key, required this.title, this.imgUrl, this.onTap}) : _showSimmer = false;
-
-  const EventListItem.shimmer({super.key}) : _showSimmer = true, onTap = null, imgUrl = null, title = '';
-
-  final String title;
-  final String? imgUrl;
-  final VoidCallback? onTap;
-  final bool _showSimmer;
+  static Future<T?> show<T>(BuildContext context) {
+    return showDialog<T>(context: context, builder: (context) => const _LogoutDialog());
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (_showSimmer) return const _EventItemShimmer();
+    final colors = context.themes.main.colors;
+    final texts = context.themes.main.texts;
 
+    return Dialog(
+      backgroundColor: colors.inverse,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Вы действительно хотите выйти?', style: texts.h3),
+            const SizedBox(height: 30),
+            AppButton.primary(title: 'Остаться', onTap: () => context.pop()),
+            const SizedBox(height: 10),
+            AppButton.custom(
+              title: 'Выйти',
+              onTap: () {
+                context.read<AuthBloc>().add(Logout());
+                context.pop();
+              },
+              backgroundColor: colors.error200,
+              splashColor: colors.error200.withValues(green: 100, blue: 100),
+              highlightColor: colors.error200.withValues(green: 100, blue: 100),
+              titleStyle: texts.body.copyWith(color: colors.error600),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _OrgListItem extends StatelessWidget {
+  const _OrgListItem({required this.title, this.onTap});
+
+  final String title;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
+      borderRadius: const BorderRadius.all(Radius.circular(16)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -234,6 +346,60 @@ class EventListItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(title, style: context.themes.main.texts.body.copyWith(fontWeight: FontWeight.w600, height: 1.3)),
+                const SizedBox(height: 8),
+                Text('60 событий', style: context.themes.main.texts.bodySmall),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+//TODO
+const _items = ['Завтра', 'Surf x Post', 'English club'];
+
+class _EventListItem extends StatelessWidget {
+  const _EventListItem({required this.title, required this.booking, this.imgUrl, this.onTap});
+
+  final String title;
+  final String? imgUrl;
+  final VoidCallback? onTap;
+  final ShortBookingModel booking;
+
+  EventStatus get _eventStatus {
+    if (booking.reason == null) {
+      return EventStatus.processing;
+    }
+    return booking.approved == true ? EventStatus.success : EventStatus.decline;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: const BorderRadius.all(Radius.circular(16)),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          CachedNetworkImage(
+            imageUrl: '',
+            errorWidget:
+                (_, __, ___) => Container(
+                  height: 52,
+                  width: 52,
+                  decoration: BoxDecoration(color: context.themes.main.colors.secondary, shape: BoxShape.circle),
+                ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _EventStatusLabel(status: _eventStatus),
+                const SizedBox(height: 4),
                 Text(title, style: context.themes.main.texts.body.copyWith(fontWeight: FontWeight.w600, height: 1.3)),
                 const SizedBox(height: 8),
                 Wrap(
@@ -265,55 +431,54 @@ class EventListItem extends StatelessWidget {
       ),
     );
   }
+
+  static Widget shimmer() => const Row(
+    children: [
+      Shimmer(height: 52, width: 52, borderRadius: 100),
+      SizedBox(width: 12),
+      Expanded(child: Column(children: [Shimmer(height: 23), SizedBox(height: 4), Shimmer(height: 23)])),
+    ],
+  );
 }
 
-class _EventItemShimmer extends StatelessWidget {
-  const _EventItemShimmer();
+enum EventStatus { processing, success, decline }
+
+class _EventStatusLabel extends StatelessWidget {
+  const _EventStatusLabel({required this.status});
+
+  final EventStatus status;
+
+  String get _title => switch (status) {
+    EventStatus.processing => 'На рассмотрении',
+    EventStatus.success => 'Одобрено',
+    EventStatus.decline => 'Отказано',
+  };
+
+  Color _backgroundColor(AppColors colors) => switch (status) {
+    EventStatus.processing => colors.warning100,
+    EventStatus.success => colors.success100,
+    EventStatus.decline => colors.error100,
+  };
+
+  Color _titleColor(AppColors colors) => switch (status) {
+    EventStatus.processing => colors.warning600,
+    EventStatus.success => colors.success600,
+    EventStatus.decline => colors.error600,
+  };
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        children: [
-          SizedBox(
-            height: 52,
-            width: 52,
-            child: DecoratedBox(
-              decoration: BoxDecoration(color: context.themes.main.colors.background, shape: BoxShape.circle),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 23,
-                  width: MediaQuery.sizeOf(context).width,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: context.themes.main.colors.background,
-                      borderRadius: const BorderRadius.all(Radius.circular(6)),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                SizedBox(
-                  height: 23,
-                  width: MediaQuery.sizeOf(context).width * 0.3,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: context.themes.main.colors.background,
-                      borderRadius: const BorderRadius.all(Radius.circular(6)),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 40),
-        ],
+    final texts = context.themes.main.texts;
+    final colors = context.themes.main.colors;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.all(Radius.circular(12)),
+        color: _backgroundColor(colors),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        child: Text(_title, style: texts.caption.copyWith(color: _titleColor(colors))),
       ),
     );
   }

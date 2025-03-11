@@ -1,9 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
 import 'package:drill_events/app/new_models/models.dart';
+import 'package:drill_events/common/adapters/events_pipe/pipe_events.dart';
 import 'package:drill_events/common/ports/backend_api.dart';
 import 'package:drill_events/common/ports/fast_cache.dart';
 import 'package:drill_events/common/ports/logger.dart';
+import 'package:drill_events/common/ports/pipe.dart';
 import 'package:drill_events/common/secure_storage/secure_storage_keys.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -41,17 +43,26 @@ final class AuthBloc extends Bloc<AuthEvents, AuthState> {
     required FlutterSecureStorage secureStorage,
     required Logger logger,
     required FastCache fastCache,
+    required Pipe pipe,
   }) : _repository = repository,
        _secureStorage = secureStorage,
        _logger = logger,
        _fastCache = fastCache,
+       _pipe = pipe,
        super(const CommonBlocState.init()) {
     on<CreateSessionEvent>(_createSession);
     on<GetUserInfo>(_getUser);
     on<CreateAuthBook>(_createAuthorizeAndBook);
     on<Logout>(_logout);
+
+    _pipe.listen((pipeEvent) {
+      if (pipeEvent is UpdateUserDataPipeEvent) {
+        add(GetUserInfo());
+      }
+    });
   }
 
+  final Pipe _pipe;
   final Logger _logger;
   final FastCache _fastCache;
   final BackendAPI _repository;

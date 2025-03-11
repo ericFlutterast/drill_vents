@@ -1,5 +1,6 @@
 import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
 class AppTextField extends StatelessWidget {
@@ -31,6 +32,9 @@ class AppTextField extends StatelessWidget {
     this.readOnly = false,
     this.textAlign = TextAlign.start,
     this.focusNode,
+    this.prefixIcon,
+    this.prefixIconConstraints,
+    this.inputFormatters,
   });
 
   final String? hintText;
@@ -59,6 +63,9 @@ class AppTextField extends StatelessWidget {
   final int? maxLines;
   final TextAlign textAlign;
   final FocusNode? focusNode;
+  final Widget? prefixIcon;
+  final BoxConstraints? prefixIconConstraints;
+  final List<TextInputFormatter>? inputFormatters;
 
   @override
   Widget build(BuildContext context) {
@@ -80,10 +87,13 @@ class AppTextField extends StatelessWidget {
         maxLines: maxLines,
         textAlign: textAlign,
         readOnly: readOnly,
+        inputFormatters: inputFormatters,
 
         decoration:
             decoration ??
             InputDecoration(
+              prefixIconConstraints: prefixIconConstraints,
+              prefixIcon: prefixIcon,
               isDense: isDense,
               hintText: hintText,
               hintStyle:
@@ -91,7 +101,10 @@ class AppTextField extends StatelessWidget {
               filled: true,
               fillColor: const Color(0xFFF5F5F5),
               focusedBorder: focusBorder,
-
+              focusedErrorBorder: OutlineInputBorder(
+                borderRadius: const BorderRadius.all(Radius.circular(50)),
+                borderSide: BorderSide(width: 1.5, color: colors.error600),
+              ),
               errorBorder:
                   errorBorder ??
                   OutlineInputBorder(
@@ -127,10 +140,13 @@ class AppTextField extends StatelessWidget {
       maxLines: maxLines,
       textAlign: textAlign,
       readOnly: readOnly,
+      inputFormatters: inputFormatters,
 
       decoration:
           decoration ??
           InputDecoration(
+            prefixIcon: prefixIcon,
+            prefixIconConstraints: prefixIconConstraints,
             isDense: isDense,
             hintText: hintText,
             hintStyle:

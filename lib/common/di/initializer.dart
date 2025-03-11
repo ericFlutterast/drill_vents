@@ -1,7 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:drill_events/app/blocs/auth.dart';
 import 'package:drill_events/app/blocs/create_new_event.dart';
-import 'package:drill_events/app/blocs/events/bloc.dart';
+import 'package:drill_events/app/blocs/home_bloc.dart';
+import 'package:drill_events/app/blocs/profile_bloc.dart';
 import 'package:drill_events/app/blocs/receiving_spots.dart';
 import 'package:drill_events/app/blocs/registration.dart';
 import 'package:drill_events/app/data/main_backend_api.dart';
@@ -69,6 +70,7 @@ Map<String, Loader> _dependenciesSteps = {
   },
   'blocs': (dependencies) async {
     dependencies.authBloc = AuthBloc(
+      pipe: dependencies.pipe,
       repository: dependencies.backendApi,
       secureStorage: dependencies.secureStorage,
       logger: dependencies.logger,
@@ -83,5 +85,10 @@ Map<String, Loader> _dependenciesSteps = {
     );
     dependencies.receivingSpotsBloc = ReceivingSpotsBloc(dependencies.backendApi, dependencies.logger);
     dependencies.createNewEventBloc = CreateNewEventBloc(dependencies.backendApi, dependencies.logger);
+    dependencies.profileBloc = ProfileBloc(
+      logger: dependencies.logger,
+      repository: dependencies.backendApi,
+      pipe: dependencies.pipe,
+    );
   },
 };

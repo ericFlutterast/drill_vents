@@ -66,7 +66,7 @@ final class MainTheme implements IAppTheme {
         color: colors.primary,
         fontWeight: FontWeight.w400,
         fontSize: 10.69,
-        height: 1,
+        height: 1.5,
         letterSpacing: 0.4,
       ),
     );
