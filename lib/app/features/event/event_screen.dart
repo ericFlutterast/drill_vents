@@ -158,10 +158,8 @@ class _EventScreenState extends State<EventScreen> {
                         const SliverPadding(padding: EdgeInsets.only(top: 180)),
                         SliverToBoxAdapter(
                           child: _ContentSection(
-                            // TODO:
-                            onTapOrgName: () => context.openOrgScreen("7fdb5b3d-9de4-4dbb-a862-1a430feeb7fa"),
-                            // TODO:
-                            onTapSpotName: () => context.openSpotScreen("2985f696-0ee6-4e2a-9ff6-e95b758526fc"),
+                            onTapOrgName: () => context.openOrgScreen(state.value.org.id),
+                            onTapSpotName: () => context.openSpotScreen(state.value.spot.id),
                             title: state.value.title,
                             description: state.value.description,
                             orgName: state.value.org.title,

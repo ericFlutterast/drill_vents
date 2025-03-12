@@ -5,6 +5,7 @@ import 'package:drill_events/app/features/auth/auth_screen.dart';
 import 'package:drill_events/app/features/create_event/create_event_screen.dart';
 import 'package:drill_events/app/features/event/event_screen.dart';
 import 'package:drill_events/app/features/home/home_screen.dart';
+import 'package:drill_events/app/features/org/org_screen.dart';
 import 'package:drill_events/app/features/profile/profile_screen.dart';
 import 'package:drill_events/app/features/spot/spot_screen.dart';
 import 'package:drill_events/app/features/widgets/notification_manager.dart';
@@ -13,8 +14,6 @@ import 'package:drill_events/common/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:reactive_forms/reactive_forms.dart';
-
-import 'features/org_screen.dart';
 
 class App extends StatelessWidget {
   const App({super.key});

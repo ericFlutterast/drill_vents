@@ -1,5 +1,5 @@
 import 'package:drill_events/app/features/event/event_screen.dart';
-import 'package:drill_events/app/features/org_screen.dart';
+import 'package:drill_events/app/features/org/org_screen.dart';
 import 'package:drill_events/app/features/spot/spot_screen.dart';
 import 'package:drill_events/common/di/dependencies.dart';
 import 'package:drill_events/common/di/dependencies_scope.dart';

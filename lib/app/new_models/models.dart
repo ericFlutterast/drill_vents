@@ -345,7 +345,7 @@ class EventCardModel extends Equatable {
     required this.availableSeats,
     required this.org,
     required this.spot,
-    this.startTime,
+    required this.startTime,
     this.endTime,
     this.booking,
   });
@@ -354,8 +354,8 @@ class EventCardModel extends Equatable {
 
   final String id;
   final String title;
-  final String startDate;
-  final String? startTime;
+  final DateTime startDate;
+  final DateTime startTime;
   final String? endTime;
   final int availableSeats;
   final ShortOrgModel org;

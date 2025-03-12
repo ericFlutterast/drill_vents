@@ -29,7 +29,7 @@ class SpotScreen extends StatefulWidget {
 
 class _SpotScreenState extends State<SpotScreen> {
   //TODO: сделать какой-то swicher
-  bool _isAdmin = true;
+  bool _isAdmin = false;
 
   final _scrollController = ScrollController();
 
@@ -47,7 +47,9 @@ class _SpotScreenState extends State<SpotScreen> {
     Navigator.pushNamed(context, Routes.org);
   }
 
-  void _onTapSubscribe() {}
+  void _onTapSubscribe() {
+    //TODO:
+  }
 
   void _onTapEvent(String eventID) {}
 

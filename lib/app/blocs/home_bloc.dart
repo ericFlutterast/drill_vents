@@ -41,8 +41,8 @@ typedef Emit = Emitter<EventsState>;
 final class EventsBloc extends Bloc<Events, EventsState> {
   EventsBloc(this._repository, this._logger) : super(const CommonBlocState.init(value: EventsStateModel())) {
     on<FetchEventsFeed>(_fetchFeed);
-    on<SearchEvents>(_searchEvents, transformer: bloc_concurrency.droppable());
-    on<PaginationEvent>(_pagination, transformer: bloc_concurrency.droppable());
+    on<SearchEvents>(_searchEvents, transformer: bloc_concurrency.restartable());
+    on<PaginationEvent>(_pagination, transformer: bloc_concurrency.restartable());
   }
 
   final BackendAPI _repository;
