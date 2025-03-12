@@ -6,6 +6,7 @@ import 'package:drill_events/common/ports/fast_cache.dart';
 import 'package:drill_events/common/ports/logger.dart';
 import 'package:drill_events/common/ports/pipe.dart';
 import 'package:drill_events/common/utils/cache_keys.dart';
+import 'package:drill_events/common/utils/functions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class DetailEvents {}
@@ -60,7 +61,7 @@ final class DetailEventBloc extends Bloc<DetailEvents, DetailEventState> {
       if (item == null) {
         item = await _repository.getEvent(event.id);
         final cities = await _repository.getCities();
-        final necessaryCity = _findCity(cities.toList(), item.spot.cityId);
+        final necessaryCity = findCity(cities.toList(), item.spot.cityId);
         item = item.copyWith(spotCity: necessaryCity?.title);
         _cache.set(cacheKey, item, duration: const Duration(seconds: 10));
       }
@@ -81,24 +82,5 @@ final class DetailEventBloc extends Bloc<DetailEvents, DetailEventState> {
     } catch (error, stackTrace) {
       _logger.error(error, error: error, stackTrace: stackTrace);
     }
-  }
-
-  CityModel? _findCity(List<CityModel> cities, int id) {
-    cities.sort((a, b) => a.id.compareTo(b.id));
-
-    List<CityModel> temporary = [...cities];
-    while (temporary.isNotEmpty) {
-      final centralElement = temporary[cities.length ~/ 2];
-      if (centralElement.id == id) {
-        return centralElement;
-      }
-      if (id > centralElement.id) {
-        temporary = temporary.sublist(cities.length ~/ 2, temporary.length - 1);
-      } else {
-        temporary = temporary.sublist(0, cities.length ~/ 2);
-      }
-    }
-
-    return null;
   }
 }
