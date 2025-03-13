@@ -9,3 +9,8 @@ final class BookPipeEvent extends PipeEvent {
 }
 
 final class UpdateUserDataPipeEvent extends PipeEvent {}
+
+final class UpdateOrgScreenData extends PipeEvent {
+  UpdateOrgScreenData(this.orgId);
+  final String orgId;
+}

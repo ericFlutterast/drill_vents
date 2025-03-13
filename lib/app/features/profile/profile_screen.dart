@@ -6,12 +6,12 @@ import 'package:drill_events/app/features/profile/widgets/editing_profile_modal.
 import 'package:drill_events/app/features/widgets/app_button.dart';
 import 'package:drill_events/app/features/widgets/app_icon_button.dart';
 import 'package:drill_events/app/features/widgets/circle_avatar_decoration.dart';
+import 'package:drill_events/app/features/widgets/event_status_label.dart';
 import 'package:drill_events/app/features/widgets/screen_header.dart';
 import 'package:drill_events/app/features/widgets/shimmer.dart';
 import 'package:drill_events/app/generated/assets.gen.dart';
 import 'package:drill_events/app/new_models/models.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
-import 'package:drill_events/app/themes/colors_theme.dart';
 import 'package:drill_events/common/utils/extensions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -370,7 +370,7 @@ class _EventListItem extends StatelessWidget {
   final ShortBookingModel booking;
 
   EventStatus get _eventStatus {
-    if (booking.reason == null) {
+    if (booking.approved == null) {
       return EventStatus.processing;
     }
     return booking.approved == true ? EventStatus.success : EventStatus.decline;
@@ -398,7 +398,7 @@ class _EventListItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _EventStatusLabel(status: _eventStatus),
+                EventStatusLabel(status: _eventStatus),
                 const SizedBox(height: 4),
                 Text(title, style: context.themes.main.texts.body.copyWith(fontWeight: FontWeight.w600, height: 1.3)),
                 const SizedBox(height: 8),
@@ -439,47 +439,4 @@ class _EventListItem extends StatelessWidget {
       Expanded(child: Column(children: [Shimmer(height: 23), SizedBox(height: 4), Shimmer(height: 23)])),
     ],
   );
-}
-
-enum EventStatus { processing, success, decline }
-
-class _EventStatusLabel extends StatelessWidget {
-  const _EventStatusLabel({required this.status});
-
-  final EventStatus status;
-
-  String get _title => switch (status) {
-    EventStatus.processing => 'На рассмотрении',
-    EventStatus.success => 'Одобрено',
-    EventStatus.decline => 'Отказано',
-  };
-
-  Color _backgroundColor(AppColors colors) => switch (status) {
-    EventStatus.processing => colors.warning100,
-    EventStatus.success => colors.success100,
-    EventStatus.decline => colors.error100,
-  };
-
-  Color _titleColor(AppColors colors) => switch (status) {
-    EventStatus.processing => colors.warning600,
-    EventStatus.success => colors.success600,
-    EventStatus.decline => colors.error600,
-  };
-
-  @override
-  Widget build(BuildContext context) {
-    final texts = context.themes.main.texts;
-    final colors = context.themes.main.colors;
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.all(Radius.circular(12)),
-        color: _backgroundColor(colors),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-        child: Text(_title, style: texts.caption.copyWith(color: _titleColor(colors))),
-      ),
-    );
-  }
 }

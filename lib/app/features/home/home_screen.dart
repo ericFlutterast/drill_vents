@@ -5,12 +5,17 @@ import 'package:drill_events/app/features/scroll_physics/pagination_scroll_physi
 import 'package:drill_events/app/features/widgets/animated_refresh.dart';
 import 'package:drill_events/app/features/widgets/app_text_field.dart';
 import 'package:drill_events/app/features/widgets/circle_avatar_decoration.dart';
+import 'package:drill_events/app/features/widgets/event_status_label.dart';
+import 'package:drill_events/app/features/widgets/interpunct.dart';
+import 'package:drill_events/app/features/widgets/shimmer.dart';
+import 'package:drill_events/app/new_models/models.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:drill_events/common/navigation/routes.dart';
 import 'package:drill_events/common/utils/extensions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -93,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 if (state.isPending)
                   SliverList.separated(
                     itemCount: 20,
-                    itemBuilder: (context, index) => const _EventListItem.shimmer(),
+                    itemBuilder: (context, index) => _EventListItem.shimmer(context),
                     separatorBuilder: (_, __) => const SizedBox(height: 28),
                   )
                 else if (state.hasValue) ...[
@@ -101,14 +106,25 @@ class _HomeScreenState extends State<HomeScreen> {
                     itemCount: countsLength,
                     itemBuilder: (context, index) {
                       if (index > state.value.events.length - 1) {
-                        return const _EventListItem.shimmer();
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: _EventListItem.shimmer(context),
+                        );
                       }
 
                       final event = state.value.events.elementAt(index);
 
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: _EventListItem(title: event.title, onTap: () => context.openEventScreen(event.id)),
+                        child: _EventListItem(
+                          title: event.title,
+                          booking: event.booking,
+                          organizationName: event.org.title,
+                          spotName: event.spot.title,
+                          onTap: () => context.openEventScreen(event.id),
+                          startDate: event.startDate,
+                          availableSeats: event.availableSeats,
+                        ),
                       );
                     },
                     separatorBuilder: (_, __) => const SizedBox(height: 28),
@@ -191,27 +207,43 @@ class _SoonEventsTitle extends StatelessWidget {
   }
 }
 
-//TODO
-const _items = ['Завтра', 'Surf x Post', 'English club'];
-
 class _EventListItem extends StatelessWidget {
-  const _EventListItem({super.key, required this.title, this.imgUrl, this.onTap}) : _showSimmer = false;
-
-  const _EventListItem.shimmer({super.key}) : _showSimmer = true, onTap = null, imgUrl = null, title = '';
+  const _EventListItem({
+    required this.title,
+    required this.organizationName,
+    required this.spotName,
+    required this.startDate,
+    required this.availableSeats,
+    this.booking,
+    this.onTap,
+    this.imgUrl,
+  });
 
   final String title;
   final String? imgUrl;
   final VoidCallback? onTap;
-  final bool _showSimmer;
+  final DateTime startDate;
+  final String spotName;
+  final String organizationName;
+  final ShortBookingModel? booking;
+  final int availableSeats;
+
+  EventStatus get _eventStatus {
+    if (booking?.approved == null) return EventStatus.processing;
+    return booking?.approved == true ? EventStatus.success : EventStatus.decline;
+  }
+
+  String get _date => DateFormat('dd MMMM').format(startDate);
 
   @override
   Widget build(BuildContext context) {
-    if (_showSimmer) return const _EventItemShimmer();
+    final texts = context.themes.main.texts;
+    final colors = context.themes.main.colors;
 
     return InkWell(
       onTap: onTap,
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           CachedNetworkImage(
             imageUrl: '',
@@ -219,7 +251,7 @@ class _EventListItem extends StatelessWidget {
                 (_, __, ___) => Container(
                   height: 52,
                   width: 52,
-                  decoration: BoxDecoration(color: context.themes.main.colors.secondary, shape: BoxShape.circle),
+                  decoration: BoxDecoration(color: colors.secondary, shape: BoxShape.circle),
                 ),
           ),
           const SizedBox(width: 12),
@@ -227,28 +259,22 @@ class _EventListItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: context.themes.main.texts.body.copyWith(fontWeight: FontWeight.w600, height: 1.3)),
+                if (booking != null) EventStatusLabel(status: _eventStatus),
+                const SizedBox(height: 4),
+                Text(title, style: texts.body.copyWith(fontWeight: FontWeight.w600, height: 1.3)),
                 const SizedBox(height: 8),
-                Wrap(
-                  runSpacing: 8,
-                  crossAxisAlignment: WrapCrossAlignment.center,
+                Row(
                   children: [
-                    for (final (i, item) in _items.indexed) ...[
-                      Text(item, style: context.themes.main.texts.bodySmall),
-                      if (i != _items.length - 1)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 7.5),
-                          child: SizedBox.square(
-                            dimension: 5,
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                color: context.themes.main.colors.secondary,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
+                    Text(
+                      startDate.difference(DateTime.now()) < const Duration(days: 1) ? 'Завтра' : _date,
+                      style: texts.bodySmall,
+                    ),
+                    const SizedBox(width: 8),
+                    const Interpunct(),
+                    const SizedBox(width: 8),
+                    Text(spotName, style: texts.bodySmall),
+                    const Spacer(),
+                    if (availableSeats <= 0) Text('Мест нет', style: texts.bodySmall.copyWith(color: colors.secondary)),
                   ],
                 ),
               ],
@@ -258,56 +284,22 @@ class _EventListItem extends StatelessWidget {
       ),
     );
   }
-}
 
-class _EventItemShimmer extends StatelessWidget {
-  const _EventItemShimmer();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        children: [
-          SizedBox(
-            height: 52,
-            width: 52,
-            child: DecoratedBox(
-              decoration: BoxDecoration(color: context.themes.main.colors.background, shape: BoxShape.circle),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 23,
-                  width: MediaQuery.sizeOf(context).width,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: context.themes.main.colors.background,
-                      borderRadius: const BorderRadius.all(Radius.circular(6)),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                SizedBox(
-                  height: 23,
-                  width: MediaQuery.sizeOf(context).width * 0.3,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: context.themes.main.colors.background,
-                      borderRadius: const BorderRadius.all(Radius.circular(6)),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 40),
-        ],
+  static Widget shimmer(BuildContext context) => Row(
+    children: [
+      const Shimmer(height: 52, width: 52, borderRadius: 100),
+      const SizedBox(width: 12),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Shimmer(height: 23, borderRadius: 6),
+            const SizedBox(height: 4),
+            Shimmer(height: 23, width: MediaQuery.sizeOf(context).width * 0.3, borderRadius: 6),
+          ],
+        ),
       ),
-    );
-  }
+      const SizedBox(width: 40),
+    ],
+  );
 }

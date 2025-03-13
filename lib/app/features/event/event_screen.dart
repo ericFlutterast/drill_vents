@@ -158,10 +158,9 @@ class _EventScreenState extends State<EventScreen> {
                         const SliverPadding(padding: EdgeInsets.only(top: 180)),
                         SliverToBoxAdapter(
                           child: _ContentSection(
-                            // TODO:
-                            onTapOrgName: () => context.openOrgScreen("7fdb5b3d-9de4-4dbb-a862-1a430feeb7fa"),
-                            // TODO:
-                            onTapSpotName: () => context.openSpotScreen("2985f696-0ee6-4e2a-9ff6-e95b758526fc"),
+                            booking: state.value.booking,
+                            onTapOrgName: () => context.openOrgScreen(state.value.org.id),
+                            onTapSpotName: () => context.openSpotScreen(state.value.spot.id),
                             title: state.value.title,
                             description: state.value.description,
                             orgName: state.value.org.title,
@@ -233,6 +232,7 @@ class _ContentSection extends StatelessWidget {
     required this.startTime,
     required this.address,
     required this.startDate,
+    required this.booking,
     this.onTapOrgName,
     this.onTapSpotName,
   });
@@ -248,6 +248,12 @@ class _ContentSection extends StatelessWidget {
   final List<String> bonuses;
   final VoidCallback? onTapSpotName;
   final VoidCallback? onTapOrgName;
+  final ShortBookingModel? booking;
+
+  ParticipationStatusEnum _participationStatus(bool? approved) {
+    if (approved == null) return ParticipationStatusEnum.processing;
+    return approved == true ? ParticipationStatusEnum.accepted : ParticipationStatusEnum.declined;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -270,11 +276,17 @@ class _ContentSection extends StatelessWidget {
           Text(title, style: context.themes.main.texts.h1),
           BlocBuilder<BookingEventBloc, CommonBlocState<BookingModel>>(
             builder: (context, state) {
-              if (!state.hasValue) return const SizedBox.shrink();
+              if (booking != null) {
+                final status = _participationStatus(booking?.approved);
+                return Column(children: [const SizedBox(height: 18), _ParticipationStatus(status: status)]);
+              }
 
-              return const Column(
-                children: [SizedBox(height: 18), _ParticipationStatus(status: ParticipationStatusEnum.processing)],
-              );
+              if (state.hasValue) {
+                final status = _participationStatus(state.value.approved);
+                return Column(children: [const SizedBox(height: 18), _ParticipationStatus(status: status)]);
+              }
+
+              return const SizedBox.shrink();
             },
           ),
           const SizedBox(height: 38),

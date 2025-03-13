@@ -167,6 +167,7 @@ class SpotCardModel extends Equatable {
     required this.cityId,
     required this.subscribed,
     required this.org,
+    this.city,
   });
 
   factory SpotCardModel.fromJson(Map<String, dynamic> json) => _$SpotCardModelFromJson(json);
@@ -177,11 +178,30 @@ class SpotCardModel extends Equatable {
   final int cityId;
   final bool? subscribed;
   final ShortOrgModel org;
+  final String? city;
 
   Map<String, dynamic> toJson() => _$SpotCardModelToJson(this);
 
   @override
   List<Object?> get props => [id, title, address, cityId, subscribed, org];
+
+  SpotCardModel copyWith({
+    String? id,
+    String? title,
+    String? address,
+    int? cityId,
+    bool? subscribed,
+    ShortOrgModel? org,
+    String? city,
+  }) => SpotCardModel(
+    id: id ?? this.id,
+    title: title ?? this.title,
+    address: address ?? this.address,
+    cityId: cityId ?? this.cityId,
+    subscribed: subscribed ?? this.subscribed,
+    org: org ?? this.org,
+    city: city ?? this.city,
+  );
 }
 
 @JsonSerializable()
@@ -345,7 +365,7 @@ class EventCardModel extends Equatable {
     required this.availableSeats,
     required this.org,
     required this.spot,
-    this.startTime,
+    required this.startTime,
     this.endTime,
     this.booking,
   });
@@ -354,8 +374,8 @@ class EventCardModel extends Equatable {
 
   final String id;
   final String title;
-  final String startDate;
-  final String? startTime;
+  final DateTime startDate;
+  final DateTime startTime;
   final String? endTime;
   final int availableSeats;
   final ShortOrgModel org;
