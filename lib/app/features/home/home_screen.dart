@@ -243,7 +243,7 @@ class _EventListItem extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           CachedNetworkImage(
             imageUrl: '',
