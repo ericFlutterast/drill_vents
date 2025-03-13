@@ -3,11 +3,10 @@ import 'package:drill_events/app/blocs/common_bloc_state.dart';
 import 'package:drill_events/app/new_models/models.dart';
 import 'package:drill_events/common/ports/backend_api.dart';
 import 'package:drill_events/common/ports/logger.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-typedef DetailSpotState = CommonBlocState<DetailSpotModel>;
-typedef _Emit = Emitter<DetailSpotState>;
-
+///Events
 abstract class DetailSpotEvent {}
 
 class FetchDetailSpot extends DetailSpotEvent {
@@ -15,6 +14,24 @@ class FetchDetailSpot extends DetailSpotEvent {
 
   final String spotID;
 }
+
+///State
+typedef DetailSpotState = CommonBlocState<DetailSpotStateModel>;
+
+final class DetailSpotStateModel extends Equatable {
+  const DetailSpotStateModel({required this.spot, this.events = const []});
+
+  final DetailSpotModel spot;
+  final Iterable<EventCardModel> events;
+
+  @override
+  List<Object?> get props => [spot, events];
+
+  DetailSpotStateModel copyWith({DetailSpotModel? spot, Iterable<EventCardModel>? events}) =>
+      DetailSpotStateModel(spot: spot ?? this.spot, events: events ?? this.events);
+}
+
+typedef _Emit = Emitter<DetailSpotState>;
 
 class DetailSpotBloc extends Bloc<DetailSpotEvent, DetailSpotState> {
   DetailSpotBloc(this.api, this.logger) : super(const CommonBlocState.init()) {
@@ -28,11 +45,15 @@ class DetailSpotBloc extends Bloc<DetailSpotEvent, DetailSpotState> {
     try {
       emit(state.pending());
 
-      api.getSpotEvents(event.spotID);
+      final result = await Future.wait([api.getSpotEvents(event.spotID), api.getSpot(event.spotID)]);
 
-      final spot = await api.getSpot(event.spotID);
+      final spotEvents = result[0] as Iterable<EventCardModel>;
+      final spot = result[1] as DetailSpotModel;
 
-      emit(state.done(spot));
+      final newValue =
+          state.getValueOrNull?.copyWith(spot: spot, events: spotEvents) ??
+          DetailSpotStateModel(spot: spot, events: spotEvents);
+      emit(state.done(newValue));
     } on DioException catch (error, stackTrace) {
       emit(state.error(error.response?.data['message'] ?? 'Сетевая ошибка'));
       logger.error(error, error: error, stackTrace: stackTrace);
