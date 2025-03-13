@@ -26,13 +26,13 @@ final class BookingEventBloc extends Bloc<BookingEvent, _State> {
       _logger = logger,
 
       super(const CommonBlocState.init()) {
-    on<BookToEvent>(_signUpBloc);
+    on<BookToEvent>(_createBook);
   }
 
   final BackendAPI _repository;
   final Logger _logger;
 
-  Future<void> _signUpBloc(BookToEvent event, Emit emit) async {
+  Future<void> _createBook(BookToEvent event, Emit emit) async {
     try {
       emit(state.pending());
       final result = await _repository.bookEvent(event.eventId, event.userId);
