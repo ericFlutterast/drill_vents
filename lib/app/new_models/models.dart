@@ -468,27 +468,5 @@ final class NewEventModel extends Equatable {
     suggestOptions,
   ];
 
-  NewEventModel copyWith({
-    int? capacity,
-    String? spotId,
-    String? title,
-    String? description,
-    DateTime? startDate,
-    DateTime? startTime,
-    DateTime? endTime,
-    Iterable<String>? expectingOptions,
-    Iterable<String>? suggestOptions,
-  }) => NewEventModel(
-    capacity: capacity ?? this.capacity,
-    spotId: spotId ?? this.spotId,
-    title: title ?? this.title,
-    description: description ?? this.description,
-    startDate: startDate ?? this.startDate,
-    startTime: startTime ?? this.startTime,
-    endTime: endTime ?? this.endTime,
-    expectingOptions: expectingOptions ?? this.expectingOptions,
-    suggestOptions: suggestOptions ?? this.suggestOptions,
-  );
-
   Map<String, dynamic> toJson() => _$NewEventModelToJson(this);
 }

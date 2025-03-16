@@ -103,34 +103,37 @@ class AppButton extends StatelessWidget {
     final colors = context.themes.main.colors;
     final texts = context.themes.main.texts;
 
-    return InkWell(
-      onTap: onTap,
+    return Material(
       borderRadius: const BorderRadius.all(Radius.circular(50)),
-      splashColor: splashColor,
-      highlightColor: highlightColor,
-      child: Ink(
-        decoration: BoxDecoration(
-          color: backgroundColor ?? _setBackgroundColor(colors),
-          borderRadius: const BorderRadius.all(Radius.circular(50)),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 18),
-          child: Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (_state.isLoading) ...[
-                  SizedBox.square(
-                    dimension: 17,
-                    child: CircularProgressIndicator(
-                      color: loadingIconColor ?? context.themes.main.colors.warning600,
-                      strokeWidth: 2,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: const BorderRadius.all(Radius.circular(50)),
+        splashColor: splashColor,
+        highlightColor: highlightColor,
+        child: Ink(
+          decoration: BoxDecoration(
+            color: backgroundColor ?? _setBackgroundColor(colors),
+            borderRadius: const BorderRadius.all(Radius.circular(50)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 18),
+            child: Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (_state.isLoading) ...[
+                    SizedBox.square(
+                      dimension: 17,
+                      child: CircularProgressIndicator(
+                        color: loadingIconColor ?? context.themes.main.colors.warning600,
+                        strokeWidth: 2,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
+                    const SizedBox(width: 10),
+                  ],
+                  Text(title ?? '', style: titleStyle ?? texts.body.copyWith(color: _setTitleColor(colors))),
                 ],
-                Text(title ?? '', style: titleStyle ?? texts.body.copyWith(color: _setTitleColor(colors))),
-              ],
+              ),
             ),
           ),
         ),

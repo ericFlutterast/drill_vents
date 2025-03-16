@@ -1,4 +1,4 @@
-import 'package:drill_events/app/features/create_event/new_event_validators.dart';
+import 'package:drill_events/app/features/create_edit_event/validators/event_validators.dart';
 import 'package:drill_events/app/features/widgets/validation_builder.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:drill_events/common/utils/extensions.dart';
@@ -18,21 +18,23 @@ class DateTimePicker extends StatefulWidget {
 class _DateTimePickerState extends State<DateTimePicker> {
   String? _selectDate;
 
+  @override
+  void initState() {
+    super.initState();
+    if (widget.validator.value?.startDate case DateTime startDate) {
+      _selectDate = DateFormat('dd-MM-yyyy').format(startDate);
+    }
+  }
+
   void _onDateSelect(DateTime date) {
     final String selectDate = DateFormat('yyyy-MM-dd').format(date);
     setState(() => _selectDate = selectDate);
     widget.validator.value?.startDate = date;
-    print(widget.validator);
   }
 
   void _onSelectTime(DateTime? startTime, DateTime? endTime) {
     widget.validator.value?.startTime = startTime;
     widget.validator.value?.endTime = endTime;
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   @override
@@ -44,7 +46,11 @@ class _DateTimePickerState extends State<DateTimePicker> {
           children: [
             _PromptDatePicker(selectDate: _selectDate ?? '', onDateTimeChanged: _onDateSelect),
             const SizedBox(height: 12),
-            _PromptTime(onSelected: _onSelectTime),
+            _PromptTime(
+              initStartValue: widget.validator.value?.startTime,
+              initEndValue: widget.validator.value?.endTime,
+              onSelected: _onSelectTime,
+            ),
           ],
         );
       },
@@ -114,8 +120,9 @@ class _DatePickerModal extends StatelessWidget {
 }
 
 class _PromptTime extends StatefulWidget {
-  const _PromptTime({required this.onSelected});
+  const _PromptTime({required this.onSelected, this.initEndValue, this.initStartValue});
 
+  final DateTime? initStartValue, initEndValue;
   final Function(DateTime? from, DateTime? to) onSelected;
 
   @override
@@ -125,6 +132,13 @@ class _PromptTime extends StatefulWidget {
 class _PromptTimeState extends State<_PromptTime> {
   DateTime? start;
   DateTime? end;
+
+  @override
+  void initState() {
+    super.initState();
+    start = widget.initStartValue;
+    end = widget.initEndValue;
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -1,6 +1,9 @@
-import 'package:drill_events/app/features/event/event_screen.dart';
+import 'package:drill_events/app/features/create_edit_event/create_event_screen.dart';
+import 'package:drill_events/app/features/create_edit_event/edit_event_screen.dart';
+import 'package:drill_events/app/features/event/event_screen_args.dart';
 import 'package:drill_events/app/features/org/org_screen.dart';
 import 'package:drill_events/app/features/spot/spot_screen.dart';
+import 'package:drill_events/app/new_models/models.dart';
 import 'package:drill_events/common/di/dependencies.dart';
 import 'package:drill_events/common/di/dependencies_scope.dart';
 import 'package:drill_events/common/navigation/modal_bottom_sheet.dart';
@@ -35,5 +38,9 @@ extension Routing on BuildContext {
   Future<T?> openBottomSheet<T>(Widget child) =>
       Navigator.push<T>(this, AppModalBottomSheetPage<T>(child: child).createRoute(this));
 
-  Future<T?> openCreateEventScreen<T>() => Navigator.pushNamed<T>(this, Routes.createEvent);
+  Future<T?> openCreateEventScreen<T>(String orgId) =>
+      Navigator.pushNamed<T>(this, Routes.createEvent, arguments: CreateEventArgs(orgId));
+
+  Future<T?> openEditEventScreen<T>(DetailEventModel event) =>
+      Navigator.pushNamed(this, Routes.editEvent, arguments: EditEventsArgs(event));
 }

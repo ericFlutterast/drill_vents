@@ -4,7 +4,6 @@ import 'package:drill_events/common/network/http_api_client.dart';
 import 'package:drill_events/common/ports/backend_api.dart';
 import 'package:drill_events/common/ports/logger.dart';
 import 'package:drill_events/common/ports/pipe.dart';
-import 'package:drill_events/common/utils/extensions.dart';
 
 class MainBackendAPI implements BackendAPI {
   const MainBackendAPI({required HttpApiClient api, required Pipe pipe, required Logger logger})
@@ -116,9 +115,14 @@ class MainBackendAPI implements BackendAPI {
 
   @override
   Future<List<ShortUserModel>> getParticipants(String id) async {
-    final response = await _api.get('/events/$id/participants');
-    final items = response.data['event'] as List;
-    return items.map((e) => ShortUserModel.fromJson(e)).toList();
+    try {
+      final response = await _api.get('/events/$id/participants');
+      final items = response.data['participants'] as List?;
+      return items?.map((e) => ShortUserModel.fromJson(e)).toList() ?? [];
+    } catch (error, stackTrace) {
+      _logger.error('Backend API error:', error: error, stackTrace: stackTrace);
+      rethrow;
+    }
   }
 
   @override
@@ -137,24 +141,10 @@ class MainBackendAPI implements BackendAPI {
   }
 
   @override
-  Future<DetailEventModel> updateEvent(
-    String id, {
-    String? title,
-    String? description,
-    DateTime? startDate,
-    DateTime? startTime,
-    DateTime? endTime,
-  }) async {
-    final response = await _api.patch(
-      '/events/$id',
-      data: {
-        "title": title,
-        "description": description,
-        "start_date": startDate?.toRFC3337Date(),
-        "start_time": startTime?.toRFC3337Time(),
-        "end_time": endTime?.toRFC3337Time(),
-      },
-    );
+  Future<DetailEventModel> updateEvent(String id, {required NewEventModel eventData}) async {
+    final date = eventData.toJson();
+
+    final response = await _api.patch('/events/$id', data: date);
     final item = response.data['event'] as Map<String, dynamic>;
 
     return DetailEventModel.fromJson(item);
