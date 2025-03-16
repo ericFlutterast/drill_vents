@@ -121,8 +121,7 @@ class _SpotScreenState extends State<SpotScreen> {
                           if (_isAdmin)
                             AppButton.primary(
                               title: "Добавить событие",
-                              //TODO: Переход на создание ивента и добавление автоматом в этот спот
-                              onTap: () => context.openCreateEventScreen(),
+                              onTap: () => context.openCreateEventScreen(state.value.spot.org.id),
                             )
                           else if (_isAuth) ...[
                             if (state.hasValue && state.value.spot.subscribed == true)

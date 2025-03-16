@@ -2,7 +2,9 @@ import 'package:drill_events/app/blocs/auth.dart';
 import 'package:drill_events/app/blocs/home_bloc.dart';
 import 'package:drill_events/app/features/auth/auth_provider.dart';
 import 'package:drill_events/app/features/auth/auth_screen.dart';
-import 'package:drill_events/app/features/create_event/create_event_screen.dart';
+import 'package:drill_events/app/features/create_edit_event/create_event_screen.dart';
+import 'package:drill_events/app/features/create_edit_event/edit_event_screen.dart';
+import 'package:drill_events/app/features/event/event_admin_screen.dart';
 import 'package:drill_events/app/features/event/event_screen.dart';
 import 'package:drill_events/app/features/home/home_screen.dart';
 import 'package:drill_events/app/features/org/org_screen.dart';
@@ -45,10 +47,15 @@ class App extends StatelessWidget {
             }
             return const AuthScreen();
           },
-          Routes.event: (context) => EventScreen.bloc(context),
+          Routes.event: (context) {
+            final isAdmin = true;
+            if (isAdmin) return EventAdminScreen.bloc(context);
+            return EventScreen.bloc(context);
+          },
           Routes.spot: (context) => SpotScreen.bloc(context),
           Routes.org: (context) => OrgScreen.bloc(context),
           Routes.createEvent: (context) => CreateEventScreen.bloc(context),
+          Routes.editEvent: (context) => EditEventScreen.bloc(context),
         },
       ),
     );

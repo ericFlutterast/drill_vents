@@ -18,14 +18,7 @@ abstract interface class BackendAPI {
   Future<DetailEventModel> getEvent(String id);
   Future<Iterable<ShortUserModel>> getParticipants(String id);
   Future<DetailEventModel> createEvent(NewEventModel eventData);
-  Future<DetailEventModel> updateEvent(
-    String id, {
-    String? title,
-    String? description,
-    DateTime? startDate,
-    DateTime? startTime,
-    DateTime? endTime,
-  });
+  Future<DetailEventModel> updateEvent(String id, {required NewEventModel eventData});
   Future<(SessionModel, BookingModel)> createAuthorizeAndBook({
     required String email,
     required String password,

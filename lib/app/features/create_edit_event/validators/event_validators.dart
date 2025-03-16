@@ -30,7 +30,7 @@ class EventValidation extends ValidationObservable {
   }
 }
 
-abstract class Validator<T> {
+class Validator<T> {
   Validator([this._value]);
 
   T? _value;
@@ -57,13 +57,15 @@ abstract class Validator<T> {
 }
 
 final class DateTimeModel {
+  DateTimeModel({this.startDate, this.startTime, this.endTime});
+
   DateTime? startTime;
   DateTime? startDate;
   DateTime? endTime;
 }
 
 class DateTimeValidator extends Validator<DateTimeModel> {
-  DateTimeValidator() : super(DateTimeModel());
+  DateTimeValidator(super.value);
 
   @override
   void validate(DateTimeModel? value) {
@@ -73,20 +75,4 @@ class DateTimeValidator extends Validator<DateTimeModel> {
     }
     hasError.value = false;
   }
-}
-
-class TitleValidator extends Validator<String> {
-  TitleValidator();
-}
-
-class DescriptionValidator extends Validator<String> {
-  DescriptionValidator();
-}
-
-class CapacityValidator extends Validator<int> {
-  CapacityValidator();
-}
-
-class SpotIdValidator extends Validator<String> {
-  SpotIdValidator();
 }

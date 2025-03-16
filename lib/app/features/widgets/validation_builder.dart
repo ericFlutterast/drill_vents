@@ -1,4 +1,4 @@
-import 'package:drill_events/app/features/create_event/new_event_validators.dart';
+import 'package:drill_events/app/features/create_edit_event/validators/event_validators.dart';
 import 'package:drill_events/app/generated/assets.gen.dart';
 import 'package:flutter/material.dart';
 

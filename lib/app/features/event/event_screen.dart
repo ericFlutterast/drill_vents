@@ -2,7 +2,9 @@ import 'package:drill_events/app/blocs/auth.dart';
 import 'package:drill_events/app/blocs/booking_event.dart';
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
 import 'package:drill_events/app/blocs/detail_event.dart';
+import 'package:drill_events/app/features/event/event_screen_args.dart';
 import 'package:drill_events/app/features/event/widgets/creating_entry_for_event_modal.dart';
+import 'package:drill_events/app/features/event/widgets/date_time_info.dart';
 import 'package:drill_events/app/features/event/widgets/prompt_email_password.dart';
 import 'package:drill_events/app/features/widgets/app_button.dart';
 import 'package:drill_events/app/features/widgets/app_notification.dart';
@@ -16,13 +18,6 @@ import 'package:drill_events/common/navigation/modal_bottom_sheet.dart';
 import 'package:drill_events/common/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
-
-class EventScreenArgs {
-  EventScreenArgs(this.eventId);
-
-  final String eventId;
-}
 
 class EventScreen extends StatefulWidget {
   const EventScreen({super.key});
@@ -290,7 +285,7 @@ class _ContentSection extends StatelessWidget {
             },
           ),
           const SizedBox(height: 38),
-          _DateTimeInfo(address: address, date: startDate, startTime: startTime),
+          DateTimeInfo(address: address, date: startDate, startTime: startTime),
           const SizedBox(height: 32),
           Text(description, style: context.themes.main.texts.body),
           const SizedBox(height: 24),
@@ -326,51 +321,6 @@ class _OptionsBlock extends StatelessWidget {
             ],
           ),
         ],
-      ],
-    );
-  }
-}
-
-class _DateTimeInfo extends StatelessWidget {
-  const _DateTimeInfo({required this.address, required this.startTime, required this.date});
-
-  final String address;
-  final String date;
-  final String startTime;
-
-  String formattedTime(String time) {
-    final startTime = DateTime.tryParse(time);
-    return startTime != null ? DateFormat('HH:mm').format(startTime) : '';
-  }
-
-  String formattedDate(String date) {
-    final startDate = DateTime.tryParse(date);
-    return startDate != null ? DateFormat('dd MMMM').format(startDate) : '';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(formattedDate(date), style: context.themes.main.texts.h3),
-            const SizedBox(height: 6),
-            Text(address, style: context.themes.main.texts.bodySmall), //'Краснодар, Постовая 55'
-          ],
-        ),
-        const Spacer(),
-        DecoratedBox(
-          decoration: BoxDecoration(
-            color: context.themes.main.colors.background,
-            borderRadius: const BorderRadius.all(Radius.circular(8)),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 10),
-            child: Text(formattedTime(startTime), style: context.themes.main.texts.h3),
-          ),
-        ),
       ],
     );
   }

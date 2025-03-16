@@ -1,8 +1,8 @@
 import 'package:drill_events/app/blocs/create_new_event.dart';
-import 'package:drill_events/app/features/create_event/new_event_validators.dart';
-import 'package:drill_events/app/features/create_event/widgets/date_time_picker.dart';
-import 'package:drill_events/app/features/create_event/widgets/options_tile.dart';
-import 'package:drill_events/app/features/create_event/widgets/spots_tile.dart';
+import 'package:drill_events/app/features/create_edit_event/validators/event_validators.dart';
+import 'package:drill_events/app/features/create_edit_event/widgets/date_time_picker.dart';
+import 'package:drill_events/app/features/create_edit_event/widgets/options_tile.dart';
+import 'package:drill_events/app/features/create_edit_event/widgets/spots_tile.dart';
 import 'package:drill_events/app/features/widgets/app_back_button.dart';
 import 'package:drill_events/app/features/widgets/app_button.dart';
 import 'package:drill_events/app/features/widgets/app_notification.dart';
@@ -14,6 +14,12 @@ import 'package:drill_events/common/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+final class CreateEventArgs {
+  const CreateEventArgs(this.orgId);
+
+  final String orgId;
+}
 
 class CreateEventScreen extends StatefulWidget {
   const CreateEventScreen._({super.key});
@@ -33,11 +39,11 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   late final _scrollController = ScrollController();
 
   EventValidation eventValidation = EventValidation({
-    'dateTime': DateTimeValidator(),
-    'title': TitleValidator(),
-    'description': DescriptionValidator(),
-    'capacity': CapacityValidator(),
-    'spotId': SpotIdValidator(),
+    'dateTime': DateTimeValidator(DateTimeModel()),
+    'title': Validator<String>(),
+    'description': Validator<String>(),
+    'capacity': Validator<int>(),
+    'spotId': Validator<String>(),
   });
 
   @override
@@ -118,7 +124,11 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     const SizedBox(height: 24),
                     OptionsTile(title: 'Мы обеспечим', onEditingComplete: (value) {}),
                     const SizedBox(height: 32),
-                    SpotsTile.bloc(context, validator: eventValidation.validators['spotId']!),
+                    SpotsTile.bloc(
+                      context,
+                      validator: eventValidation.validators['spotId']! as Validator<String>,
+                      orgId: context.getArgs<CreateEventArgs>().orgId,
+                    ),
                     const SizedBox(height: 24),
                     BlocBuilder<CreateNewEventBloc, CreateNewEventState>(
                       builder: (context, state) {

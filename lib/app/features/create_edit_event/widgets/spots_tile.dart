@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:drill_events/app/blocs/receiving_spots.dart';
-import 'package:drill_events/app/features/create_event/new_event_validators.dart';
+import 'package:drill_events/app/features/create_edit_event/validators/event_validators.dart';
 import 'package:drill_events/app/features/widgets/app_notification.dart';
 import 'package:drill_events/app/features/widgets/notification_manager.dart';
 import 'package:drill_events/app/features/widgets/shimmer.dart';
@@ -13,13 +13,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class SpotsTile extends StatefulWidget {
   const SpotsTile._({super.key, required this.validator});
 
-  final Validator validator;
+  final Validator<String> validator;
 
-  static Widget bloc(BuildContext context, {Key? key, required Validator validator}) {
+  static Widget bloc(BuildContext context, {Key? key, required Validator<String> validator, required String orgId}) {
     return BlocProvider<ReceivingSpotsBloc>(
-      create:
-          (context) =>
-              context.dependencies.receivingSpotsBloc..add(GetSpotsEvent('d3f037b8-c43f-4ec3-ba8f-65ea939d4327')),
+      create: (context) {
+        return ReceivingSpotsBloc(context.dependencies.backendApi, context.dependencies.logger)
+          ..add(GetSpotsEvent(orgId));
+      },
       child: SpotsTile._(key: key, validator: validator),
     );
   }
@@ -72,7 +73,7 @@ class _SpotsTileState extends State<SpotsTile> {
                       title: spot.title,
                       address: spot.address,
                       onSelect: () => _selectSpot(index),
-                      isSelect: _selectedIndex == index,
+                      isSelect: _selectedIndex == index || widget.validator.value == spot.id,
                     ),
                     if (index != 3) const SizedBox(height: 20),
                   ],

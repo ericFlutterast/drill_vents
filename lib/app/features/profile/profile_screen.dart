@@ -133,18 +133,20 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   ),
                   PositionedScreenHeader(
                     controller: _scrollController,
-                    onTapLogo: () => context.openOrgScreen("7fdb5b3d-9de4-4dbb-a862-1a430feeb7fa"),
-                    trailing: AppIconButton(
-                      icon: CupertinoIcons.pencil,
-                      onTap:
-                          () => context.openBottomSheet(
-                            EditingProfileModal.blocValue(
-                              context,
-                              authBloc: context.read<AuthBloc>(),
-                              profileBloc: context.read<ProfileBloc>(),
+                    actions: [
+                      AppIconButton(
+                        icon: CupertinoIcons.pencil,
+                        dimension: 38,
+                        onTap:
+                            () => context.openBottomSheet(
+                              EditingProfileModal.blocValue(
+                                context,
+                                authBloc: context.read<AuthBloc>(),
+                                profileBloc: context.read<ProfileBloc>(),
+                              ),
                             ),
-                          ),
-                    ),
+                      ),
+                    ],
                   ),
                 ],
               );

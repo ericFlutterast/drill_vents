@@ -1,23 +1,23 @@
 import 'package:drill_events/app/features/widgets/app_back_button.dart';
 import 'package:drill_events/app/features/widgets/app_company_logo.dart';
 import 'package:drill_events/app/features/widgets/shimmer.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 
 class PositionedScreenHeader extends StatelessWidget {
   const PositionedScreenHeader({
     super.key,
     this.controller,
+    this.backButtonHandler,
     this.onTapLogo,
     this.isPending = false,
-    this.leading,
-    this.trailing,
+    this.actions,
   });
 
   final bool isPending;
-  final VoidCallback? onTapLogo;
+  final VoidCallback? onTapLogo, backButtonHandler;
   final ScrollController? controller;
-  final Widget? leading, trailing;
+  final List<Widget>? actions;
 
   @override
   Widget build(BuildContext context) {
@@ -28,9 +28,9 @@ class PositionedScreenHeader extends StatelessWidget {
       child: ScreenHeader(
         controller: controller,
         onTapLogo: onTapLogo,
+        backButtonHandler: backButtonHandler,
         isPending: isPending,
-        leading: leading,
-        trailing: trailing,
+        actions: actions ?? [],
       ),
     );
   }
@@ -38,12 +38,19 @@ class PositionedScreenHeader extends StatelessWidget {
 
 // TODO: Из-за BouncingScrollPhysics есть бага, при offset = 0 - контролы не появляются
 class ScreenHeader extends StatefulWidget {
-  const ScreenHeader({super.key, this.controller, this.onTapLogo, this.isPending = false, this.trailing, this.leading});
+  const ScreenHeader({
+    super.key,
+    this.controller,
+    this.backButtonHandler,
+    this.onTapLogo,
+    this.isPending = false,
+    required this.actions,
+  });
 
   final bool isPending;
-  final VoidCallback? onTapLogo;
+  final VoidCallback? onTapLogo, backButtonHandler;
   final ScrollController? controller;
-  final Widget? leading, trailing;
+  final List<Widget> actions;
 
   @override
   State<ScreenHeader> createState() => _ScreenHeaderState();
@@ -127,17 +134,20 @@ class _ScreenHeaderState extends State<ScreenHeader> with TickerProviderStateMix
       child: Row(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SlideTransition(
             position: _buttonOffsetAnimation,
-            child: widget.leading ?? AppBackButton(onTap: () => Navigator.pop(context)),
+            child: AppBackButton(onTap: widget.backButtonHandler ?? () => Navigator.pop(context)),
           ),
-          if (widget.onTapLogo != null)
-            SlideTransition(
-              position: _controlsOffsetAnimation,
-              child: widget.trailing ?? AppCompanyLogo(onTap: widget.onTapLogo),
+
+          SlideTransition(
+            position: _controlsOffsetAnimation,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [if (widget.onTapLogo != null) AppCompanyLogo(onTap: widget.onTapLogo), ...widget.actions],
             ),
+          ),
         ],
       ),
     );

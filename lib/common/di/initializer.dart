@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:drill_events/app/blocs/auth.dart';
 import 'package:drill_events/app/blocs/create_new_event.dart';
 import 'package:drill_events/app/blocs/home_bloc.dart';
@@ -48,12 +51,18 @@ Map<String, Loader> _dependenciesSteps = {
   'network': (dependencies) async {
     final dioClient = Dio(
       BaseOptions(
-        baseUrl: 'http://drillevents.drillcorp.ru:8000',
+        baseUrl: 'https://drillevents.drillcorp.ru:8000',
         connectTimeout: const Duration(seconds: 60),
         receiveTimeout: const Duration(seconds: 30),
         sendTimeout: const Duration(seconds: 30),
       ),
     );
+
+    (dioClient.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
+      final httpClient = HttpClient();
+      httpClient.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      return httpClient;
+    };
 
     final authInterceptor = AuthInterceptor(dependencies.secureStorage);
     dioClient.interceptors.add(authInterceptor);
