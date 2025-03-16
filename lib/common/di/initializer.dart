@@ -70,11 +70,7 @@ Map<String, Loader> _dependenciesSteps = {
     dependencies.httpApiClient = HttpApiClient(dioClient);
   },
   'data': (dependencies) async {
-    dependencies.backendApi = MainBackendAPI(
-      api: dependencies.httpApiClient,
-      logger: dependencies.logger,
-      pipe: dependencies.pipe,
-    );
+    dependencies.backendApi = MainBackendAPI(api: dependencies.httpApiClient, pipe: dependencies.pipe);
     dependencies.sharedPreferences = await SharedPreferences.getInstance();
   },
   'blocs': (dependencies) async {

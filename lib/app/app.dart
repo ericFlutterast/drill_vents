@@ -17,6 +17,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
+import 'features/event/event_screen_args.dart';
+
 class App extends StatelessWidget {
   const App({super.key});
 
@@ -48,7 +50,8 @@ class App extends StatelessWidget {
             return const AuthScreen();
           },
           Routes.event: (context) {
-            final isAdmin = true;
+            final orgId = context.getArgs<EventScreenArgs>().orgId ?? '';
+            final isAdmin = context.read<AuthBloc>().state.value.isAdmin(orgId);
             if (isAdmin) return EventAdminScreen.bloc(context);
             return EventScreen.bloc(context);
           },

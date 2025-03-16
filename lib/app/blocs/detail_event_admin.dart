@@ -1,9 +1,11 @@
+import 'package:dio/dio.dart';
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
 import 'package:drill_events/app/new_models/models.dart';
 import 'package:drill_events/common/ports/backend_api.dart';
 import 'package:drill_events/common/ports/fast_cache.dart';
 import 'package:drill_events/common/ports/logger.dart';
 import 'package:drill_events/common/utils/cache_keys.dart';
+import 'package:drill_events/common/utils/error_codes.dart';
 import 'package:drill_events/common/utils/functions.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -73,6 +75,9 @@ final class EventDetailAdminBloc extends Bloc<EventDetailAdminEvent, EventDetail
           EventDetailAdminStateModel(event: item, participants: participants);
 
       emit(state.done(newState));
+    } on DioException catch (error, stackTrace) {
+      emit(state.error(error.appErrorMessage));
+      _logger.error(error.appErrorMessage, error: error, stackTrace: stackTrace);
     } catch (error, stackTrace) {
       emit(state.error(error));
       _logger.error(error, error: error, stackTrace: stackTrace);

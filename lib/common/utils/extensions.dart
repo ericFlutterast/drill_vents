@@ -24,8 +24,8 @@ extension Routing on BuildContext {
 
   void pop<T>() => Navigator.pop<T>(this);
 
-  Future<T?> openEventScreen<T>(String eventID) =>
-      Navigator.pushNamed<T>(this, Routes.event, arguments: EventScreenArgs(eventID));
+  Future<T?> openEventScreen<T>({required String eventID, String? orgId}) =>
+      Navigator.pushNamed<T>(this, Routes.event, arguments: EventScreenArgs(eventID, orgId: orgId));
 
   Future<T?> openProfileScreen<T>() => Navigator.pushNamed<T>(this, Routes.profile);
 

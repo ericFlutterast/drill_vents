@@ -2,18 +2,13 @@ import 'package:drill_events/app/new_models/models.dart';
 import 'package:drill_events/common/adapters/events_pipe/pipe_events.dart';
 import 'package:drill_events/common/network/http_api_client.dart';
 import 'package:drill_events/common/ports/backend_api.dart';
-import 'package:drill_events/common/ports/logger.dart';
 import 'package:drill_events/common/ports/pipe.dart';
 
 class MainBackendAPI implements BackendAPI {
-  const MainBackendAPI({required HttpApiClient api, required Pipe pipe, required Logger logger})
-    : _logger = logger,
-      _pipe = pipe,
-      _api = api;
+  const MainBackendAPI({required HttpApiClient api, required Pipe pipe}) : _pipe = pipe, _api = api;
 
   final HttpApiClient _api;
   final Pipe _pipe;
-  final Logger _logger;
 
   @override
   Future<List<CityModel>> getCities() async {
@@ -60,13 +55,8 @@ class MainBackendAPI implements BackendAPI {
     String? whatsapp,
     String? vk,
   }) async {
-    try {
-      final data = {'name': name, 'phone': phone, 'telegram': telegram, 'whatsapp': whatsapp, 'vk': vk, 'email': email};
-      await _api.patch('/users', data: data);
-    } catch (error, stackTrace) {
-      _logger.error(error, error: error, stackTrace: stackTrace);
-      rethrow;
-    }
+    final data = {'name': name, 'phone': phone, 'telegram': telegram, 'whatsapp': whatsapp, 'vk': vk, 'email': email};
+    await _api.patch('/users', data: data);
   }
 
   @override
@@ -115,29 +105,19 @@ class MainBackendAPI implements BackendAPI {
 
   @override
   Future<List<ShortUserModel>> getParticipants(String id) async {
-    try {
-      final response = await _api.get('/events/$id/participants');
-      final items = response.data['participants'] as List?;
-      return items?.map((e) => ShortUserModel.fromJson(e)).toList() ?? [];
-    } catch (error, stackTrace) {
-      _logger.error('Backend API error:', error: error, stackTrace: stackTrace);
-      rethrow;
-    }
+    final response = await _api.get('/events/$id/participants');
+    final items = response.data['participants'] as List?;
+    return items?.map((e) => ShortUserModel.fromJson(e)).toList() ?? [];
   }
 
   @override
   Future<DetailEventModel> createEvent(NewEventModel eventData) async {
-    try {
-      final data = eventData.toJson();
+    final data = eventData.toJson();
 
-      final response = await _api.post('/events', data: data);
-      final item = response.data['event'] as Map<String, dynamic>;
+    final response = await _api.post('/events', data: data);
+    final item = response.data['event'] as Map<String, dynamic>;
 
-      return DetailEventModel.fromJson(item);
-    } catch (error, stackTrace) {
-      _logger.error(error, error: error, stackTrace: stackTrace);
-      rethrow;
-    }
+    return DetailEventModel.fromJson(item);
   }
 
   @override
@@ -224,17 +204,12 @@ class MainBackendAPI implements BackendAPI {
 
   @override
   Future<BookingModel> bookEvent(String eventId, String usrId) async {
-    try {
-      final response = await _api.post(
-        '/bookings/events/$eventId/status',
-        queryParameters: {'usr_id': usrId, 'action': 'book'},
-      );
-      final item = response.data['booking'] as Map<String, dynamic>;
-      return BookingModel.fromJson(item);
-    } catch (error, stackTrace) {
-      _logger.error('Main backend api error:', error: error, stackTrace: stackTrace);
-      rethrow;
-    }
+    final response = await _api.post(
+      '/bookings/events/$eventId/status',
+      queryParameters: {'usr_id': usrId, 'action': 'book'},
+    );
+    final item = response.data['booking'] as Map<String, dynamic>;
+    return BookingModel.fromJson(item);
   }
 
   @override
@@ -255,5 +230,12 @@ class MainBackendAPI implements BackendAPI {
     );
     final item = response.data['booking'] as Map<String, dynamic>;
     return BookingModel.fromJson(item);
+  }
+
+  @override
+  Future<Iterable<RoleModel>> getUserRoles() async {
+    final response = await _api.get('/users/me/roles');
+    final roles = response.data['roles'] as List;
+    return roles.map((element) => RoleModel.fromJson(element));
   }
 }

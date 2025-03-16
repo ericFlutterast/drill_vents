@@ -187,12 +187,18 @@ class _EventAdminScreenState extends State<EventAdminScreen> {
                 PositionedScreenHeader(
                   controller: _controller,
                   onTapLogo: () {},
-                  backButtonHandler: _backButtonHandler,
                   actions: [
                     const SizedBox(width: 12),
                     AppIconButton(icon: CupertinoIcons.pencil, onTap: _openEdinEventScreen, dimension: 42),
                   ],
                 ),
+                if (state.value.participants.isNotEmpty)
+                  Positioned(
+                    left: 20,
+                    right: 20,
+                    bottom: 23,
+                    child: AppButton.primary(onTap: () {}, title: 'Показать всех'),
+                  ),
               ],
             );
           }
@@ -225,12 +231,11 @@ class _ContentSection extends StatelessWidget {
     required this.startTime,
     required this.startDate,
     required this.address,
-    this.onTapOrg,
-    this.onTapSpot,
+    this.onTapOrgName,
+    this.onTapSpotName,
   });
 
-  final VoidCallback? onTapOrg;
-  final VoidCallback? onTapSpot;
+  final VoidCallback? onTapOrgName, onTapSpotName;
   final String eventName, spotName, orgName, description, address, startDate, startTime;
 
   @override
@@ -245,11 +250,11 @@ class _ContentSection extends StatelessWidget {
           if (orgName.isNotEmpty && spotName.isNotEmpty)
             Row(
               children: [
-                GestureDetector(onTap: onTapOrg, child: Text(orgName, style: texts.bodySmall)),
+                GestureDetector(onTap: onTapOrgName, child: Text(orgName, style: texts.bodySmall)),
                 const SizedBox(width: 8),
                 const Interpunct(),
                 const SizedBox(width: 8),
-                GestureDetector(onTap: onTapSpot, child: Text(spotName, style: texts.bodySmall)),
+                GestureDetector(onTap: onTapSpotName, child: Text(spotName, style: texts.bodySmall)),
               ],
             ),
           const SizedBox(height: 7),

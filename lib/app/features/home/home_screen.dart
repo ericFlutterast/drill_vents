@@ -121,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           booking: event.booking,
                           organizationName: event.org.title,
                           spotName: event.spot.title,
-                          onTap: () => context.openEventScreen(event.id),
+                          onTap: () => context.openEventScreen(eventID: event.id, orgId: event.org.id),
                           startDate: event.startDate,
                           availableSeats: event.availableSeats,
                         ),
@@ -135,7 +135,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Center(
                       child: Padding(
                         padding: EdgeInsets.only(top: MediaQuery.sizeOf(context).height * 0.2),
-                        child: Text('Не удалось загрузить', style: context.themes.main.texts.body),
+                        child: Text(
+                          'Не удалось загрузить: ${state.errorMessage}',
+                          style: context.themes.main.texts.body,
+                        ),
                       ),
                     ),
                   ),

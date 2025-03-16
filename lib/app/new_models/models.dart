@@ -53,18 +53,24 @@ class UserInfoModel extends Equatable {
 
 @JsonSerializable()
 class UserModel extends Equatable {
-  const UserModel({required this.id, required this.email, required this.info});
+  const UserModel({required this.id, required this.email, required this.info, this.roles = const []});
 
   factory UserModel.fromJson(Map<String, dynamic> json) => _$UserModelFromJson(json);
 
   final String id;
   final String email;
+  final Iterable<RoleModel> roles;
   final UserInfoModel info;
 
   Map<String, dynamic> toJson() => _$UserModelToJson(this);
 
   @override
-  List<Object?> get props => [id, email, info];
+  List<Object?> get props => [id, email, info, roles];
+
+  bool isAdmin(String orgId) => roles.any((value) => value.orgId == orgId);
+
+  UserModel copyWith({Iterable<RoleModel>? roles}) =>
+      UserModel(roles: roles ?? this.roles, id: id, email: email, info: info);
 }
 
 @JsonSerializable()
@@ -469,4 +475,19 @@ final class NewEventModel extends Equatable {
   ];
 
   Map<String, dynamic> toJson() => _$NewEventModelToJson(this);
+}
+
+@JsonSerializable(fieldRename: FieldRename.snake)
+final class RoleModel extends Equatable {
+  const RoleModel({required this.orgId, required this.role});
+
+  factory RoleModel.fromJson(Map<String, dynamic> json) => _$RoleModelFromJson(json);
+
+  final String orgId;
+  final String role;
+
+  @override
+  List<Object?> get props => [orgId, role];
+
+  Map<String, dynamic> toJson() => _$RoleModelToJson(this);
 }

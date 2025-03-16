@@ -35,4 +35,5 @@ abstract interface class BackendAPI {
   Future<BookingModel> bookEvent(String eventId, String usrId);
   Future<BookingModel> approveBooking(String eventId, String usrId);
   Future<BookingModel> rejectBooking(String eventId, String usrId, String reason);
+  Future<Iterable<RoleModel>> getUserRoles();
 }

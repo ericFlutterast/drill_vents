@@ -120,7 +120,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                               child: _EventListItem(
                                 title: item.title,
                                 booking: item.booking ?? (throw 'Никогда не null'),
-                                onTap: () => context.openEventScreen(item.id),
+                                onTap: () => context.openEventScreen(eventID: item.id),
                               ),
                             );
                           },
