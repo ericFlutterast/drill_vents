@@ -121,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           booking: event.booking,
                           organizationName: event.org.title,
                           spotName: event.spot.title,
-                          onTap: () => context.openEventScreen(event.id),
+                          onTap: () => context.openEventScreen(eventID: event.id, orgId: event.org.id),
                           startDate: event.startDate,
                           availableSeats: event.availableSeats,
                         ),

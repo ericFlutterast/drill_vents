@@ -43,8 +43,6 @@ class SpotScreen extends StatefulWidget {
 }
 
 class _SpotScreenState extends State<SpotScreen> {
-  //TODO: сделать какой-то swicher
-  bool _isAdmin = false;
   bool _isAuth = false;
 
   final _scrollController = ScrollController();
@@ -118,12 +116,13 @@ class _SpotScreenState extends State<SpotScreen> {
                           const SizedBox(height: 7),
                           Text(spot.address, style: context.themes.main.texts.bodySmall),
                           const SizedBox(height: 28),
-                          if (_isAdmin)
+                          if (context.read<AuthBloc>().state.value.isAdmin(state.value.spot.org.id)) ...[
                             AppButton.primary(
                               title: "Добавить событие",
                               onTap: () => context.openCreateEventScreen(state.value.spot.org.id),
-                            )
-                          else if (_isAuth) ...[
+                            ),
+                            const SizedBox(height: 32),
+                          ] else if (_isAuth) ...[
                             if (state.hasValue && state.value.spot.subscribed == true)
                               AppButton.secondary(title: "Отписаться", onTap: _onTapUnsubscribe)
                             else

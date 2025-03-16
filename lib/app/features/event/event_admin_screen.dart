@@ -98,6 +98,8 @@ class _EventAdminScreenState extends State<EventAdminScreen> {
                     const SliverPadding(padding: EdgeInsets.only(top: 180)),
                     SliverToBoxAdapter(
                       child: _ContentSection(
+                        onTapOrgName: () => context.openOrgScreen(state.value.event.org.id),
+                        onTapSpotName: () => context.openSpotScreen(state.value.event.spot.id),
                         eventName: state.value.event.title,
                         description: state.value.event.description,
                         orgName: state.value.event.org.title,
@@ -183,12 +185,11 @@ class _ContentSection extends StatelessWidget {
     required this.startTime,
     required this.startDate,
     required this.address,
-    this.onTapOrg,
-    this.onTapSpot,
+    this.onTapOrgName,
+    this.onTapSpotName,
   });
 
-  final VoidCallback? onTapOrg;
-  final VoidCallback? onTapSpot;
+  final VoidCallback? onTapOrgName, onTapSpotName;
   final String eventName, spotName, orgName, description, address, startDate, startTime;
 
   @override
@@ -203,11 +204,11 @@ class _ContentSection extends StatelessWidget {
           if (orgName.isNotEmpty && spotName.isNotEmpty)
             Row(
               children: [
-                GestureDetector(onTap: onTapOrg, child: Text(orgName, style: texts.bodySmall)),
+                GestureDetector(onTap: onTapOrgName, child: Text(orgName, style: texts.bodySmall)),
                 const SizedBox(width: 8),
                 const Interpunct(),
                 const SizedBox(width: 8),
-                GestureDetector(onTap: onTapSpot, child: Text(spotName, style: texts.bodySmall)),
+                GestureDetector(onTap: onTapSpotName, child: Text(spotName, style: texts.bodySmall)),
               ],
             ),
           const SizedBox(height: 7),

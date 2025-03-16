@@ -120,8 +120,12 @@ final class AuthBloc extends Bloc<AuthEvents, AuthState> {
   Future<void> _getUser(GetUserInfo event, Emit emit) async {
     try {
       emit(state.pending());
-      final user = await _repository.getMyProfile();
-      emit(state.done(user));
+      final result = await Future.wait([_repository.getMyProfile(), _repository.getUserRoles()]);
+
+      final user = result[0] as UserModel;
+      final roles = result[1] as Iterable<RoleModel>;
+
+      emit(state.done(user.copyWith(roles: roles)));
     } on DioException catch (error, stackTrace) {
       emit(state.error(error.appErrorMessage));
       _logger.error(error.appErrorMessage, error: error, stackTrace: stackTrace);
