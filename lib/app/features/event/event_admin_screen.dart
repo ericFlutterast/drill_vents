@@ -118,6 +118,8 @@ class _EventAdminScreenState extends State<EventAdminScreen> {
                         const SliverPadding(padding: EdgeInsets.only(top: 180)),
                         SliverToBoxAdapter(
                           child: _ContentSection(
+                            onTapOrgName: () => context.openOrgScreen(state.value.event.org.id),
+                            onTapSpotName: () => context.openSpotScreen(state.value.event.spot.id),
                             eventName: state.value.event.title,
                             description: state.value.event.description,
                             orgName: state.value.event.org.title,
@@ -128,7 +130,7 @@ class _EventAdminScreenState extends State<EventAdminScreen> {
                           ),
                         ),
                         const SliverPadding(padding: EdgeInsets.only(top: 24)),
-                        if (true) //TODO: state.value.participants.isNotEmpty
+                        if (state.value.participants.isNotEmpty)
                           SliverToBoxAdapter(
                             child: Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 28),
@@ -187,6 +189,7 @@ class _EventAdminScreenState extends State<EventAdminScreen> {
                 PositionedScreenHeader(
                   controller: _controller,
                   onTapLogo: () {},
+                  backButtonHandler: _backButtonHandler,
                   actions: [
                     const SizedBox(width: 12),
                     AppIconButton(icon: CupertinoIcons.pencil, onTap: _openEdinEventScreen, dimension: 42),
