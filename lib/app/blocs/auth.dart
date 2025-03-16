@@ -7,6 +7,7 @@ import 'package:drill_events/common/ports/fast_cache.dart';
 import 'package:drill_events/common/ports/logger.dart';
 import 'package:drill_events/common/ports/pipe.dart';
 import 'package:drill_events/common/secure_storage/secure_storage_keys.dart';
+import 'package:drill_events/common/utils/error_codes.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -119,11 +120,15 @@ final class AuthBloc extends Bloc<AuthEvents, AuthState> {
   Future<void> _getUser(GetUserInfo event, Emit emit) async {
     try {
       emit(state.pending());
-      final user = await _repository.getMyProfile();
-      emit(state.done(user));
+      final result = await Future.wait([_repository.getMyProfile(), _repository.getUserRoles()]);
+
+      final user = result[0] as UserModel;
+      final roles = result[1] as Iterable<RoleModel>;
+
+      emit(state.done(user.copyWith(roles: roles)));
     } on DioException catch (error, stackTrace) {
-      emit(state.error(error.response?.data['message'] ?? 'Сетевая ошибка'));
-      _logger.error(error, error: error, stackTrace: stackTrace);
+      emit(state.error(error.appErrorMessage));
+      _logger.error(error.appErrorMessage, error: error, stackTrace: stackTrace);
 
       if (error.response?.data case <String, dynamic>{'status': final int code, 'message': final String message}) {
         if (code == 403 && message == 'token is expired') {
@@ -145,8 +150,8 @@ final class AuthBloc extends Bloc<AuthEvents, AuthState> {
       _fastCache.clear();
       emit(state.idle(value: null));
     } on DioException catch (error, stackTrace) {
-      emit(state.error(error.response?.data['message'] ?? 'Сетевая ошибка'));
-      _logger.error(error, error: error, stackTrace: stackTrace);
+      emit(state.error(error.appErrorMessage));
+      _logger.error(error.appErrorMessage, error: error, stackTrace: stackTrace);
     } catch (error, stackTrace) {
       emit(state.error(error));
       _logger.error(error, error: error, stackTrace: stackTrace);

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
 import 'package:drill_events/app/new_models/models.dart';
 import 'package:drill_events/common/adapters/events_pipe/pipe_events.dart';
@@ -6,6 +7,7 @@ import 'package:drill_events/common/ports/fast_cache.dart';
 import 'package:drill_events/common/ports/logger.dart';
 import 'package:drill_events/common/ports/pipe.dart';
 import 'package:drill_events/common/utils/cache_keys.dart';
+import 'package:drill_events/common/utils/error_codes.dart';
 import 'package:drill_events/common/utils/functions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -67,6 +69,9 @@ final class DetailEventBloc extends Bloc<DetailEvents, DetailEventState> {
       }
 
       emit(state.done(item));
+    } on DioException catch (error, stackTrace) {
+      emit(state.error(error.appErrorMessage));
+      _logger.error(error.appErrorMessage, error: error, stackTrace: stackTrace);
     } catch (error, stackTrace) {
       emit(state.error(error));
       _logger.error(error, error: error, stackTrace: stackTrace);
@@ -79,6 +84,9 @@ final class DetailEventBloc extends Bloc<DetailEvents, DetailEventState> {
       final booking = ShortBookingModel(reason: event.booking.reason, approved: event.booking.approved);
       detailEvent = detailEvent.copyWith(booking: booking);
       emit(state.copyWith(value: detailEvent));
+    } on DioException catch (error, stackTrace) {
+      emit(state.error(error.appErrorMessage));
+      _logger.error(error.appErrorMessage, error: error, stackTrace: stackTrace);
     } catch (error, stackTrace) {
       _logger.error(error, error: error, stackTrace: stackTrace);
     }

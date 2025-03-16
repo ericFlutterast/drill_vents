@@ -3,6 +3,7 @@ import 'package:drill_events/app/blocs/common_bloc_state.dart';
 import 'package:drill_events/common/ports/backend_api.dart';
 import 'package:drill_events/common/ports/logger.dart';
 import 'package:drill_events/common/ports/pipe.dart';
+import 'package:drill_events/common/utils/error_codes.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 final class CreateUserEvent {
@@ -32,8 +33,8 @@ final class RegistrationBloc extends Bloc<CreateUserEvent, _State> {
       final userId = await _repository.createUser(email: event.email, password: event.password);
       emit(state.done(userId));
     } on DioException catch (error, stackTrace) {
-      emit(state.error(error.response?.data['message'] ?? 'Сетевая ошибка'));
-      _logger.error(error, error: error, stackTrace: stackTrace);
+      emit(state.error(error.appErrorMessage));
+      _logger.error(error.appErrorMessage, error: error, stackTrace: stackTrace);
     } catch (error, stackTrace) {
       emit(state.error(error));
       _logger.error(error, error: error, stackTrace: stackTrace);

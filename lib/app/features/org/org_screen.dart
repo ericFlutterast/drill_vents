@@ -131,6 +131,7 @@ class _OrgScreenState extends State<OrgScreen> {
                           isPending
                               ? _ContentSection.shimmer()
                               : _ContentSection(
+                                orgId: state.value.id,
                                 tab: _openedTab,
                                 switchTab: _switchTab,
                                 title: state.value.title,
@@ -181,7 +182,7 @@ class _OrgScreenState extends State<OrgScreen> {
                                   startTime: event.startTime,
                                   bookingModel: event.booking,
                                   title: event.title,
-                                  onTap: () => context.openEventScreen(event.id),
+                                  onTap: () => context.openEventScreen(eventID: event.id),
                                 );
                               },
                               separatorBuilder: (context, index) => const SizedBox(height: 20),
@@ -223,11 +224,18 @@ class _OrgScreenState extends State<OrgScreen> {
 }
 
 class _ContentSection extends StatelessWidget {
-  const _ContentSection({required this.tab, required this.title, required this.description, required this.switchTab});
+  const _ContentSection({
+    required this.tab,
+    required this.title,
+    required this.description,
+    required this.switchTab,
+    required this.orgId,
+  });
 
   final _Tab tab;
   final String title;
   final String description;
+  final String orgId;
   final Function(_Tab) switchTab;
 
   @override
@@ -242,14 +250,20 @@ class _ContentSection extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const AppCompanyLogo(dimension: 150),
-                const SizedBox(height: 24),
-                Text(title, style: context.themes.main.texts.h1),
-              ],
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const AppCompanyLogo(dimension: 150),
+                  const SizedBox(height: 24),
+                  Text(title, style: context.themes.main.texts.h1),
+                  if (context.read<AuthBloc>().state.value.isAdmin(orgId)) ...[
+                    const SizedBox(height: 28),
+                    AppButton.primary(title: 'Добавить событие', onTap: () => context.openCreateEventScreen(orgId)),
+                  ],
+                ],
+              ),
             ),
           ],
         ),
