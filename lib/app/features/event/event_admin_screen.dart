@@ -1,4 +1,4 @@
-import 'package:drill_events/app/blocs/event_detail_admin.dart';
+import 'package:drill_events/app/blocs/detail_event_admin.dart';
 import 'package:drill_events/app/features/event/event_screen_args.dart';
 import 'package:drill_events/app/features/event/widgets/date_time_info.dart';
 import 'package:drill_events/app/features/widgets/app_button.dart';
@@ -6,6 +6,7 @@ import 'package:drill_events/app/features/widgets/app_icon_button.dart';
 import 'package:drill_events/app/features/widgets/interpunct.dart';
 import 'package:drill_events/app/features/widgets/screen_header.dart';
 import 'package:drill_events/app/features/widgets/shimmer.dart';
+import 'package:drill_events/app/new_models/models.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:drill_events/common/utils/extensions.dart';
 import 'package:flutter/cupertino.dart';
@@ -62,8 +63,12 @@ class EventAdminScreen extends StatefulWidget {
   State<EventAdminScreen> createState() => _EventAdminScreenState();
 }
 
+enum _Tab { detailEvent, participants }
+
 class _EventAdminScreenState extends State<EventAdminScreen> {
   late final _controller = ScrollController();
+
+  _Tab _currentTab = _Tab.detailEvent;
 
   @override
   void didChangeDependencies() {
@@ -92,63 +97,92 @@ class _EventAdminScreenState extends State<EventAdminScreen> {
           if (state.isDone && state.hasValue) {
             return Stack(
               children: [
-                CustomScrollView(
-                  controller: _controller,
-                  slivers: [
-                    const SliverPadding(padding: EdgeInsets.only(top: 180)),
-                    SliverToBoxAdapter(
-                      child: _ContentSection(
-                        onTapOrgName: () => context.openOrgScreen(state.value.event.org.id),
-                        onTapSpotName: () => context.openSpotScreen(state.value.event.spot.id),
-                        eventName: state.value.event.title,
-                        description: state.value.event.description,
-                        orgName: state.value.event.org.title,
-                        spotName: state.value.event.spot.title,
-                        startTime: state.value.event.startTime,
-                        startDate: state.value.event.startDate,
-                        address: '${state.value.event.spotCity ?? ''}, ${state.value.event.spot.address}',
-                      ),
+                if (_currentTab == _Tab.participants)
+                  _TabBuilder(
+                    child: CustomScrollView(
+                      controller: _controller,
+                      slivers: [
+                        const SliverPadding(padding: EdgeInsets.only(top: 180)),
+                        _ParticipantsListTab(
+                          participants: state.value.participants,
+                          capacity: state.value.event.capacity,
+                        ),
+                      ],
                     ),
-                    const SliverPadding(padding: EdgeInsets.only(top: 24)),
-                    if (state.value.participants.isEmpty) ...[
-                      const SliverPadding(padding: EdgeInsets.only(top: 40)),
-                      SliverToBoxAdapter(child: Center(child: Text('Участников пока нет(', style: texts.body))),
-                    ] else ...[
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 28),
-                          child: RichText(
-                            text: TextSpan(
-                              text: 'Участники ',
-                              style: texts.body.copyWith(fontWeight: FontWeight.bold),
-                              children: [
-                                TextSpan(
-                                  text: '(${state.value.event.availableSeats}/${state.value.event.capacity})',
-                                  style: texts.bodySmall.copyWith(fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            ),
+                  ),
+                if (_currentTab == _Tab.detailEvent)
+                  _TabBuilder(
+                    child: CustomScrollView(
+                      controller: _controller,
+                      slivers: [
+                        const SliverPadding(padding: EdgeInsets.only(top: 180)),
+                        SliverToBoxAdapter(
+                          child: _ContentSection(
+                            eventName: state.value.event.title,
+                            description: state.value.event.description,
+                            orgName: state.value.event.org.title,
+                            spotName: state.value.event.spot.title,
+                            startTime: state.value.event.startTime,
+                            startDate: state.value.event.startDate,
+                            address: '${state.value.event.spotCity ?? ''}, ${state.value.event.spot.address}',
                           ),
                         ),
-                      ),
-                      const SliverPadding(padding: EdgeInsets.only(top: 18)),
-                      SliverList.separated(
-                        itemCount: state.value.participants.length,
-                        itemBuilder: (context, index) {
-                          final item = state.value.participants.elementAt(index);
+                        const SliverPadding(padding: EdgeInsets.only(top: 24)),
+                        if (true) //TODO: state.value.participants.isNotEmpty
+                          SliverToBoxAdapter(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 28),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  RichText(
+                                    text: TextSpan(
+                                      text: 'Участники ',
+                                      style: texts.body.copyWith(fontWeight: FontWeight.bold),
+                                      children: [
+                                        TextSpan(
+                                          text: '(${state.value.event.availableSeats}/${state.value.event.capacity})',
+                                          style: texts.body.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            color: colors.secondary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  AppButton.secondary(
+                                    title: 'Показать всех',
+                                    onTap: () => _changeTab(_Tab.participants),
+                                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
 
-                          return Padding(
+                        const SliverPadding(padding: EdgeInsets.only(top: 18)),
+                        SliverList.separated(
+                          itemCount: state.value.participants.length,
+                          itemBuilder: (context, index) {
+                            final item = state.value.participants.elementAt(index);
+
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: _UserListItem(title: item.name ?? '', mail: item.email),
+                            );
+                          },
+                          separatorBuilder: (_, __) => const SizedBox(height: 12),
+                        ),
+                        SliverToBoxAdapter(
+                          child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: _UserListItem(title: item.name ?? '', mail: item.email),
-                          );
-                        },
-                        separatorBuilder: (_, __) => const SizedBox(height: 12),
-                      ),
-                    ],
-
-                    const SliverPadding(padding: EdgeInsets.only(top: 90)),
-                  ],
-                ),
+                            child: AppButton.primary(onTap: () {}, title: 'Рассмотреть заявки'),
+                          ),
+                        ),
+                        const SliverPadding(padding: EdgeInsets.only(top: 30)),
+                      ],
+                    ),
+                  ),
 
                 PositionedScreenHeader(
                   controller: _controller,
@@ -173,6 +207,18 @@ class _EventAdminScreenState extends State<EventAdminScreen> {
         },
       ),
     );
+  }
+
+  void _backButtonHandler() {
+    if (_currentTab == _Tab.participants) {
+      _changeTab(_Tab.detailEvent);
+    } else {
+      context.pop();
+    }
+  }
+
+  void _changeTab(_Tab tab) {
+    setState(() => _currentTab = tab);
   }
 }
 
@@ -219,6 +265,39 @@ class _ContentSection extends StatelessWidget {
           Text(description, style: texts.body),
         ],
       ),
+    );
+  }
+}
+
+class _ParticipantsListTab extends StatelessWidget {
+  const _ParticipantsListTab({required this.participants, required this.capacity});
+
+  final Iterable<ShortUserModel> participants;
+  final int capacity;
+
+  @override
+  Widget build(BuildContext context) {
+    final texts = context.themes.main.texts;
+    final colors = context.themes.main.colors;
+
+    return SliverList(
+      delegate: SliverChildListDelegate([
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 28),
+          child: Row(
+            children: [
+              Text('Участники ', style: texts.h1),
+              Text('(${participants.length}/$capacity)', style: texts.h3.copyWith(color: colors.secondary)),
+            ],
+          ),
+        ),
+        const SizedBox(height: 28),
+        for (final item in participants) ...[
+          _UserListItem(title: item.name ?? '', mail: item.email),
+          const SizedBox(height: 12),
+        ],
+        const SizedBox(height: 28),
+      ]),
     );
   }
 }
@@ -285,6 +364,23 @@ class _UserListItem extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _TabBuilder extends StatelessWidget {
+  const _TabBuilder({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder(
+      key: UniqueKey(),
+      tween: Tween<double>(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 600),
+      builder: (_, value, __) => Opacity(opacity: value, child: child),
+      onEnd: () {},
     );
   }
 }

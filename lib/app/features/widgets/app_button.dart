@@ -15,7 +15,7 @@ enum AppButtonState {
 }
 
 class AppButton extends StatelessWidget {
-  const AppButton.primary({super.key, this.onTap, this.title})
+  const AppButton.primary({super.key, this.onTap, this.title, this.padding})
     : _state = AppButtonState.primary,
       titleStyle = null,
       loadingIconColor = null,
@@ -23,7 +23,7 @@ class AppButton extends StatelessWidget {
       highlightColor = null,
       backgroundColor = null;
 
-  const AppButton.secondary({super.key, this.onTap, this.title})
+  const AppButton.secondary({super.key, this.onTap, this.title, this.padding})
     : _state = AppButtonState.secondary,
       titleStyle = null,
       loadingIconColor = null,
@@ -31,7 +31,7 @@ class AppButton extends StatelessWidget {
       highlightColor = null,
       backgroundColor = null;
 
-  const AppButton.loading({super.key, this.title, this.loadingIconColor})
+  const AppButton.loading({super.key, this.title, this.loadingIconColor, this.padding})
     : _state = AppButtonState.loading,
       titleStyle = null,
       onTap = null,
@@ -41,6 +41,7 @@ class AppButton extends StatelessWidget {
 
   const AppButton.custom({
     super.key,
+    this.padding,
     this.title,
     this.onTap,
     this.titleStyle,
@@ -50,7 +51,7 @@ class AppButton extends StatelessWidget {
     this.highlightColor,
   }) : _state = AppButtonState.custom;
 
-  const AppButton.error({super.key, this.title})
+  const AppButton.error({super.key, this.title, this.padding})
     : _state = AppButtonState.error,
       onTap = null,
       titleStyle = null,
@@ -59,7 +60,7 @@ class AppButton extends StatelessWidget {
       highlightColor = null,
       backgroundColor = null;
 
-  const AppButton.warning({super.key, this.title, this.onTap})
+  const AppButton.warning({super.key, this.title, this.onTap, this.padding})
     : _state = AppButtonState.warning,
       backgroundColor = null,
       loadingIconColor = null,
@@ -75,6 +76,7 @@ class AppButton extends StatelessWidget {
   final AppButtonState _state;
   final Color? splashColor;
   final Color? highlightColor;
+  final EdgeInsets? padding;
 
   Color _setBackgroundColor(AppColors colors) {
     if (onTap == null) return colors.background;
@@ -116,7 +118,7 @@ class AppButton extends StatelessWidget {
             borderRadius: const BorderRadius.all(Radius.circular(50)),
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 18),
+            padding: padding ?? const EdgeInsets.symmetric(vertical: 12, horizontal: 18),
             child: Center(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
