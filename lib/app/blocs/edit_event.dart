@@ -1,7 +1,9 @@
+import 'package:dio/dio.dart';
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
 import 'package:drill_events/app/new_models/models.dart';
 import 'package:drill_events/common/ports/backend_api.dart';
 import 'package:drill_events/common/ports/logger.dart';
+import 'package:drill_events/common/utils/error_codes.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 final class EditEvent {
@@ -52,6 +54,9 @@ final class EditEventBloc extends Bloc<EditEvent, CommonBlocState> {
       await _api.updateEvent(event.eventId, eventData: newEvent);
 
       emit(state.done(null));
+    } on DioException catch (error, stackTrace) {
+      emit(state.error(error.appErrorMessage));
+      _logger.error(error.appErrorMessage, error: error, stackTrace: stackTrace);
     } catch (error, stackTrace) {
       emit(state.error(error));
       _logger.error(error, error: error, stackTrace: stackTrace);

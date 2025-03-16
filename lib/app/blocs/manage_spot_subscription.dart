@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
 import 'package:drill_events/common/ports/backend_api.dart';
 import 'package:drill_events/common/ports/logger.dart';
+import 'package:drill_events/common/utils/error_codes.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 ///Events
@@ -41,8 +42,8 @@ final class ManageSpotSubscriptionBloc extends Bloc<ManageSpotSubscriptionEvent,
       await _api.subscribeToSpot(event.spotId);
       emit(state.done(null));
     } on DioException catch (error, stackTrace) {
-      emit(state.error('Ошибка сети'));
-      _logger.error('Ошибка сети', error: error, stackTrace: stackTrace);
+      emit(state.error(error.appErrorMessage));
+      _logger.error(error.appErrorMessage, error: error, stackTrace: stackTrace);
     } catch (error, stackTrace) {
       emit(state.error(error));
       _logger.error(error, error: error, stackTrace: stackTrace);
@@ -55,8 +56,8 @@ final class ManageSpotSubscriptionBloc extends Bloc<ManageSpotSubscriptionEvent,
       await _api.unsubscribeFromSpot(event.spotId);
       emit(state.done(null));
     } on DioException catch (error, stackTrace) {
-      emit(state.error('Ошибка сети'));
-      _logger.error('Ошибка сети', error: error, stackTrace: stackTrace);
+      emit(state.error(error.appErrorMessage));
+      _logger.error(error.appErrorMessage, error: error, stackTrace: stackTrace);
     } catch (error, stackTrace) {
       emit(state.error(error));
       _logger.error(error, error: error, stackTrace: stackTrace);

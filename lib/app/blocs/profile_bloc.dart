@@ -5,6 +5,7 @@ import 'package:drill_events/common/adapters/events_pipe/pipe_events.dart';
 import 'package:drill_events/common/ports/backend_api.dart';
 import 'package:drill_events/common/ports/logger.dart';
 import 'package:drill_events/common/ports/pipe.dart';
+import 'package:drill_events/common/utils/error_codes.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -64,8 +65,8 @@ final class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       );
       _pipe.publish(UpdateUserDataPipeEvent());
     } on DioException catch (error, stackTrace) {
-      _logger.error('DioException', error: error, stackTrace: stackTrace);
-      emit(state.error(error));
+      _logger.error(error.appErrorMessage, error: error, stackTrace: stackTrace);
+      emit(state.error(error.appErrorMessage));
     } catch (error, stackTrace) {
       _logger.error(error, error: error, stackTrace: stackTrace);
       emit(state.error(error));
@@ -85,8 +86,8 @@ final class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         throw Exception('Не удалось получить данные');
       }
     } on DioException catch (error, stackTrace) {
-      _logger.error('DioException', error: error, stackTrace: stackTrace);
-      emit(state.error(error));
+      _logger.error(error.appErrorMessage, error: error, stackTrace: stackTrace);
+      emit(state.error(error.appErrorMessage));
     } catch (error, stackTrace) {
       _logger.error(error, error: error, stackTrace: stackTrace);
       emit(state.error(error));

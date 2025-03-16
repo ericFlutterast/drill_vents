@@ -1,8 +1,10 @@
 import 'package:bloc_concurrency/bloc_concurrency.dart' as bloc_concurrency;
+import 'package:dio/dio.dart';
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
 import 'package:drill_events/app/new_models/models.dart';
 import 'package:drill_events/common/ports/backend_api.dart';
 import 'package:drill_events/common/ports/logger.dart';
+import 'package:drill_events/common/utils/error_codes.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -54,6 +56,9 @@ final class EventsBloc extends Bloc<Events, EventsState> {
       final (events, pagination) = await _repository.getEvents(search: '', page: 1, size: 10);
       final newState = state.value.copyWith(events: events, pagination: pagination);
       emit(state.done(newState));
+    } on DioException catch (error, stackTrace) {
+      emit(state.error(error.appErrorMessage));
+      _logger.error(error.appErrorMessage, error: error, stackTrace: stackTrace);
     } catch (error, stackTrace) {
       emit(state.error(error));
       _logger.error(error, error: error, stackTrace: stackTrace);
@@ -65,6 +70,9 @@ final class EventsBloc extends Bloc<Events, EventsState> {
       final (events, pagination) = await _repository.getEvents(search: event.value, page: 1);
       final newState = state.value.copyWith(events: events, pagination: pagination);
       emit(state.done(newState));
+    } on DioException catch (error, stackTrace) {
+      emit(state.error(error.appErrorMessage));
+      _logger.error(error.appErrorMessage, error: error, stackTrace: stackTrace);
     } catch (error, stackTrace) {
       emit(state.error(error));
       _logger.error(error, error: error, stackTrace: stackTrace);
@@ -79,6 +87,9 @@ final class EventsBloc extends Bloc<Events, EventsState> {
       final newEvents = [...state.value.events, ...events];
       final newState = state.value.copyWith(events: newEvents, pagination: pagination);
       emit(state.done(newState));
+    } on DioException catch (error, stackTrace) {
+      emit(state.error(error.appErrorMessage));
+      _logger.error(error.appErrorMessage, error: error, stackTrace: stackTrace);
     } catch (error, stackTrace) {
       emit(state.error(error));
       _logger.error(error, error: error, stackTrace: stackTrace);
