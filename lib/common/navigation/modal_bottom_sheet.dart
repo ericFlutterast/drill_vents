@@ -25,6 +25,7 @@ class AppModalBottomSheetPage<T> extends Page<T> {
     this.sheetAnimationStyle,
     this.showDragHandle,
     this.transitionAnimationController,
+    this.onDidPop,
     super.name,
   });
 
@@ -47,10 +48,12 @@ class AppModalBottomSheetPage<T> extends Page<T> {
   final AnimationController? transitionAnimationController;
   final bool useSafeArea;
   final AnimationStyle? sheetAnimationStyle;
+  final VoidCallback? onDidPop;
 
   @override
   Route<T> createRoute(BuildContext context) {
     return ModalBottomSheetRouteWithBlur<T>(
+      onDidPop: onDidPop,
       settings: this,
       builder: (context) => AppBottomSheet(child: child),
       backgroundColor: backgroundColor ?? context.themes.main.colors.inverse,
@@ -100,10 +103,19 @@ final class ModalBottomSheetRouteWithBlur<T> extends ModalBottomSheetRoute<T> {
     super.transitionAnimationController,
     super.useSafeArea,
     super.sheetAnimationStyle,
+    this.onDidPop,
   });
+
+  final VoidCallback? onDidPop;
 
   @override
   Widget buildModalBarrier() {
     return BackdropFilter(filter: ui.ImageFilter.blur(sigmaY: 2.5, sigmaX: 2.5), child: super.buildModalBarrier());
+  }
+
+  @override
+  bool didPop(T? result) {
+    onDidPop?.call();
+    return super.didPop(result);
   }
 }

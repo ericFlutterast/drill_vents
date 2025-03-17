@@ -7,6 +7,7 @@ import 'package:drill_events/app/features/widgets/app_button.dart';
 import 'package:drill_events/app/features/widgets/app_icon_button.dart';
 import 'package:drill_events/app/features/widgets/circle_avatar_decoration.dart';
 import 'package:drill_events/app/features/widgets/event_status_label.dart';
+import 'package:drill_events/app/features/widgets/interpunct.dart';
 import 'package:drill_events/app/features/widgets/screen_header.dart';
 import 'package:drill_events/app/features/widgets/shimmer.dart';
 import 'package:drill_events/app/generated/assets.gen.dart';
@@ -16,6 +17,7 @@ import 'package:drill_events/common/utils/extensions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen._();
@@ -90,11 +92,15 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                         SliverList.separated(
                           itemCount: state.value.organization.length,
                           itemBuilder: (context, index) {
-                            final item = state.value.events.elementAt(index);
+                            final item = state.value.organization.elementAt(index);
 
                             return Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 20),
-                              child: _OrgListItem(title: item.title, onTap: () => context.openOrgScreen(item.id)),
+                              child: _OrgListItem(
+                                title: item.title,
+                                onTap: () => context.openOrgScreen(item.id),
+                                eventItem: item.eventsCount,
+                              ),
                             );
                           },
                           separatorBuilder: (_, __) => const SizedBox(height: 28),
@@ -119,8 +125,11 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                               padding: const EdgeInsets.symmetric(horizontal: 20),
                               child: _EventListItem(
                                 title: item.title,
-                                booking: item.booking ?? (throw 'Никогда не null'),
-                                onTap: () => context.openEventScreen(eventID: item.id),
+                                bookingModel: item.booking ?? (throw 'Никогда не null'),
+                                onTap: () => context.openEventScreen(eventID: item.id, orgId: item.org.id),
+                                startDate: item.startDate,
+                                startTime: item.startTime,
+                                availableSeats: item.availableSeats,
                               ),
                             );
                           },
@@ -172,7 +181,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         const SizedBox(height: 45),
         Shimmer(height: 16, width: MediaQuery.sizeOf(context).width * 0.35),
         const SizedBox(height: 16),
-        for (int i = 0; i < 5; i++) ...[_EventListItem.shimmer(), const SizedBox(height: 28)],
+        for (int i = 0; i < 5; i++) ...[_EventListItem.shimmer(context), const SizedBox(height: 28)],
       ],
     ),
   );
@@ -187,7 +196,6 @@ class _ProfileHeader extends StatelessWidget {
       child: CircleAvatarDecoration(
         diameter: 100,
         strokeWidth: 7,
-        onTap: () {},
         child: Container(
           height: 80,
           width: 80,
@@ -321,9 +329,10 @@ class _LogoutDialog extends StatelessWidget {
 }
 
 class _OrgListItem extends StatelessWidget {
-  const _OrgListItem({required this.title, this.onTap});
+  const _OrgListItem({required this.title, this.onTap, required this.eventItem});
 
   final String title;
+  final int eventItem;
   final VoidCallback? onTap;
 
   @override
@@ -350,7 +359,7 @@ class _OrgListItem extends StatelessWidget {
               children: [
                 Text(title, style: context.themes.main.texts.body.copyWith(fontWeight: FontWeight.w600, height: 1.3)),
                 const SizedBox(height: 8),
-                Text('60 событий', style: context.themes.main.texts.bodySmall),
+                Text('$eventItem событий', style: context.themes.main.texts.bodySmall),
               ],
             ),
           ),
@@ -360,29 +369,41 @@ class _OrgListItem extends StatelessWidget {
   }
 }
 
-//TODO
-const _items = ['Завтра', 'Surf x Post', 'English club'];
-
 class _EventListItem extends StatelessWidget {
-  const _EventListItem({required this.title, required this.booking, this.imgUrl, this.onTap});
+  const _EventListItem({
+    required this.startDate,
+    required this.startTime,
+    required this.title,
+    required this.availableSeats,
+    this.imgUrl,
+    this.onTap,
+    this.bookingModel,
+  });
 
   final String title;
   final String? imgUrl;
   final VoidCallback? onTap;
-  final ShortBookingModel booking;
+  final ShortBookingModel? bookingModel;
+  final DateTime startTime;
+  final DateTime startDate;
+  final int availableSeats;
 
   EventStatus get _eventStatus {
-    if (booking.approved == null) {
-      return EventStatus.processing;
-    }
-    return booking.approved == true ? EventStatus.success : EventStatus.decline;
+    if (bookingModel?.approved == null) return EventStatus.processing;
+    return bookingModel?.approved == true ? EventStatus.success : EventStatus.decline;
   }
+
+  String get _time => DateFormat('HH:mm').format(startTime);
+
+  String get _date => DateFormat('dd MMMM').format(startDate);
 
   @override
   Widget build(BuildContext context) {
+    final texts = context.themes.main.texts;
+    final colors = context.themes.main.colors;
+
     return InkWell(
       onTap: onTap,
-      borderRadius: const BorderRadius.all(Radius.circular(16)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -400,30 +421,22 @@ class _EventListItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                EventStatusLabel(status: _eventStatus),
-                const SizedBox(height: 4),
+                if (bookingModel != null) ...[EventStatusLabel(status: _eventStatus), const SizedBox(height: 4)],
                 Text(title, style: context.themes.main.texts.body.copyWith(fontWeight: FontWeight.w600, height: 1.3)),
                 const SizedBox(height: 8),
-                Wrap(
-                  runSpacing: 8,
-                  crossAxisAlignment: WrapCrossAlignment.center,
+                Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    for (final (i, item) in _items.indexed) ...[
-                      Text(item, style: context.themes.main.texts.bodySmall),
-                      if (i != _items.length - 1)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 7.5),
-                          child: SizedBox.square(
-                            dimension: 5,
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                color: context.themes.main.colors.secondary,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
+                    if (startDate.difference(DateTime.now()) < const Duration(days: 1))
+                      Text('Завтра', style: texts.bodySmall)
+                    else
+                      Text(_date, style: texts.bodySmall),
+                    const SizedBox(width: 8),
+                    const Interpunct(),
+                    const SizedBox(width: 8),
+                    Text(_time, style: texts.bodySmall),
+                    const Spacer(),
+                    if (availableSeats <= 0) Text('Мест нет', style: texts.bodySmall.copyWith(color: colors.secondary)),
                   ],
                 ),
               ],
@@ -434,11 +447,21 @@ class _EventListItem extends StatelessWidget {
     );
   }
 
-  static Widget shimmer() => const Row(
+  static Widget shimmer(BuildContext context) => Row(
     children: [
-      Shimmer(height: 52, width: 52, borderRadius: 100),
-      SizedBox(width: 12),
-      Expanded(child: Column(children: [Shimmer(height: 23), SizedBox(height: 4), Shimmer(height: 23)])),
+      const Shimmer(height: 52, width: 52, borderRadius: 100),
+      const SizedBox(width: 12),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Shimmer(height: 23, borderRadius: 6),
+            const SizedBox(height: 4),
+            Shimmer(height: 23, width: MediaQuery.sizeOf(context).width * 0.3, borderRadius: 6),
+          ],
+        ),
+      ),
+      const SizedBox(width: 40),
     ],
   );
 }

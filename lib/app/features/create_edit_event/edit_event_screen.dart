@@ -75,7 +75,7 @@ class _EditEventScreenState extends State<EditEventScreen> {
     super.dispose();
   }
 
-  void _createEvent() {
+  void _editEvent() {
     if (eventValidation.isValidate) {
       if (eventValidation.validators case <String, Validator>{
         'title': final title,
@@ -93,7 +93,7 @@ class _EditEventScreenState extends State<EditEventScreen> {
             description: description.value,
             endTime: dateTime.value?.endTime,
             startTime: dateTime.value?.startTime ?? DateTime.now(),
-            startDate: dateTime.value?.endTime ?? DateTime.now(),
+            startDate: dateTime.value?.startDate ?? DateTime.now(),
             spotId: spotId.value,
           ),
         );
@@ -161,7 +161,7 @@ class _EditEventScreenState extends State<EditEventScreen> {
                           return const AppButton.loading(title: 'Опубликовать');
                         }
 
-                        return AppButton.primary(title: 'Опубликовать', onTap: _createEvent);
+                        return AppButton.primary(title: 'Опубликовать', onTap: _editEvent);
                       },
                     ),
                   ],
@@ -251,7 +251,10 @@ class _MainInformationState extends State<_MainInformation> {
               controller: _nameTextController,
               hintText: 'Имя',
               maxLines: 1,
-              onEditingComplete: () => _nameFocus.nextFocus(),
+              onEditingComplete: () {
+                _nameFocus.nextFocus();
+                widget.titleValidator.value = _nameTextController.text;
+              },
               onTapUpOutside: (_) => widget.titleValidator.value = _nameTextController.text,
             );
           },

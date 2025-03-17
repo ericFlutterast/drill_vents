@@ -27,7 +27,7 @@ class _DateTimePickerState extends State<DateTimePicker> {
   }
 
   void _onDateSelect(DateTime date) {
-    final String selectDate = DateFormat('yyyy-MM-dd').format(date);
+    final String selectDate = DateFormat('dd-MM-yyyy').format(date);
     setState(() => _selectDate = selectDate);
     widget.validator.value?.startDate = date;
   }

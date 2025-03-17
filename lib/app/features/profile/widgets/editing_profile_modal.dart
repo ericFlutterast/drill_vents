@@ -8,7 +8,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
-//TODO: Сделать валидацию
 class EditingProfileModal extends StatefulWidget {
   const EditingProfileModal._({super.key});
 
@@ -37,9 +36,6 @@ class _EditingProfileModalState extends State<EditingProfileModal> {
   late final _phoneControl = FormControl<String>(validators: [_PhoneNumberValidator()]);
   late final _whatsappControl = FormControl<String>(validators: [_PhoneNumberValidator()]);
 
-  late final _phoneFocusNode = FocusNode();
-  late final _whatsappFocusNode = FocusNode();
-
   @override
   void initState() {
     super.initState();
@@ -50,17 +46,6 @@ class _EditingProfileModalState extends State<EditingProfileModal> {
     _telegramController.text = user.info.telegram ?? '';
     _whatsappControl.value = user.info.whatsapp ?? '';
     _vkController.text = user.info.vk ?? '';
-
-    _phoneFocusNode.addListener(() {
-      if (!_phoneFocusNode.hasFocus) {
-        context.read<ProfileBloc>().add(UpdateProfileInfoEvent(phone: _phoneControl.value));
-      }
-    });
-    _whatsappFocusNode.addListener(() {
-      if (!_whatsappFocusNode.hasFocus) {
-        context.read<ProfileBloc>().add(UpdateProfileInfoEvent(whatsapp: _whatsappControl.value));
-      }
-    });
   }
 
   @override
@@ -71,12 +56,10 @@ class _EditingProfileModalState extends State<EditingProfileModal> {
     _telegramController.dispose();
     _whatsappControl.dispose();
     _vkController.dispose();
-    _phoneFocusNode.dispose();
-    _whatsappFocusNode.dispose();
     super.dispose();
   }
 
-  void _onEditingComplete(VoidCallback? cb) {
+  void _onEditingComplete([VoidCallback? cb]) {
     cb?.call();
     FocusScope.of(context).unfocus();
   }
@@ -85,98 +68,100 @@ class _EditingProfileModalState extends State<EditingProfileModal> {
   Widget build(BuildContext context) {
     final texts = context.themes.main.texts;
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(padding: const EdgeInsets.only(left: 8), child: Text('Контактные данные', style: texts.h3)),
-          const SizedBox(height: 32),
-          AppTextField(
-            controller: _nameController,
-            hintText: 'Имя',
-            keyboardType: TextInputType.name,
-            maxLines: 1,
-            onEditingComplete:
-                () => _onEditingComplete(() {
-                  context.read<ProfileBloc>().add(UpdateProfileInfoEvent(name: _nameController.text));
-                }),
+    return PopScope(
+      onPopInvokedWithResult: (invoke, result) {
+        context.read<ProfileBloc>().add(
+          UpdateProfileInfoEvent(
+            name: _nameController.text,
+            whatsapp: _whatsappControl.value,
+            telegram: _telegramController.text,
+            phone: _phoneControl.value,
+            vk: _vkController.text,
+            email: _emailControl.value,
           ),
-          const SizedBox(height: 8),
-          AppTextField(
-            useReactiveForm: true,
-            formControl: _emailControl,
-            hintText: 'Эл. почта',
-            keyboardType: TextInputType.emailAddress,
-            maxLines: 1,
-            onEditingComplete:
-                () => _onEditingComplete(() {
-                  if (_emailControl.valid) {
-                    context.read<ProfileBloc>().add(UpdateProfileInfoEvent(email: _emailControl.value));
-                  } else {
-                    _emailControl.markAsDirty();
-                    _emailControl.markAsTouched();
-                  }
-                }),
-          ),
-          const SizedBox(height: 8),
-          AppTextField(
-            useReactiveForm: true,
-            formControl: _phoneControl,
-            focusNode: _phoneFocusNode,
-            hintText: '+7777777777 (номер)',
-            keyboardType: TextInputType.phone,
-            maxLines: 1,
-            inputFormatters: [_PhoneNumberFormatter()],
-          ),
-          const SizedBox(height: 8),
-          AppTextField(
-            controller: _telegramController,
-            hintText: '@telegram',
-            keyboardType: TextInputType.emailAddress,
-            prefixIcon: Padding(
-              padding: const EdgeInsets.only(left: 16),
-              child: SizedBox.square(dimension: 25, child: Assets.icons.telegram.svg()),
+        );
+      },
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(padding: const EdgeInsets.only(left: 8), child: Text('Контактные данные', style: texts.h3)),
+            const SizedBox(height: 32),
+            AppTextField(
+              controller: _nameController,
+              hintText: 'Имя',
+              keyboardType: TextInputType.name,
+              maxLines: 1,
+              onEditingComplete: () => _onEditingComplete(),
             ),
-            prefixIconConstraints: const BoxConstraints(maxWidth: 40, maxHeight: 25),
-            maxLines: 1,
-            onEditingComplete:
-                () => _onEditingComplete(() {
-                  context.read<ProfileBloc>().add(UpdateProfileInfoEvent(telegram: _telegramController.text));
-                }),
-          ),
-          const SizedBox(height: 8),
-          AppTextField(
-            useReactiveForm: true,
-            formControl: _whatsappControl,
-            focusNode: _whatsappFocusNode,
-            hintText: '+7777777777 (WhatsApp)',
-            keyboardType: TextInputType.phone,
-            prefixIcon: Padding(
-              padding: const EdgeInsets.only(left: 16),
-              child: SizedBox.square(dimension: 25, child: Assets.icons.telegram.svg()),
+            const SizedBox(height: 8),
+            AppTextField(
+              useReactiveForm: true,
+              formControl: _emailControl,
+              hintText: 'Эл. почта',
+              keyboardType: TextInputType.emailAddress,
+              maxLines: 1,
+              onEditingComplete:
+                  () => _onEditingComplete(() {
+                    if (!_emailControl.valid) {
+                      _emailControl.markAsDirty();
+                      _emailControl.markAsTouched();
+                    }
+                  }),
             ),
-            prefixIconConstraints: const BoxConstraints(maxWidth: 40, maxHeight: 25),
-            maxLines: 1,
-            inputFormatters: [_PhoneNumberFormatter()],
-          ),
-          const SizedBox(height: 8),
-          AppTextField(
-            controller: _vkController,
-            hintText: 'link (vk)',
-            prefixIcon: Padding(
-              padding: const EdgeInsets.only(left: 16),
-              child: SizedBox.square(dimension: 25, child: Assets.icons.telegram.svg()),
+            const SizedBox(height: 8),
+            AppTextField(
+              useReactiveForm: true,
+              formControl: _phoneControl,
+              hintText: '+7777777777 (номер)',
+              keyboardType: TextInputType.phone,
+              maxLines: 1,
+              inputFormatters: [_PhoneNumberFormatter()],
             ),
-            prefixIconConstraints: const BoxConstraints(maxWidth: 40, maxHeight: 25),
-            maxLines: 1,
-            onEditingComplete:
-                () => _onEditingComplete(() {
-                  context.read<ProfileBloc>().add(UpdateProfileInfoEvent(vk: _vkController.text));
-                }),
-          ),
-        ],
+            const SizedBox(height: 8),
+            AppTextField(
+              controller: _telegramController,
+              hintText: '@telegram',
+              keyboardType: TextInputType.emailAddress,
+              prefixIcon: Padding(
+                padding: const EdgeInsets.only(left: 16),
+                child: SizedBox.square(dimension: 25, child: Assets.icons.telegram.svg()),
+              ),
+              prefixIconConstraints: const BoxConstraints(maxWidth: 40, maxHeight: 25),
+              maxLines: 1,
+              onTapOutside: (_) => _onEditingComplete(),
+              onEditingComplete: () => _onEditingComplete(),
+            ),
+            const SizedBox(height: 8),
+            AppTextField(
+              useReactiveForm: true,
+              formControl: _whatsappControl,
+              hintText: '+7777777777 (WhatsApp)',
+              keyboardType: TextInputType.phone,
+              prefixIcon: Padding(
+                padding: const EdgeInsets.only(left: 16),
+                child: SizedBox.square(dimension: 25, child: Assets.icons.telegram.svg()),
+              ),
+              prefixIconConstraints: const BoxConstraints(maxWidth: 40, maxHeight: 25),
+              maxLines: 1,
+              inputFormatters: [_PhoneNumberFormatter()],
+            ),
+            const SizedBox(height: 8),
+            AppTextField(
+              controller: _vkController,
+              hintText: 'link (vk)',
+              prefixIcon: Padding(
+                padding: const EdgeInsets.only(left: 16),
+                child: SizedBox.square(dimension: 25, child: Assets.icons.telegram.svg()),
+              ),
+              prefixIconConstraints: const BoxConstraints(maxWidth: 40, maxHeight: 25),
+              maxLines: 1,
+              onEditingComplete: () => _onEditingComplete(),
+            ),
+          ],
+        ),
       ),
     );
   }

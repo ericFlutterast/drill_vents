@@ -49,6 +49,7 @@ final class CreateNewEventBloc extends Bloc<CreateNewEvent, CreateNewEventState>
         startTime: event.startTime,
         endTime: event.endTime,
         spotId: event.spotId,
+        capacity: event.capacity,
       );
       final result = await _repository.createEvent(newEvent);
       emit(state.done(result));

@@ -49,6 +49,7 @@ final class EditEventBloc extends Bloc<EditEvent, CommonBlocState> {
         startTime: event.startTime,
         endTime: event.endTime,
         spotId: event.spotId,
+        capacity: event.capacity,
       );
 
       await _api.updateEvent(event.eventId, eventData: newEvent);

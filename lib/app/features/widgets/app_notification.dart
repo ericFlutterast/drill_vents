@@ -1,3 +1,4 @@
+import 'package:drill_events/app/features/widgets/notification_manager.dart';
 import 'package:drill_events/app/themes/app_themes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -5,17 +6,11 @@ import 'package:flutter/material.dart';
 enum NotificationStatus { error, success, processing }
 
 class AppNotification extends StatefulWidget {
-  const AppNotification({
-    super.key,
-    this.duration = const Duration(seconds: 8),
-    this.status = NotificationStatus.success,
-    this.title,
-    this.message,
-  });
+  const AppNotification({super.key, this.duration, this.status = NotificationStatus.success, this.title, this.message});
 
   final String? title;
   final String? message;
-  final Duration duration;
+  final Duration? duration;
   final NotificationStatus status;
 
   @override
@@ -28,7 +23,8 @@ class _AppNotificationState extends State<AppNotification> with SingleTickerProv
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(vsync: this, duration: widget.duration)..forward();
+    final duration = NotificationManager.of(context).defaultNotificationDuration;
+    _animationController = AnimationController(vsync: this, duration: duration)..forward();
   }
 
   @override
