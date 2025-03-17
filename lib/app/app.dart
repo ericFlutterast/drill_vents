@@ -51,8 +51,8 @@ class App extends StatelessWidget {
           },
           Routes.event: (context) {
             final orgId = context.getArgs<EventScreenArgs>().orgId ?? '';
-            final isAdmin = context.read<AuthBloc>().state.value.isAdmin(orgId);
-            if (isAdmin) return EventAdminScreen.bloc(context);
+            final isAdmin = context.read<AuthBloc>().state.getValueOrNull?.isAdmin(orgId);
+            if (isAdmin == true) return EventAdminScreen.bloc(context);
             return EventScreen.bloc(context);
           },
           Routes.spot: (context) => SpotScreen.bloc(context),

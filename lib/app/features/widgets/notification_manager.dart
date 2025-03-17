@@ -27,26 +27,26 @@ class NotificationManager extends StatefulWidget {
 }
 
 class NotificationManagerState extends State<NotificationManager> with SingleTickerProviderStateMixin {
-  final _duration = const Duration(seconds: 2);
-  final _reverseDuration = const Duration(seconds: 2);
-
   bool _isShow = false;
   Timer? _timer;
   Widget? _notification;
 
-  late final AnimationController _animationController;
+  Duration get defaultNotificationDuration => const Duration(seconds: 5);
 
-  //TODO:
-  bool useColor = false;
+  late final AnimationController _animationController;
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(vsync: this, duration: _duration, reverseDuration: _reverseDuration);
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+      reverseDuration: const Duration(milliseconds: 300),
+    );
   }
 
-  void showNotification({Widget? notification, Duration duration = const Duration(seconds: 4)}) {
-    final timerDuration = duration + _duration * 2;
+  void showNotification({Widget? notification, Duration? duration}) {
+    final timerDuration = duration ?? defaultNotificationDuration;
     setState(() {
       _notification = notification;
       _isShow = true;
@@ -88,7 +88,7 @@ class NotificationManagerState extends State<NotificationManager> with SingleTic
               right: 0,
               height: 63,
               child: SlideTransition(
-                position: Tween<Offset>(begin: const Offset(0, -50), end: Offset.zero).animate(_animationController),
+                position: Tween<Offset>(begin: const Offset(0, -5), end: Offset.zero).animate(_animationController),
                 child: Dismissible(
                   key: UniqueKey(),
                   direction: DismissDirection.vertical,
@@ -100,26 +100,6 @@ class NotificationManagerState extends State<NotificationManager> with SingleTic
                 ),
               ),
             ),
-          //TODO: убрать когда будет готова авторизация
-          // Positioned(
-          //   right: 10,
-          //   bottom: 50,
-          //   child: ElevatedButton(
-          //     style: ButtonStyle(backgroundColor: useColor ? WidgetStateProperty.all(Colors.green) : null),
-          //     onPressed: () async {
-          //       final shared = await SharedPreferences.getInstance();
-          //       if (shared.getString('uid') != null) {
-          //         shared.remove('uid');
-          //         setState(() => useColor = false);
-          //       } else {
-          //         shared.setString('uid', '972d4ea4-93f2-48ec-b121-9306d56e4aca');
-          //         setState(() => useColor = true);
-          //         context.read<AuthBloc>().add(GetJwtTokenEvent());
-          //       }
-          //     },
-          //     child: const Text('Use user'),
-          //   ),
-          // ),
         ],
       ),
     );
