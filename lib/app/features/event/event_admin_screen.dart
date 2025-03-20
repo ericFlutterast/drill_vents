@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:drill_events/app/blocs/detail_event_admin.dart';
 import 'package:drill_events/app/features/event/event_screen_args.dart';
 import 'package:drill_events/app/features/event/widgets/date_time_info.dart';
@@ -63,7 +65,7 @@ class EventAdminScreen extends StatefulWidget {
   State<EventAdminScreen> createState() => _EventAdminScreenState();
 }
 
-enum _Tab { detailEvent, participants }
+enum _Tab { detailEvent, participants, checkRequests }
 
 class _EventAdminScreenState extends State<EventAdminScreen> {
   late final _controller = ScrollController();
@@ -97,6 +99,7 @@ class _EventAdminScreenState extends State<EventAdminScreen> {
           if (state.isDone && state.hasValue) {
             return Stack(
               children: [
+                if (_currentTab == _Tab.checkRequests) _RequestsTab(controller: _controller),
                 if (_currentTab == _Tab.participants)
                   _TabBuilder(
                     child: CustomScrollView(
@@ -154,7 +157,7 @@ class _EventAdminScreenState extends State<EventAdminScreen> {
                                   ),
                                   AppButton.secondary(
                                     title: 'Показать всех',
-                                    onTap: () => _changeTab(_Tab.participants),
+                                    onTap: () => _switchTab(_Tab.participants),
                                     padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                                   ),
                                 ],
@@ -178,7 +181,10 @@ class _EventAdminScreenState extends State<EventAdminScreen> {
                         SliverToBoxAdapter(
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: AppButton.primary(onTap: () {}, title: 'Рассмотреть заявки'),
+                            child: AppButton.primary(
+                              onTap: () => _switchTab(_Tab.checkRequests),
+                              title: 'Рассмотреть заявки',
+                            ),
                           ),
                         ),
                         const SliverPadding(padding: EdgeInsets.only(top: 30)),
@@ -213,14 +219,14 @@ class _EventAdminScreenState extends State<EventAdminScreen> {
   }
 
   void _backButtonHandler() {
-    if (_currentTab == _Tab.participants) {
-      _changeTab(_Tab.detailEvent);
+    if (_currentTab == _Tab.participants || _currentTab == _Tab.checkRequests) {
+      _switchTab(_Tab.detailEvent);
     } else {
       context.pop();
     }
   }
 
-  void _changeTab(_Tab tab) {
+  void _switchTab(_Tab tab) {
     setState(() => _currentTab = tab);
   }
 }
@@ -267,6 +273,252 @@ class _ContentSection extends StatelessWidget {
           const SizedBox(height: 32),
           Text(description, style: texts.body),
         ],
+      ),
+    );
+  }
+}
+
+class _RequestsTab extends StatefulWidget {
+  const _RequestsTab({required this.controller});
+
+  final ScrollController controller;
+
+  @override
+  State<_RequestsTab> createState() => _RequestsTabState();
+}
+
+class _RequestsTabState extends State<_RequestsTab> {
+  final List<Key> _requestKeys = [];
+
+  @override
+  void initState() {
+    super.initState();
+    for (int i = 0; i < 5; i++) {
+      _requestKeys.add(UniqueKey());
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final texts = context.themes.main.texts;
+    final colors = context.themes.main.colors;
+
+    return _TabBuilder(
+      child: CustomScrollView(
+        controller: widget.controller,
+        slivers: [
+          const SliverPadding(padding: EdgeInsets.only(top: 140)),
+          SliverAppBar(
+            backgroundColor: colors.inverse,
+            surfaceTintColor: colors.inverse,
+            pinned: true,
+            leading: const SizedBox.shrink(),
+            automaticallyImplyLeading: false,
+            flexibleSpace: FlexibleSpaceBar(
+              titlePadding: const EdgeInsets.fromLTRB(28, 30, 28, 16),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Заявки', style: texts.h1),
+                  Text('Осталось: ${_requestKeys.length}', style: texts.h3.copyWith(color: colors.secondary)),
+                ],
+              ),
+            ),
+          ),
+          SliverList(
+            delegate: SliverChildListDelegate([
+              const SizedBox(height: 24),
+              for (int i = 0; i < _requestKeys.length; i++) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: _RequestItem(
+                    key: _requestKeys[i],
+                    onTransitionAnimation: i == 0,
+                    onDelete: () => setState(() => _requestKeys.removeAt(0)),
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
+            ]),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RequestItem extends StatefulWidget {
+  const _RequestItem({super.key, required this.onDelete, this.onTransitionAnimation = false});
+
+  final VoidCallback onDelete;
+  final bool onTransitionAnimation;
+
+  @override
+  State<_RequestItem> createState() => _RequestItemState();
+}
+
+class _RequestItemState extends State<_RequestItem> {
+  double primaryDelta = 0.0;
+  Offset _position = Offset.zero;
+  double _angel = 0.0;
+  double _lerpDeclineButton = 0.0;
+  double _lerpAproveButton = 0.0;
+
+  void _onPanUpdate(DragUpdateDetails detail) {
+    setState(() {
+      _position += detail.delta;
+    });
+    _checkCursorPointerOffset(detail.delta.dx);
+    _checkWhenDeleteItemRight(detail.globalPosition.dx, detail.globalPosition.dy);
+    _checkWhenDeleteItemLeft(detail.globalPosition.dx, detail.globalPosition.dy);
+  }
+
+  void _checkCursorPointerOffset(double deltaX) {
+    if (deltaX > 0) {
+      if (_lerpAproveButton < 1) {
+        _lerpDeclineButton = 0.0;
+        setState(() => _lerpAproveButton += deltaX / 100);
+      }
+    } else {
+      if (_lerpDeclineButton < 1) {
+        _lerpAproveButton = 0.0;
+        setState(() => _lerpDeclineButton -= deltaX / 100);
+      }
+    }
+  }
+
+  void _checkWhenDeleteItemRight(double dx, dy) {
+    if (dx > 350) {
+      setState(() {
+        _position = Offset(0, dy * 2);
+        _angel = 20;
+      });
+      widget.onDelete.call();
+    }
+  }
+
+  void _checkWhenDeleteItemLeft(double dx, dy) {
+    if (dx < 20) {
+      setState(() {
+        _position = Offset(0, dy * 2);
+        _angel = -20;
+      });
+      widget.onDelete.call();
+    }
+  }
+
+  void _onPanEnd(DragEndDetails _) => setState(() {
+    _position = Offset.zero;
+    _lerpDeclineButton = 0.0;
+    _lerpAproveButton = 0.0;
+  });
+
+  void _onTapUp(TapUpDetails _) => setState(() {
+    _position = Offset.zero;
+    _lerpDeclineButton = 0.0;
+    _lerpAproveButton = 0.0;
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.themes.main.colors;
+    final texts = context.themes.main.texts;
+
+    final contentItem = DecoratedBox(
+      decoration: BoxDecoration(color: colors.primary, borderRadius: BorderRadius.circular(18)),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          children: [
+            const _UserInfoRequestItem(name: 'Anatoky', email: 'email@email.com'),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: AppButton.custom(
+                    title: 'Отклонить',
+                    onTap: () {
+                      //TODO:
+                    },
+                    backgroundColor: Color.lerp(colors.error200, colors.error600, _lerpDeclineButton),
+                    titleStyle: texts.body.copyWith(
+                      color: Color.lerp(colors.error600, colors.error900, _lerpDeclineButton),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: AppButton.custom(
+                    title: 'Принять',
+                    onTap: () {
+                      //TODO:
+                    },
+                    backgroundColor: Color.lerp(colors.success200, colors.success600, _lerpAproveButton),
+                    titleStyle: texts.body.copyWith(
+                      color: Color.lerp(colors.success600, colors.success900, _lerpAproveButton),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (!widget.onTransitionAnimation) return contentItem;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final center = constraints.smallest.center(Offset.zero);
+        _angel = 45 * _position.dx / constraints.maxWidth * pi / 180;
+        return GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onPanUpdate: _onPanUpdate,
+          onPanEnd: _onPanEnd,
+          onTapUp: _onTapUp,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 100),
+            transform:
+                Matrix4.identity()
+                  ..translate(center.dx, center.dy)
+                  ..rotateZ(_angel)
+                  ..translate(-center.dx, -center.dy)
+                  ..translate(_position.dx, _position.dy),
+            child: contentItem,
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _UserInfoRequestItem extends StatelessWidget {
+  const _UserInfoRequestItem({required this.name, required this.email});
+
+  final String name, email;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.themes.main.colors;
+    final texts = context.themes.main.texts;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(11), color: colors.inverse),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        child: Row(
+          children: [
+            SizedBox.square(
+              child: DecoratedBox(
+                decoration: BoxDecoration(color: colors.secondary, borderRadius: BorderRadius.circular(100)),
+                child: const SizedBox.square(dimension: 52),
+              ),
+            ),
+            const SizedBox(width: 18),
+            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(name, style: texts.h3), Text(email)]),
+          ],
+        ),
       ),
     );
   }

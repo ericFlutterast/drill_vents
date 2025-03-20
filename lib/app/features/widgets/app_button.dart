@@ -51,9 +51,8 @@ class AppButton extends StatelessWidget {
     this.highlightColor,
   }) : _state = AppButtonState.custom;
 
-  const AppButton.error({super.key, this.title, this.padding})
+  const AppButton.error({super.key, this.title, this.padding, this.onTap})
     : _state = AppButtonState.error,
-      onTap = null,
       titleStyle = null,
       loadingIconColor = null,
       splashColor = null,
@@ -79,7 +78,7 @@ class AppButton extends StatelessWidget {
   final EdgeInsets? padding;
 
   Color _setBackgroundColor(AppColors colors) {
-    if (onTap == null) return colors.background;
+    if (onTap == null && _state != AppButtonState.error) return colors.background;
 
     return switch (_state) {
       AppButtonState.primary => colors.primary,
@@ -90,9 +89,10 @@ class AppButton extends StatelessWidget {
   }
 
   Color _setTitleColor(AppColors colors) {
-    if (onTap == null) return colors.secondary;
+    if (onTap == null && _state != AppButtonState.error) return colors.secondary;
 
     return switch (_state) {
+      AppButtonState.error => colors.error600,
       AppButtonState.primary => colors.inverse,
       AppButtonState.secondary => colors.primary,
       AppButtonState.warning => colors.warning600,
@@ -119,23 +119,21 @@ class AppButton extends StatelessWidget {
           ),
           child: Padding(
             padding: padding ?? const EdgeInsets.symmetric(vertical: 12, horizontal: 18),
-            child: Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (_state.isLoading) ...[
-                    SizedBox.square(
-                      dimension: 17,
-                      child: CircularProgressIndicator(
-                        color: loadingIconColor ?? context.themes.main.colors.warning600,
-                        strokeWidth: 2,
-                      ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (_state.isLoading) ...[
+                  SizedBox.square(
+                    dimension: 17,
+                    child: CircularProgressIndicator(
+                      color: loadingIconColor ?? context.themes.main.colors.warning600,
+                      strokeWidth: 2,
                     ),
-                    const SizedBox(width: 10),
-                  ],
-                  Text(title ?? '', style: titleStyle ?? texts.body.copyWith(color: _setTitleColor(colors))),
+                  ),
+                  const SizedBox(width: 10),
                 ],
-              ),
+                Text(title ?? '', style: titleStyle ?? texts.body.copyWith(color: _setTitleColor(colors))),
+              ],
             ),
           ),
         ),

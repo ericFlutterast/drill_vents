@@ -232,6 +232,8 @@ class MainBackendAPI implements BackendAPI {
     return BookingModel.fromJson(item);
   }
 
+  //Roles
+
   @override
   Future<Iterable<RoleModel>> getUserRoles() async {
     final response = await _api.get('/users/me/roles');
