@@ -15,7 +15,7 @@ class _DetailEventTab extends StatelessWidget {
       builder: (context, state) {
         if (state.isPending) return EventAdminScreen.shimmer(context);
 
-        if (state.isDone && state.hasValue) {
+        if (state.hasValue && state.isDone) {
           return TabBuilder(
             builder: (context) {
               return CustomScrollView(
@@ -72,7 +72,7 @@ class _DetailEventTab extends StatelessWidget {
 
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: _UserListItem(title: participant.name ?? '', mail: participant.email),
+                          child: _UserListItem(name: participant.name ?? '', mail: participant.email),
                         );
                       },
                       separatorBuilder: (_, __) => const SizedBox(height: 12),

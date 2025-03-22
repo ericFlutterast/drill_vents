@@ -8,58 +8,54 @@ class _RequestsTab extends StatefulWidget {
 }
 
 class _RequestsTabState extends State<_RequestsTab> {
-  final List<Key> _itemKeys = [];
-
   @override
   Widget build(BuildContext context) {
-    return TabBuilder(
-      builder: (context) {
-        return BlocBuilder<ModerationUsersBloc, ModerationUsersState>(
-          builder: (context, state) {
-            if (state.hasValue && state.value.isEmpty) {
-              return Text('NO request'); //TODO cделать по макету
-            }
-
-            if (state.isDone && state.hasValue) {
-              for (final item in state.value) {
-                _itemKeys.add(ValueKey(item.id));
-              }
-
-              return CustomScrollView(
-                controller: PrimaryScrollController.of(context),
-                slivers: [
-                  const SliverPadding(padding: EdgeInsets.only(top: 140)),
-                  SliverPersistentHeader(
-                    pinned: true,
-                    floating: true,
-                    delegate: _RequestsTabHeaderDelegate(usersLength: state.value.length),
-                  ),
-                  SliverList(
-                    delegate: SliverChildListDelegate([
-                      const SizedBox(height: 24),
-                      for (final (i, item) in state.value.indexed) ...[
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: _RequestItem(
-                            key: _itemKeys[i],
-                            onTransitionAnimation: i == 0,
-                            name: item.name,
-                            email: item.email,
-                            userId: item.id,
-                            onDelete: () => setState(() => _itemKeys.removeAt(i)),
-                          ),
+    return BlocConsumer<ModerationUsersBloc, ModerationUsersState>(
+      listener: (_, state) {
+        if (state.isError) {
+          NotificationManager.of(context).showNotification(
+            notification: AppNotification(message: state.errorMessage.toString(), status: NotificationStatus.error),
+          );
+        }
+      },
+      builder: (context, state) {
+        if (state.hasValue && state.isDone || state.isError) {
+          return CustomScrollView(
+            controller: PrimaryScrollController.of(context),
+            slivers: [
+              const SliverPadding(padding: EdgeInsets.only(top: 140)),
+              SliverPersistentHeader(
+                pinned: true,
+                floating: true,
+                delegate: _RequestsTabHeaderDelegate(usersLength: state.value.length),
+              ),
+              if (state.value.isEmpty) ...[
+                const SliverPadding(padding: EdgeInsets.only(top: 120)),
+                const _NoRequests(),
+              ] else
+                SliverList(
+                  delegate: SliverChildListDelegate([
+                    const SizedBox(height: 24),
+                    for (final (i, item) in state.value.indexed) ...[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: _RequestItem(
+                          key: ValueKey(item.id),
+                          onTransitionAnimation: i == 0,
+                          name: item.name,
+                          email: item.email,
+                          userId: item.id,
                         ),
-                        const SizedBox(height: 24),
-                      ],
-                    ]),
-                  ),
-                ],
-              );
-            }
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+                  ]),
+                ),
+            ],
+          );
+        }
 
-            return const SizedBox.shrink();
-          },
-        );
+        return const SizedBox.shrink();
       },
     );
   }
@@ -99,26 +95,22 @@ final class _RequestsTabHeaderDelegate extends SliverPersistentHeaderDelegate {
   }
 
   @override
-  bool shouldRebuild(SliverPersistentHeaderDelegate oldDelegate) => false;
+  bool shouldRebuild(_RequestsTabHeaderDelegate oldDelegate) => oldDelegate.usersLength != usersLength;
 }
 
 class _RequestItem extends StatefulWidget {
   const _RequestItem({
     super.key,
-    required this.onDelete,
     this.onTransitionAnimation = false,
     required this.name,
     required this.email,
     required this.userId,
   });
 
-  final VoidCallback onDelete;
   final bool onTransitionAnimation;
   final String email;
   final String userId;
   final String? name;
-
-  static Widget shimmer() => const Shimmer(height: 160, borderRadius: 18);
 
   @override
   State<_RequestItem> createState() => _RequestItemState();
@@ -160,7 +152,7 @@ class _RequestItemState extends State<_RequestItem> {
         _position = Offset(0, dy * 2);
         _angel = 20;
       });
-      widget.onDelete.call();
+
       _approveUser();
     }
   }
@@ -176,7 +168,7 @@ class _RequestItemState extends State<_RequestItem> {
         _position = Offset(0, dy * 2);
         _angel = -20;
       });
-      widget.onDelete.call();
+
       _declineUser();
     }
   }
@@ -216,10 +208,7 @@ class _RequestItemState extends State<_RequestItem> {
                 Expanded(
                   child: AppButton.custom(
                     title: 'Отклонить',
-                    onTap: () {
-                      _declineUser();
-                      widget.onDelete.call();
-                    },
+                    onTap: _declineUser,
                     backgroundColor: Color.lerp(colors.error200, colors.error600, _lerpDeclineButton),
                     titleStyle: texts.body.copyWith(
                       color: Color.lerp(colors.error600, colors.error900, _lerpDeclineButton),
@@ -230,9 +219,7 @@ class _RequestItemState extends State<_RequestItem> {
                 Expanded(
                   child: AppButton.custom(
                     title: 'Принять',
-                    onTap: () {
-                      //TODO:
-                    },
+                    onTap: _approveUser,
                     backgroundColor: Color.lerp(colors.success200, colors.success600, _lerpAproveButton),
                     titleStyle: texts.body.copyWith(
                       color: Color.lerp(colors.success600, colors.success900, _lerpAproveButton),
@@ -302,6 +289,41 @@ class _UserInfoRequestItem extends StatelessWidget {
               children: [if (name != null) Text(name!, style: texts.h3), Text(email)],
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NoRequests extends StatelessWidget {
+  const _NoRequests();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.themes.main.colors;
+    final texts = context.themes.main.texts;
+
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Center(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox.square(
+                dimension: 37,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(color: colors.success600, shape: BoxShape.circle),
+                  child: Icon(Icons.check_outlined, color: colors.inverse),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text('Вы рассмотрели все запросы', textAlign: TextAlign.center, style: texts.h2),
+              const SizedBox(height: 6),
+              Text('Пока новых запросов нет', textAlign: TextAlign.center, style: texts.body),
+            ],
+          ),
         ),
       ),
     );

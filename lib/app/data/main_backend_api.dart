@@ -226,7 +226,7 @@ class MainBackendAPI implements BackendAPI {
   Future<BookingModel> rejectBooking(String eventId, String usrId, String reason) async {
     final response = await _api.post(
       '/bookings/events/$eventId/status',
-      queryParameters: {'usr_id': usrId, 'action': 'reject', 'reason': reason},
+      queryParameters: {'usr_id': usrId, 'action': 'reject', if (reason.isNotEmpty) 'reason': reason},
     );
     final item = response.data['booking'] as Map<String, dynamic>;
     return BookingModel.fromJson(item);

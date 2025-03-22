@@ -68,17 +68,19 @@ final class ModerationUsersBloc extends Bloc<ModerationUsersEvent, ModerationUse
 
       emit(state.done(users));
     } on DioException catch (error, stackTrace) {
-      emit(state.error(error.appErrorMessage));
+      emit(state.error(value: state.getValueOrNull, error.appErrorMessage));
       _logger.error(error.appErrorMessage, error: error, stackTrace: stackTrace);
     } catch (error, stackTrace) {
-      emit(state.error(error));
+      emit(state.error(value: state.getValueOrNull, error));
       _logger.error(error, error: error, stackTrace: stackTrace);
+    } finally {
+      emit(state.done(state.getValueOrNull));
     }
   }
 
   Future<void> _declineUser(DeclineUserEvent event, Emit emit) async {
     try {
-      await _api.rejectBooking(event.eventId, event.userId, '');
+      await _api.rejectBooking(event.eventId, event.userId, 'reject');
 
       final users = [...state.value];
       final approvedUser = _findUserFor(event.userId);
@@ -86,11 +88,13 @@ final class ModerationUsersBloc extends Bloc<ModerationUsersEvent, ModerationUse
 
       emit(state.done(users));
     } on DioException catch (error, stackTrace) {
-      emit(state.error(error.appErrorMessage));
+      emit(state.error(value: state.getValueOrNull, error.appErrorMessage));
       _logger.error(error.appErrorMessage, error: error, stackTrace: stackTrace);
     } catch (error, stackTrace) {
-      emit(state.error(error));
+      emit(state.error(value: state.getValueOrNull, error));
       _logger.error(error, error: error, stackTrace: stackTrace);
+    } finally {
+      emit(state.done(state.getValueOrNull));
     }
   }
 

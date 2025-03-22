@@ -16,6 +16,7 @@ class _ParticipantsListTab extends StatelessWidget {
     return TabBuilder(
       builder: (context) {
         return CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
           controller: PrimaryScrollController.of(context),
           slivers: [
             const SliverPadding(padding: EdgeInsets.only(top: 180)),
@@ -34,7 +35,7 @@ class _ParticipantsListTab extends StatelessWidget {
                 for (final item in participants) ...[
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: _UserListItem(title: item.name ?? '', mail: item.email),
+                    child: _UserListItem(name: item.name ?? '', mail: item.email),
                   ),
                   const SizedBox(height: 12),
                 ],
@@ -49,9 +50,9 @@ class _ParticipantsListTab extends StatelessWidget {
 }
 
 class _UserListItem extends StatelessWidget {
-  const _UserListItem({required this.title, required this.mail});
+  const _UserListItem({required this.name, required this.mail});
 
-  final String title, mail;
+  final String name, mail;
 
   static Widget shimmer() {
     return const Row(
@@ -83,12 +84,13 @@ class _UserListItem extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: texts.body.copyWith(fontWeight: FontWeight.w600, height: 1.3),
-              ),
+              if (name.isNotEmpty)
+                Text(
+                  name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: texts.body.copyWith(fontWeight: FontWeight.w600, height: 1.3),
+                ),
 
               Text(mail, maxLines: 2, overflow: TextOverflow.ellipsis, style: texts.bodySmall),
             ],

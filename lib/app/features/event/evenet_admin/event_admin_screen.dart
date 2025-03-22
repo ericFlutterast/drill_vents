@@ -7,7 +7,9 @@ import 'package:drill_events/app/features/event/event_screen_args.dart';
 import 'package:drill_events/app/features/event/widgets/date_time_info.dart';
 import 'package:drill_events/app/features/widgets/app_button.dart';
 import 'package:drill_events/app/features/widgets/app_icon_button.dart';
+import 'package:drill_events/app/features/widgets/app_notification.dart';
 import 'package:drill_events/app/features/widgets/interpunct.dart';
+import 'package:drill_events/app/features/widgets/notification_manager.dart';
 import 'package:drill_events/app/features/widgets/screen_header.dart';
 import 'package:drill_events/app/features/widgets/shimmer.dart';
 import 'package:drill_events/app/new_models/models.dart';
@@ -140,6 +142,7 @@ class _EventAdminScreenState extends State<EventAdminScreen> {
   }
 
   void _switchTab(_Tab tab) {
+    _controller.jumpTo(0);
     setState(() => _currentTab = tab);
   }
 }

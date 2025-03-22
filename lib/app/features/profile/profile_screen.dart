@@ -223,20 +223,21 @@ class _UserInfo extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              if (user.info.name case String name) Text(name, style: textStyles.h3),
-              const SizedBox(height: 5),
-              if (user.info.phone case String phone) Text(phone, style: textStyles.bodySmall),
-              const SizedBox(height: 5),
+              if (user.info.name case String name) ...[Text(name, style: textStyles.h3), const SizedBox(height: 5)],
+              if (user.info.phone != null && user.info.phone!.isNotEmpty) ...[
+                Text(user.info.phone!, style: textStyles.bodySmall),
+                const SizedBox(height: 5),
+              ],
               Text(user.email, style: textStyles.bodySmall),
-              if (user.info.whatsapp != null) ...[
+              if (user.info.whatsapp != null && user.info.whatsapp!.isNotEmpty) ...[
                 const SizedBox(height: 5),
                 Text('whatsapp: ${user.info.whatsapp}', style: textStyles.bodySmall),
               ],
-              if (user.info.whatsapp != null) ...[
+              if (user.info.vk != null && user.info.vk!.isNotEmpty) ...[
                 const SizedBox(height: 5),
                 Text('vk: ${user.info.vk}', style: textStyles.bodySmall),
               ],
-              if (user.info.telegram != null) ...[
+              if (user.info.telegram != null && user.info.telegram!.isNotEmpty) ...[
                 const SizedBox(height: 5),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

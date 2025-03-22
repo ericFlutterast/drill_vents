@@ -1,5 +1,4 @@
 import 'package:drill_events/app/blocs/auth.dart';
-import 'package:drill_events/app/blocs/home_bloc.dart';
 import 'package:drill_events/app/features/auth/auth_provider.dart';
 import 'package:drill_events/app/features/auth/auth_screen.dart';
 import 'package:drill_events/app/features/create_edit_event/create_event_screen.dart';
@@ -36,11 +35,7 @@ class App extends StatelessWidget {
         initialRoute: Routes.home,
         builder: (context, widget) => AuthProvider(child: NotificationManager(child: widget!)),
         routes: {
-          Routes.home:
-              (context) => BlocProvider<EventsBloc>(
-                create: (_) => context.dependencies.eventsBloc..add(FetchEventsFeed()),
-                child: const HomeScreen(),
-              ),
+          Routes.home: (context) => HomeScreen.bloc(context),
           Routes.auth: (context) => const AuthScreen(),
           Routes.profile: (context) {
             final authState = context.read<AuthBloc>().state;
