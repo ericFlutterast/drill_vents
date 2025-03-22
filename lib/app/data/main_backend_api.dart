@@ -240,4 +240,11 @@ class MainBackendAPI implements BackendAPI {
     final roles = response.data['roles'] as List;
     return roles.map((element) => RoleModel.fromJson(element));
   }
+
+  @override
+  Future<Iterable<ShortUserModel>> getUserForModeration(String eventId) async {
+    final response = await _api.get('/bookings/events/$eventId/moderation');
+    final users = response.data['bookings'] as List;
+    return users.map((json) => ShortUserModel.fromJson(json));
+  }
 }
