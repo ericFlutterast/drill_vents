@@ -51,8 +51,8 @@ final class MainTheme implements IAppTheme {
       body: GoogleFonts.poppins(
         color: colors.primary,
         fontWeight: FontWeight.w400,
-        fontSize: 15.4,
-        height: 1.2,
+        fontSize: 15,
+        height: 1,
         letterSpacing: 0.2,
       ),
       bodySmall: GoogleFonts.poppins(

@@ -1,4 +1,4 @@
-import 'package:drill_events/app/features/event/widgets/event_description_tile.dart';
+import 'package:drill_events/app/features/event/evetn_user/widgets/event_description_tile.dart';
 import 'package:drill_events/app/features/widgets/app_button.dart';
 import 'package:drill_events/app/features/widgets/app_text_field.dart';
 import 'package:drill_events/app/themes/app_themes.dart';

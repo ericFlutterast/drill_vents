@@ -102,9 +102,9 @@ class _ScreenHeaderState extends State<ScreenHeader> with TickerProviderStateMix
     final position = widget.controller!.position;
     final (offset, direction) = (position.pixels, position.userScrollDirection);
 
-    if (direction == ScrollDirection.forward) {
-      _buttonAnimationController.reverse();
+    if (direction == ScrollDirection.forward || direction == ScrollDirection.idle) {
       if (offset <= _scrollThreshold) {
+        _buttonAnimationController.reverse();
         _controlsAnimationController.reverse();
       }
     } else if (direction == ScrollDirection.reverse && offset > _scrollThreshold) {

@@ -20,6 +20,13 @@ import 'package:intl/intl.dart';
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
+  static Widget bloc(BuildContext context) {
+    return BlocProvider<EventsBloc>(
+      create: (_) => EventsBloc(context.dependencies.backendApi, context.dependencies.logger),
+      child: const HomeScreen(),
+    );
+  }
+
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -30,7 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-
+    context.read<EventsBloc>().add(FetchEventsFeed());
     _scrollController.addListener(_scrollListener);
   }
 

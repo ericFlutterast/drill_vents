@@ -104,6 +104,7 @@ class _SpotScreenState extends State<SpotScreen> {
                 }
 
                 final spot = state.value.spot;
+                final isAdmin = context.read<AuthBloc>().state.getValueOrNull?.isAdmin(state.value.spot.org.id);
 
                 return CustomScrollView(
                   controller: _scrollController,
@@ -116,7 +117,7 @@ class _SpotScreenState extends State<SpotScreen> {
                           const SizedBox(height: 7),
                           Text(spot.address, style: context.themes.main.texts.bodySmall),
                           const SizedBox(height: 28),
-                          if (context.read<AuthBloc>().state.value.isAdmin(state.value.spot.org.id)) ...[
+                          if (isAdmin == true) ...[
                             AppButton.primary(
                               title: "Добавить событие",
                               onTap: () => context.openCreateEventScreen(state.value.spot.org.id),
@@ -203,6 +204,7 @@ class _EventListItem extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [

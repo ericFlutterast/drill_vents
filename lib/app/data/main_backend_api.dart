@@ -226,16 +226,25 @@ class MainBackendAPI implements BackendAPI {
   Future<BookingModel> rejectBooking(String eventId, String usrId, String reason) async {
     final response = await _api.post(
       '/bookings/events/$eventId/status',
-      queryParameters: {'usr_id': usrId, 'action': 'reject', 'reason': reason},
+      queryParameters: {'usr_id': usrId, 'action': 'reject', if (reason.isNotEmpty) 'reason': reason},
     );
     final item = response.data['booking'] as Map<String, dynamic>;
     return BookingModel.fromJson(item);
   }
+
+  //Roles
 
   @override
   Future<Iterable<RoleModel>> getUserRoles() async {
     final response = await _api.get('/users/me/roles');
     final roles = response.data['roles'] as List;
     return roles.map((element) => RoleModel.fromJson(element));
+  }
+
+  @override
+  Future<Iterable<ShortUserModel>> getUserForModeration(String eventId) async {
+    final response = await _api.get('/bookings/events/$eventId/moderation');
+    final users = response.data['bookings'] as List;
+    return users.map((json) => ShortUserModel.fromJson(json));
   }
 }

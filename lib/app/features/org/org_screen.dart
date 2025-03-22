@@ -191,7 +191,6 @@ class _OrgScreenState extends State<OrgScreen> {
 
                           final spots = sectionState.value.spots;
 
-                          // TODO: change to SpotListItem when it's ready
                           return SliverList.separated(
                             itemCount: spots.length,
                             itemBuilder: (context, index) {
@@ -258,7 +257,7 @@ class _ContentSection extends StatelessWidget {
                   const AppCompanyLogo(dimension: 150),
                   const SizedBox(height: 24),
                   Text(title, style: context.themes.main.texts.h1),
-                  if (context.read<AuthBloc>().state.value.isAdmin(orgId)) ...[
+                  if (context.read<AuthBloc>().state.getValueOrNull?.isAdmin(orgId) == true) ...[
                     const SizedBox(height: 28),
                     AppButton.primary(title: 'Добавить событие', onTap: () => context.openCreateEventScreen(orgId)),
                   ],
