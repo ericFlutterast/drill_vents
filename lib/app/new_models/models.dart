@@ -53,24 +53,30 @@ class UserInfoModel extends Equatable {
 
 @JsonSerializable()
 class UserModel extends Equatable {
-  const UserModel({required this.id, required this.email, required this.info, this.roles = const []});
+  const UserModel({required this.id, required this.email, required this.info, this.roles = const [], this.userAvatar});
 
   factory UserModel.fromJson(Map<String, dynamic> json) => _$UserModelFromJson(json);
 
   final String id;
   final String email;
+  final String? userAvatar;
   final Iterable<RoleModel> roles;
   final UserInfoModel info;
 
   Map<String, dynamic> toJson() => _$UserModelToJson(this);
 
   @override
-  List<Object?> get props => [id, email, info, roles];
+  List<Object?> get props => [id, email, info, roles, userAvatar];
 
   bool isAdmin(String orgId) => roles.any((value) => value.orgId == orgId);
 
-  UserModel copyWith({Iterable<RoleModel>? roles}) =>
-      UserModel(roles: roles ?? this.roles, id: id, email: email, info: info);
+  UserModel copyWith({Iterable<RoleModel>? roles, String? userAvatar}) => UserModel(
+    userAvatar: userAvatar ?? this.userAvatar,
+    roles: roles ?? this.roles,
+    id: id,
+    email: email,
+    info: info,
+  );
 }
 
 @JsonSerializable()

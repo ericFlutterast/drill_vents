@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:drill_events/app/blocs/auth.dart';
 import 'package:drill_events/app/blocs/home_bloc.dart';
 import 'package:drill_events/app/features/scroll_physics/loading_scroll_physic.dart';
 import 'package:drill_events/app/features/scroll_physics/pagination_scroll_physic.dart';
@@ -163,6 +164,8 @@ class _HomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themes.main.colors;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
@@ -181,21 +184,37 @@ class _HomeHeader extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 20),
-          CircleAvatarDecoration(
-            onTap: () => Navigator.pushNamed(context, Routes.profile),
-            child: SizedBox(
-              height: 38,
-              width: 38,
-              child: CachedNetworkImage(
-                imageUrl: '',
-                errorWidget:
-                    (_, __, ___) => const SizedBox(
-                      height: 38,
-                      width: 38,
-                      child: DecoratedBox(decoration: BoxDecoration(color: Colors.orange, shape: BoxShape.circle)),
-                    ),
-              ),
-            ),
+          BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) {
+              if (state.isPending) return const Shimmer(height: 38, width: 38, borderRadius: 38);
+
+              if (!state.hasValue) {
+                return GestureDetector(
+                  onTap: () => Navigator.pushNamed(context, Routes.profile),
+                  child: Icon(Icons.person, size: 30, color: colors.secondary),
+                );
+              }
+
+              return CircleAvatarDecoration(
+                onTap: () => Navigator.pushNamed(context, Routes.profile),
+                child:
+                    state.value.userAvatar != null
+                        ? ClipRRect(
+                          borderRadius: BorderRadius.circular(100),
+                          child: SizedBox.square(
+                            dimension: 38,
+                            child: CachedNetworkImage(
+                              imageUrl: state.value.userAvatar!,
+                              fit: BoxFit.fill,
+                              progressIndicatorBuilder: (context, _, progress) {
+                                return const Shimmer(height: 38, width: 38, borderRadius: 38);
+                              },
+                            ),
+                          ),
+                        )
+                        : Icon(Icons.person, size: 30, color: colors.secondary),
+              );
+            },
           ),
         ],
       ),

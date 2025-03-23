@@ -4,6 +4,7 @@ import 'package:drill_events/app/new_models/models.dart';
 import 'package:drill_events/common/adapters/events_pipe/pipe_events.dart';
 import 'package:drill_events/common/ports/backend_api.dart';
 import 'package:drill_events/common/ports/fast_cache.dart';
+import 'package:drill_events/common/ports/file_storage.dart';
 import 'package:drill_events/common/ports/logger.dart';
 import 'package:drill_events/common/ports/pipe.dart';
 import 'package:drill_events/common/secure_storage/secure_storage_keys.dart';
@@ -45,7 +46,9 @@ final class AuthBloc extends Bloc<AuthEvents, AuthState> {
     required Logger logger,
     required FastCache fastCache,
     required Pipe pipe,
-  }) : _repository = repository,
+    required FileStorage fileStorage,
+  }) : _fileStorage = fileStorage,
+       _repository = repository,
        _secureStorage = secureStorage,
        _logger = logger,
        _fastCache = fastCache,
@@ -67,6 +70,7 @@ final class AuthBloc extends Bloc<AuthEvents, AuthState> {
   final Logger _logger;
   final FastCache _fastCache;
   final BackendAPI _repository;
+  final FileStorage _fileStorage;
   final FlutterSecureStorage _secureStorage;
 
   Future<void> _createAuthorizeAndBook(CreateAuthBook event, Emit emit) async {
@@ -124,8 +128,9 @@ final class AuthBloc extends Bloc<AuthEvents, AuthState> {
 
       final user = result[0] as UserModel;
       final roles = result[1] as Iterable<RoleModel>;
+      final userAvatar = await _fileStorage.getFileDownloadUrl(user.id);
 
-      emit(state.done(user.copyWith(roles: roles)));
+      emit(state.done(user.copyWith(roles: roles, userAvatar: userAvatar)));
     } on DioException catch (error, stackTrace) {
       emit(state.error(error.appErrorMessage));
       _logger.error(error.appErrorMessage, error: error, stackTrace: stackTrace);
@@ -139,7 +144,7 @@ final class AuthBloc extends Bloc<AuthEvents, AuthState> {
       emit(state.error(error));
       _logger.error(error, error: error, stackTrace: stackTrace);
     } finally {
-      emit(state.idle(value: state.value));
+      emit(state.idle(value: state.getValueOrNull));
     }
   }
 

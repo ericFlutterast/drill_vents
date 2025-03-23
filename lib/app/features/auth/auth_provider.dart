@@ -9,7 +9,16 @@ class AuthProvider extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider<AuthBloc>(create: (context) => context.dependencies.authBloc, child: child);
-  }
+  Widget build(BuildContext context) => BlocProvider<AuthBloc>(
+    create:
+        (context) => AuthBloc(
+          repository: context.dependencies.backendApi,
+          secureStorage: context.dependencies.secureStorage,
+          logger: context.dependencies.logger,
+          fastCache: context.dependencies.fastCache,
+          pipe: context.dependencies.pipe,
+          fileStorage: context.dependencies.fileStorage,
+        )..add(GetUserInfo()),
+    child: child,
+  );
 }

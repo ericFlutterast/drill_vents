@@ -26,7 +26,7 @@ class CreateEventScreen extends StatefulWidget {
 
   static Widget bloc(BuildContext context, {Key? key}) {
     return BlocProvider<CreateNewEventBloc>(
-      create: (context) => context.dependencies.createNewEventBloc,
+      create: (context) => CreateNewEventBloc(context.dependencies.backendApi, context.dependencies.logger),
       child: CreateEventScreen._(key: key),
     );
   }
