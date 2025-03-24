@@ -1,8 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:drill_events/app/blocs/auth.dart';
 import 'package:drill_events/app/blocs/home_bloc.dart';
 import 'package:drill_events/app/features/scroll_physics/loading_scroll_physic.dart';
 import 'package:drill_events/app/features/scroll_physics/pagination_scroll_physic.dart';
 import 'package:drill_events/app/features/widgets/animated_refresh.dart';
+import 'package:drill_events/app/features/widgets/app_avatar.dart';
 import 'package:drill_events/app/features/widgets/app_text_field.dart';
 import 'package:drill_events/app/features/widgets/circle_avatar_decoration.dart';
 import 'package:drill_events/app/features/widgets/event_status_label.dart';
@@ -22,7 +24,12 @@ class HomeScreen extends StatefulWidget {
 
   static Widget bloc(BuildContext context) {
     return BlocProvider<EventsBloc>(
-      create: (_) => EventsBloc(context.dependencies.backendApi, context.dependencies.logger),
+      create:
+          (_) => EventsBloc(
+            repository: context.dependencies.backendApi,
+            logger: context.dependencies.logger,
+            fileStorage: context.dependencies.fileStorage,
+          ),
       child: const HomeScreen(),
     );
   }
@@ -105,7 +112,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 if (state.isPending)
                   SliverList.separated(
                     itemCount: 20,
-                    itemBuilder: (context, index) => _EventListItem.shimmer(context),
+                    itemBuilder:
+                        (context, index) => Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: _EventListItem.shimmer(context),
+                        ),
                     separatorBuilder: (_, __) => const SizedBox(height: 28),
                   )
                 else if (state.hasValue) ...[
@@ -119,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
                       }
 
-                      final event = state.value.events.elementAt(index);
+                      final EventCardModel event = state.value.events.elementAt(index);
 
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -131,6 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           onTap: () => context.openEventScreen(eventID: event.id, orgId: event.org.id),
                           startDate: event.startDate,
                           availableSeats: event.availableSeats,
+                          imgUrl: event.spot.imageUrl,
                         ),
                       );
                     },
@@ -163,6 +175,8 @@ class _HomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.themes.main.colors;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
@@ -181,21 +195,37 @@ class _HomeHeader extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 20),
-          CircleAvatarDecoration(
-            onTap: () => Navigator.pushNamed(context, Routes.profile),
-            child: SizedBox(
-              height: 38,
-              width: 38,
-              child: CachedNetworkImage(
-                imageUrl: '',
-                errorWidget:
-                    (_, __, ___) => const SizedBox(
-                      height: 38,
-                      width: 38,
-                      child: DecoratedBox(decoration: BoxDecoration(color: Colors.orange, shape: BoxShape.circle)),
-                    ),
-              ),
-            ),
+          BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) {
+              if (state.isPending) return const Shimmer(height: 38, width: 38, borderRadius: 38);
+
+              if (!state.hasValue) {
+                return GestureDetector(
+                  onTap: () => Navigator.pushNamed(context, Routes.profile),
+                  child: Icon(Icons.person, size: 30, color: colors.secondary),
+                );
+              }
+
+              return CircleAvatarDecoration(
+                onTap: () => Navigator.pushNamed(context, Routes.profile),
+                child:
+                    state.value.userAvatar != null
+                        ? ClipRRect(
+                          borderRadius: BorderRadius.circular(100),
+                          child: SizedBox.square(
+                            dimension: 38,
+                            child: CachedNetworkImage(
+                              imageUrl: state.value.userAvatar!,
+                              fit: BoxFit.fill,
+                              progressIndicatorBuilder: (context, _, progress) {
+                                return const Shimmer(height: 38, width: 38, borderRadius: 38);
+                              },
+                            ),
+                          ),
+                        )
+                        : Icon(Icons.person, size: 30, color: colors.secondary),
+              );
+            },
           ),
         ],
       ),
@@ -255,15 +285,7 @@ class _EventListItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          CachedNetworkImage(
-            imageUrl: '',
-            errorWidget:
-                (_, __, ___) => Container(
-                  height: 52,
-                  width: 52,
-                  decoration: BoxDecoration(color: colors.secondary, shape: BoxShape.circle),
-                ),
-          ),
+          AppAvatar(imageUrl: imgUrl),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

@@ -33,6 +33,7 @@ class EventScreen extends StatefulWidget {
               logger: context.dependencies.logger,
               cache: context.dependencies.fastCache,
               pipe: context.dependencies.pipe,
+              fileStorage: context.dependencies.fileStorage,
             )..add(FetchDetailEvent(id: id));
           },
         ),
@@ -204,6 +205,7 @@ class _EventScreenState extends State<EventScreen> {
                     ),
                   PositionedScreenHeader(
                     controller: _scrollController,
+                    orgAvatarUrl: state.getValueOrNull?.orgAvatar,
                     onTapLogo: () => context.openOrgScreen("7fdb5b3d-9de4-4dbb-a862-1a430feeb7fa"),
                   ),
                 ],

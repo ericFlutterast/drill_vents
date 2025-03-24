@@ -3,11 +3,14 @@ import 'package:drill_events/app/blocs/auth.dart';
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
 import 'package:drill_events/app/blocs/profile_bloc.dart';
 import 'package:drill_events/app/features/profile/widgets/editing_profile_modal.dart';
+import 'package:drill_events/app/features/widgets/app_avatar.dart';
 import 'package:drill_events/app/features/widgets/app_button.dart';
 import 'package:drill_events/app/features/widgets/app_icon_button.dart';
+import 'package:drill_events/app/features/widgets/app_notification.dart';
 import 'package:drill_events/app/features/widgets/circle_avatar_decoration.dart';
 import 'package:drill_events/app/features/widgets/event_status_label.dart';
 import 'package:drill_events/app/features/widgets/interpunct.dart';
+import 'package:drill_events/app/features/widgets/notification_manager.dart';
 import 'package:drill_events/app/features/widgets/screen_header.dart';
 import 'package:drill_events/app/features/widgets/shimmer.dart';
 import 'package:drill_events/app/generated/assets.gen.dart';
@@ -26,9 +29,11 @@ class ProfileScreen extends StatefulWidget {
     return BlocProvider(
       create:
           (_) => ProfileBloc(
+            imagePicker: context.dependencies.imagePicker,
             logger: context.dependencies.logger,
             repository: context.dependencies.backendApi,
             pipe: context.dependencies.pipe,
+            fileStorage: context.dependencies.fileStorage,
           )..add(UserEventsReceivingEvent()),
       child: const ProfileScreen._(),
     );
@@ -62,7 +67,17 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               context.pop();
             }
           },
-          child: BlocBuilder<ProfileBloc, ProfileState>(
+          child: BlocConsumer<ProfileBloc, ProfileState>(
+            listener: (context, state) {
+              if (state.isError) {
+                NotificationManager.of(context).showNotification(
+                  notification: AppNotification(
+                    status: NotificationStatus.error,
+                    message: state.errorMessage.toString(),
+                  ),
+                );
+              }
+            },
             builder: (context, state) {
               if (state.isPending) {
                 return shimmer(context);
@@ -74,7 +89,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                     controller: _scrollController,
                     slivers: [
                       SliverPadding(padding: EdgeInsets.only(top: MediaQuery.sizeOf(context).height * 0.1)),
-                      const SliverToBoxAdapter(child: _ProfileHeader()),
+                      SliverToBoxAdapter(child: _ProfileHeader(imagePath: state.getValueOrNull?.userAvatar)),
                       const SliverPadding(padding: EdgeInsets.only(top: 10)),
                       const SliverToBoxAdapter(child: _UserInfo()),
                       const SliverPadding(padding: EdgeInsets.only(top: 26)),
@@ -100,6 +115,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                                 title: item.title,
                                 onTap: () => context.openOrgScreen(item.id),
                                 eventItem: item.eventsCount,
+                                imageUrl: item.imageUrl,
                               ),
                             );
                           },
@@ -130,6 +146,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                                 startDate: item.startDate,
                                 startTime: item.startTime,
                                 availableSeats: item.availableSeats,
+                                imgUrl: item.org.imageUrl,
                               ),
                             );
                           },
@@ -188,19 +205,42 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 }
 
 class _ProfileHeader extends StatelessWidget {
-  const _ProfileHeader();
+  const _ProfileHeader({required this.imagePath});
+
+  final String? imagePath;
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: CircleAvatarDecoration(
-        diameter: 100,
-        strokeWidth: 7,
-        child: Container(
-          height: 80,
-          width: 80,
-          decoration: const BoxDecoration(color: Colors.orange, shape: BoxShape.circle),
-        ),
+    final colors = context.themes.main.colors;
+
+    return GestureDetector(
+      onTap: () {
+        final userId = context.read<AuthBloc>().state.value.id;
+        context.read<ProfileBloc>().add(SelectProfileAvatarEvent(userId));
+      },
+      child: BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, state) {
+          final avatar = imagePath ?? state.getValueOrNull?.userAvatar;
+          if (state.isDone || state.isIdle && state.hasValue) {
+            return Center(
+              child: CircleAvatarDecoration(
+                diameter: 100,
+                strokeWidth: 7,
+                child:
+                    avatar != null
+                        ? ClipRRect(
+                          borderRadius: BorderRadius.circular(100),
+                          child: SizedBox.square(
+                            dimension: 85,
+                            child: CachedNetworkImage(imageUrl: avatar, fit: BoxFit.fill),
+                          ),
+                        )
+                        : SizedBox.square(dimension: 85, child: Icon(Icons.person, size: 60, color: colors.secondary)),
+              ),
+            );
+          }
+          return Center(child: _ProfileHeader.shimmer());
+        },
       ),
     );
   }
@@ -330,11 +370,12 @@ class _LogoutDialog extends StatelessWidget {
 }
 
 class _OrgListItem extends StatelessWidget {
-  const _OrgListItem({required this.title, this.onTap, required this.eventItem});
+  const _OrgListItem({required this.title, this.onTap, required this.eventItem, this.imageUrl});
 
   final String title;
   final int eventItem;
   final VoidCallback? onTap;
+  final String? imageUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -344,15 +385,7 @@ class _OrgListItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          CachedNetworkImage(
-            imageUrl: '',
-            errorWidget:
-                (_, __, ___) => Container(
-                  height: 52,
-                  width: 52,
-                  decoration: BoxDecoration(color: context.themes.main.colors.secondary, shape: BoxShape.circle),
-                ),
-          ),
+          AppAvatar(imageUrl: imageUrl),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -408,15 +441,7 @@ class _EventListItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          CachedNetworkImage(
-            imageUrl: '',
-            errorWidget:
-                (_, __, ___) => Container(
-                  height: 52,
-                  width: 52,
-                  decoration: BoxDecoration(color: context.themes.main.colors.secondary, shape: BoxShape.circle),
-                ),
-          ),
+          AppAvatar(imageUrl: imgUrl),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

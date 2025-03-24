@@ -1,5 +1,5 @@
+import 'package:drill_events/app/features/widgets/app_avatar.dart';
 import 'package:drill_events/app/features/widgets/app_back_button.dart';
-import 'package:drill_events/app/features/widgets/app_company_logo.dart';
 import 'package:drill_events/app/features/widgets/shimmer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
@@ -12,8 +12,10 @@ class PositionedScreenHeader extends StatelessWidget {
     this.onTapLogo,
     this.isPending = false,
     this.actions,
+    this.orgAvatarUrl,
   });
 
+  final String? orgAvatarUrl;
   final bool isPending;
   final VoidCallback? onTapLogo, backButtonHandler;
   final ScrollController? controller;
@@ -31,6 +33,7 @@ class PositionedScreenHeader extends StatelessWidget {
         backButtonHandler: backButtonHandler,
         isPending: isPending,
         actions: actions ?? [],
+        orgAvatarUrl: orgAvatarUrl,
       ),
     );
   }
@@ -44,9 +47,11 @@ class ScreenHeader extends StatefulWidget {
     this.backButtonHandler,
     this.onTapLogo,
     this.isPending = false,
+    this.orgAvatarUrl,
     required this.actions,
   });
 
+  final String? orgAvatarUrl;
   final bool isPending;
   final VoidCallback? onTapLogo, backButtonHandler;
   final ScrollController? controller;
@@ -145,7 +150,11 @@ class _ScreenHeaderState extends State<ScreenHeader> with TickerProviderStateMix
             position: _controlsOffsetAnimation,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
-              children: [if (widget.onTapLogo != null) AppCompanyLogo(onTap: widget.onTapLogo), ...widget.actions],
+              children: [
+                if (widget.onTapLogo != null)
+                  GestureDetector(onTap: widget.onTapLogo, child: AppAvatar(imageUrl: widget.orgAvatarUrl)),
+                ...widget.actions,
+              ],
             ),
           ),
         ],

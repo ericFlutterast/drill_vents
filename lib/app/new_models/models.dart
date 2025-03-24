@@ -53,40 +53,53 @@ class UserInfoModel extends Equatable {
 
 @JsonSerializable()
 class UserModel extends Equatable {
-  const UserModel({required this.id, required this.email, required this.info, this.roles = const []});
+  const UserModel({required this.id, required this.email, required this.info, this.roles = const [], this.userAvatar});
 
   factory UserModel.fromJson(Map<String, dynamic> json) => _$UserModelFromJson(json);
 
   final String id;
   final String email;
+  final String? userAvatar;
   final Iterable<RoleModel> roles;
   final UserInfoModel info;
 
   Map<String, dynamic> toJson() => _$UserModelToJson(this);
 
   @override
-  List<Object?> get props => [id, email, info, roles];
+  List<Object?> get props => [id, email, info, roles, userAvatar];
 
   bool isAdmin(String orgId) => roles.any((value) => value.orgId == orgId);
 
-  UserModel copyWith({Iterable<RoleModel>? roles}) =>
-      UserModel(roles: roles ?? this.roles, id: id, email: email, info: info);
+  UserModel copyWith({Iterable<RoleModel>? roles, String? userAvatar}) => UserModel(
+    userAvatar: userAvatar ?? this.userAvatar,
+    roles: roles ?? this.roles,
+    id: id,
+    email: email,
+    info: info,
+  );
 }
 
 @JsonSerializable()
 class ShortUserModel extends Equatable {
-  const ShortUserModel({required this.id, required this.email, this.name});
+  const ShortUserModel({required this.id, required this.email, this.name, this.imageUrl});
 
   factory ShortUserModel.fromJson(Map<String, dynamic> json) => _$ShortUserModelFromJson(json);
 
   final String id;
   final String email;
-  final String? name;
+  final String? name, imageUrl;
 
   Map<String, dynamic> toJson() => _$ShortUserModelToJson(this);
 
   @override
-  List<Object?> get props => [id, email, name];
+  List<Object?> get props => [id, email, name, imageUrl];
+
+  ShortUserModel copyWith({String? id, String? email, String? name, String? imageUrl}) => ShortUserModel(
+    id: id ?? this.id,
+    email: email ?? this.email,
+    name: name ?? this.name,
+    imageUrl: imageUrl ?? this.imageUrl,
+  );
 }
 
 @JsonSerializable()
@@ -107,33 +120,45 @@ class DetailOrgModel extends Equatable {
 
 @JsonSerializable()
 class OrgCardModel extends Equatable {
-  const OrgCardModel({required this.id, required this.title, required this.eventsCount});
+  const OrgCardModel({required this.id, required this.title, required this.eventsCount, this.imageUrl});
 
   factory OrgCardModel.fromJson(Map<String, dynamic> json) => _$OrgCardModelFromJson(json);
 
   final String id;
   final String title;
+  final String? imageUrl;
   final int eventsCount;
 
   Map<String, dynamic> toJson() => _$OrgCardModelToJson(this);
 
   @override
-  List<Object?> get props => [id, title, eventsCount];
+  List<Object?> get props => [id, title, eventsCount, imageUrl];
+
+  OrgCardModel copyWith({String? id, String? title, String? imageUrl, int? eventsCount}) => OrgCardModel(
+    id: id ?? this.id,
+    title: title ?? this.title,
+    eventsCount: eventsCount ?? this.eventsCount,
+    imageUrl: imageUrl ?? this.imageUrl,
+  );
 }
 
 @JsonSerializable()
 class ShortOrgModel extends Equatable {
-  const ShortOrgModel({required this.id, required this.title});
+  const ShortOrgModel({required this.id, required this.title, this.imageUrl});
 
   factory ShortOrgModel.fromJson(Map<String, dynamic> json) => _$ShortOrgModelFromJson(json);
 
   final String id;
   final String title;
+  final String? imageUrl;
 
   Map<String, dynamic> toJson() => _$ShortOrgModelToJson(this);
 
   @override
-  List<Object?> get props => [id, title];
+  List<Object?> get props => [id, title, imageUrl];
+
+  ShortOrgModel copyWith({String? id, String? title, String? imageUrl}) =>
+      ShortOrgModel(id: id ?? this.id, title: title ?? this.title, imageUrl: imageUrl ?? this.imageUrl);
 }
 
 @JsonSerializable()
@@ -236,7 +261,13 @@ class SpotSubscriptionCard extends Equatable {
 
 @JsonSerializable()
 class ShortSpotModel extends Equatable {
-  const ShortSpotModel({required this.id, required this.title, required this.address, required this.cityId});
+  const ShortSpotModel({
+    required this.id,
+    required this.title,
+    required this.address,
+    required this.cityId,
+    this.imageUrl,
+  });
 
   factory ShortSpotModel.fromJson(Map<String, dynamic> json) => _$ShortSpotModelFromJson(json);
 
@@ -244,11 +275,21 @@ class ShortSpotModel extends Equatable {
   final String title;
   final String address;
   final int cityId;
+  final String? imageUrl;
 
   Map<String, dynamic> toJson() => _$ShortSpotModelToJson(this);
 
   @override
   List<Object?> get props => [id, title, address, cityId];
+
+  ShortSpotModel copyWith({String? id, String? title, String? address, int? cityId, String? imageUrl}) =>
+      ShortSpotModel(
+        id: id ?? this.id,
+        title: title ?? this.title,
+        address: address ?? this.address,
+        cityId: cityId ?? this.cityId,
+        imageUrl: imageUrl ?? this.imageUrl,
+      );
 }
 
 @JsonSerializable()
@@ -299,6 +340,7 @@ class DetailEventModel extends Equatable {
     this.spotCity,
     this.endTime,
     this.booking,
+    this.orgAvatar,
   });
 
   factory DetailEventModel.fromJson(Map<String, dynamic> json) => _$DetailEventModelFromJson(json);
@@ -309,7 +351,7 @@ class DetailEventModel extends Equatable {
   final String startDate;
   final String startTime;
   final String? spotCity;
-  final String? endTime;
+  final String? endTime, orgAvatar;
   final int capacity;
   final int availableSeats;
   final ShortOrgModel org;
@@ -331,6 +373,7 @@ class DetailEventModel extends Equatable {
     org,
     spot,
     booking,
+    orgAvatar,
   ];
 
   DetailEventModel copyWith({
@@ -341,12 +384,14 @@ class DetailEventModel extends Equatable {
     String? startTime,
     String? endTime,
     String? spotCity,
+    String? orgAvatar,
     int? capacity,
     int? availableSeats,
     ShortOrgModel? org,
     ShortSpotModel? spot,
     ShortBookingModel? booking,
   }) => DetailEventModel(
+    orgAvatar: orgAvatar ?? this.orgAvatar,
     spotCity: spotCity ?? this.spotCity,
     id: id ?? this.id,
     title: title ?? this.title,
@@ -392,6 +437,28 @@ class EventCardModel extends Equatable {
 
   @override
   List<Object?> get props => [id, title, startDate, startTime, endTime, availableSeats, org, spot, booking];
+
+  EventCardModel copyWith({
+    String? id,
+    String? title,
+    DateTime? startDate,
+    DateTime? startTime,
+    String? endTime,
+    int? availableSeats,
+    ShortOrgModel? org,
+    ShortSpotModel? spot,
+    ShortBookingModel? booking,
+  }) => EventCardModel(
+    id: id ?? this.id,
+    title: title ?? this.title,
+    startDate: startDate ?? this.startDate,
+    availableSeats: availableSeats ?? this.availableSeats,
+    org: org ?? this.org,
+    spot: spot ?? this.spot,
+    startTime: startTime ?? this.startTime,
+    endTime: endTime ?? this.endTime,
+    booking: booking ?? this.booking,
+  );
 }
 
 @JsonSerializable()

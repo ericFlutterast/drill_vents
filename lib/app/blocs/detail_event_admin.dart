@@ -1,8 +1,11 @@
+import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
 import 'package:drill_events/app/new_models/models.dart';
+import 'package:drill_events/common/adapters/file_firebase_storage.dart';
 import 'package:drill_events/common/ports/backend_api.dart';
 import 'package:drill_events/common/ports/fast_cache.dart';
+import 'package:drill_events/common/ports/file_storage.dart';
 import 'package:drill_events/common/ports/logger.dart';
 import 'package:drill_events/common/utils/cache_keys.dart';
 import 'package:drill_events/common/utils/error_codes.dart';
@@ -37,18 +40,23 @@ final class EventDetailAdminStateModel extends Equatable {
 typedef _Emit = Emitter<EventDetailAdminState>;
 
 final class EventDetailAdminBloc extends Bloc<EventDetailAdminEvent, EventDetailAdminState> {
-  EventDetailAdminBloc({required Logger logger, required BackendAPI repository, required FastCache cache})
-    : _logger = logger,
-      _repository = repository,
-      _cache = cache,
-
-      super(const CommonBlocState.init()) {
+  EventDetailAdminBloc({
+    required Logger logger,
+    required BackendAPI repository,
+    required FastCache cache,
+    required FileStorage fileStorage,
+  }) : _logger = logger,
+       _repository = repository,
+       _cache = cache,
+       _fileStorage = fileStorage,
+       super(const CommonBlocState.init()) {
     on<FetchDetailEventAdmin>(_fetchDetailEvent);
   }
 
   final Logger _logger;
   final BackendAPI _repository;
   final FastCache _cache;
+  final FileStorage _fileStorage;
 
   Future<void> _fetchDetailEvent(FetchDetailEventAdmin event, _Emit emit) async {
     try {
@@ -58,6 +66,12 @@ final class EventDetailAdminBloc extends Bloc<EventDetailAdminEvent, EventDetail
       DetailEventModel? item = _cache.get<DetailEventModel>(cacheKey);
 
       final participants = await _repository.getParticipants(event.eventId);
+
+      final participantsAvatars = await _fileStorage.getListFileDownloadUrl(
+        participants.map((item) {
+          return '${StorageDirectory.userAvatars}/${item.id}';
+        }),
+      );
 
       if (item == null) {
         final result = await Future.wait([_repository.getEvent(event.eventId), _repository.getCities()]);
@@ -70,9 +84,21 @@ final class EventDetailAdminBloc extends Bloc<EventDetailAdminEvent, EventDetail
         _cache.set(cacheKey, item, duration: const Duration(seconds: 10));
       }
 
+      final orgAvatarUrl = await _fileStorage.getFileDownloadUrl('${StorageDirectory.orgAvatars}/${item.org.id}');
+
       final newState =
-          state.getValueOrNull?.copyWith(event: item, participants: participants) ??
-          EventDetailAdminStateModel(event: item, participants: participants);
+          state.getValueOrNull?.copyWith(
+            event: item.copyWith(orgAvatar: orgAvatarUrl),
+            participants: participants.mapIndexed((i, item) {
+              return item.copyWith(imageUrl: participantsAvatars.elementAt(i));
+            }),
+          ) ??
+          EventDetailAdminStateModel(
+            event: item.copyWith(orgAvatar: orgAvatarUrl),
+            participants: participants.mapIndexed((i, item) {
+              return item.copyWith(imageUrl: participantsAvatars.elementAt(i));
+            }),
+          );
 
       emit(state.done(newState));
     } on DioException catch (error, stackTrace) {

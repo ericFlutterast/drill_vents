@@ -72,7 +72,11 @@ class _DetailEventTab extends StatelessWidget {
 
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: _UserListItem(name: participant.name ?? '', mail: participant.email),
+                          child: _UserListItem(
+                            name: participant.name ?? '',
+                            mail: participant.email,
+                            imageUrl: participant.imageUrl,
+                          ),
                         );
                       },
                       separatorBuilder: (_, __) => const SizedBox(height: 12),

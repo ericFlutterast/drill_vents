@@ -104,11 +104,13 @@ class _AppNotificationState extends State<AppNotification> with SingleTickerProv
 
                       if (widget.message case String message) ...[
                         const SizedBox(height: 2),
-                        Text(
-                          message,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: textStyles.caption.copyWith(color: textColor),
+                        Expanded(
+                          child: Text(
+                            message,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: textStyles.caption.copyWith(color: textColor),
+                          ),
                         ),
                       ],
                     ],

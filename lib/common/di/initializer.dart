@@ -2,20 +2,17 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
-import 'package:drill_events/app/blocs/auth.dart';
-import 'package:drill_events/app/blocs/create_new_event.dart';
-import 'package:drill_events/app/blocs/home_bloc.dart';
-import 'package:drill_events/app/blocs/profile_bloc.dart';
-import 'package:drill_events/app/blocs/receiving_spots.dart';
-import 'package:drill_events/app/blocs/registration.dart';
 import 'package:drill_events/app/data/main_backend_api.dart';
 import 'package:drill_events/common/adapters/events_pipe/events_pipe.dart';
+import 'package:drill_events/common/adapters/file_firebase_storage.dart';
 import 'package:drill_events/common/cache/map_cache.dart';
 import 'package:drill_events/common/di/dependencies.dart';
 import 'package:drill_events/common/logger/default_logger.dart';
 import 'package:drill_events/common/network/http_api_client.dart';
 import 'package:drill_events/common/network/interseptors.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> initializer({
@@ -73,27 +70,8 @@ Map<String, Loader> _dependenciesSteps = {
     dependencies.backendApi = MainBackendAPI(api: dependencies.httpApiClient, pipe: dependencies.pipe);
     dependencies.sharedPreferences = await SharedPreferences.getInstance();
   },
-  'blocs': (dependencies) async {
-    dependencies.authBloc = AuthBloc(
-      pipe: dependencies.pipe,
-      repository: dependencies.backendApi,
-      secureStorage: dependencies.secureStorage,
-      logger: dependencies.logger,
-      fastCache: dependencies.fastCache,
-    );
-    dependencies.authBloc.add(GetUserInfo());
-    dependencies.eventsBloc = EventsBloc(dependencies.backendApi, dependencies.logger);
-    dependencies.registrationBloc = RegistrationBloc(
-      repository: dependencies.backendApi,
-      logger: dependencies.logger,
-      pipe: dependencies.pipe,
-    );
-    dependencies.receivingSpotsBloc = ReceivingSpotsBloc(dependencies.backendApi, dependencies.logger);
-    dependencies.createNewEventBloc = CreateNewEventBloc(dependencies.backendApi, dependencies.logger);
-    dependencies.profileBloc = ProfileBloc(
-      logger: dependencies.logger,
-      repository: dependencies.backendApi,
-      pipe: dependencies.pipe,
-    );
+  'File manager': (dependencies) async {
+    dependencies.imagePicker = ImagePicker();
+    dependencies.fileStorage = FileFirebaseStorage(FirebaseStorage.instance, dependencies.logger);
   },
 };

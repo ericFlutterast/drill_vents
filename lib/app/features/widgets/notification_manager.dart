@@ -83,7 +83,7 @@ class NotificationManagerState extends State<NotificationManager> with SingleTic
           widget.child,
           if (_isShow)
             Positioned(
-              top: MediaQuery.sizeOf(context).height * 0.05,
+              top: MediaQuery.sizeOf(context).height * 0.07,
               left: 0,
               right: 0,
               height: 63,

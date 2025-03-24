@@ -6,21 +6,30 @@ import 'package:drill_events/common/bloc/bloc_observer.dart';
 import 'package:drill_events/common/di/dependencies.dart';
 import 'package:drill_events/common/di/dependencies_scope.dart';
 import 'package:drill_events/common/di/initializer.dart';
+import 'package:drill_events/firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
 
 void main() => runZonedGuarded(
-  () async => initializer(
-    onProgress: onProgress,
-    onError: onError,
-    onSuccess: (Dependencies dependencies) {
-      Bloc.observer = AppBlocObserver(dependencies.logger);
-      Bloc.transformer = bloc_concurrency.sequential();
+  () async {
+    WidgetsFlutterBinding.ensureInitialized();
+    Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-      runApp(DependenciesScope(dependencies: dependencies, child: const App()));
-    },
-  ),
+    initializer(
+      onProgress: onProgress,
+      onError: onError,
+      onSuccess: (Dependencies dependencies) {
+        WidgetsFlutterBinding.ensureInitialized();
+
+        Bloc.observer = AppBlocObserver(dependencies.logger);
+        Bloc.transformer = bloc_concurrency.sequential();
+
+        runApp(DependenciesScope(dependencies: dependencies, child: const App()));
+      },
+    );
+  },
   (error, stackTrace) {
     Logger().e(error, error: error, stackTrace: stackTrace);
   },
