@@ -1,9 +1,11 @@
 import 'dart:io';
 
+import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
 import 'package:drill_events/app/new_models/models.dart';
 import 'package:drill_events/common/adapters/events_pipe/pipe_events.dart';
+import 'package:drill_events/common/adapters/file_firebase_storage.dart';
 import 'package:drill_events/common/ports/backend_api.dart';
 import 'package:drill_events/common/ports/file_storage.dart';
 import 'package:drill_events/common/ports/logger.dart';
@@ -91,7 +93,7 @@ final class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       String? imageUrl;
       if (pickedFile != null) {
         avatar = File(pickedFile.path);
-        imageUrl = await _fileStorage.putFile(file: avatar, id: event.userId);
+        imageUrl = await _fileStorage.putFile(file: avatar, path: '${StorageDirectory.userAvatars}/${event.userId}');
       }
 
       final newState = state.value.copyWith(userAvatar: imageUrl);
@@ -135,8 +137,25 @@ final class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       final result = await Future.wait([_repository.getEvents(page: 1, size: 20), _repository.getMyOrgs()]);
       if (result case [(Iterable<EventCardModel> events, PaginationModel _), Iterable<OrgCardModel> organizations]) {
         //TODO: должен появиться эндпоит для получения ивентов только для конкретного узера вместо where
-        final userEvents = events.where((element) => element.booking != null).toList();
-        final newStateValue = state.value.copyWith(events: userEvents.reversed, organization: organizations);
+        final userEvents = events.where((element) => element.booking != null);
+
+        final eventsAvatars = await _fileStorage.getListFileDownloadUrl(
+          userEvents.map((event) => '${StorageDirectory.orgAvatars}/${event.org.id}'),
+        );
+
+        final orgAvatars = await _fileStorage.getListFileDownloadUrl(
+          organizations.map((org) => '${StorageDirectory.orgAvatars}/${org.id}'),
+        );
+
+        final eventsWithImages =
+            userEvents
+                .mapIndexed((i, event) => event.copyWith(org: event.org.copyWith(imageUrl: eventsAvatars.elementAt(i))))
+                .toList()
+                .reversed;
+
+        final orgsWithImages = organizations.mapIndexed((i, org) => org.copyWith(imageUrl: orgAvatars.elementAt(i)));
+
+        final newStateValue = state.value.copyWith(events: eventsWithImages, organization: orgsWithImages);
         emit(state.done(newStateValue));
       } else {
         throw Exception('Не удалось получить данные');

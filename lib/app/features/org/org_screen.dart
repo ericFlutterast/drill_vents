@@ -1,10 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:drill_events/app/blocs/auth.dart';
 import 'package:drill_events/app/blocs/detail_org.dart';
 import 'package:drill_events/app/blocs/detail_org_list_section.dart';
 import 'package:drill_events/app/blocs/manage_spot_subscription.dart';
+import 'package:drill_events/app/features/widgets/app_avatar.dart';
 import 'package:drill_events/app/features/widgets/app_button.dart';
-import 'package:drill_events/app/features/widgets/app_company_logo.dart';
 import 'package:drill_events/app/features/widgets/event_status_label.dart';
 import 'package:drill_events/app/features/widgets/interpunct.dart';
 import 'package:drill_events/app/features/widgets/screen_header.dart';
@@ -28,11 +27,22 @@ class OrgScreen extends StatefulWidget {
   static Widget bloc(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => DetailOrgBloc(context.dependencies.backendApi, context.dependencies.logger)),
         BlocProvider(
           create:
-              (_) =>
-                  DetailOrgListSectionBloc(api: context.dependencies.backendApi, logger: context.dependencies.logger),
+              (_) => DetailOrgBloc(
+                api: context.dependencies.backendApi,
+                logger: context.dependencies.logger,
+                fileStorage: context.dependencies.fileStorage,
+                imagePicker: context.dependencies.imagePicker,
+              ),
+        ),
+        BlocProvider(
+          create:
+              (_) => DetailOrgListSectionBloc(
+                api: context.dependencies.backendApi,
+                logger: context.dependencies.logger,
+                fileStorage: context.dependencies.fileStorage,
+              ),
         ),
         BlocProvider(
           create:
@@ -131,11 +141,12 @@ class _OrgScreenState extends State<OrgScreen> {
                           isPending
                               ? _ContentSection.shimmer()
                               : _ContentSection(
-                                orgId: state.value.id,
+                                orgId: state.value.orgModel.id,
                                 tab: _openedTab,
                                 switchTab: _switchTab,
-                                title: state.value.title,
-                                description: state.value.description,
+                                title: state.value.orgModel.title,
+                                description: state.value.orgModel.description,
+                                imageUrl: state.value.orgAvatar,
                               ),
                         ],
                       ),
@@ -182,6 +193,7 @@ class _OrgScreenState extends State<OrgScreen> {
                                   startTime: event.startTime,
                                   bookingModel: event.booking,
                                   title: event.title,
+                                  imgUrl: event.org.imageUrl,
                                   onTap: () => context.openEventScreen(eventID: event.id),
                                 );
                               },
@@ -202,6 +214,7 @@ class _OrgScreenState extends State<OrgScreen> {
                                 address: spot.address,
                                 city: spot.city ?? '',
                                 isSubscribe: spot.subscribed ?? false,
+                                imgUrl: spot.org.imageUrl,
                               );
                             },
                             separatorBuilder: (context, index) => const SizedBox(height: 20),
@@ -229,12 +242,14 @@ class _ContentSection extends StatelessWidget {
     required this.description,
     required this.switchTab,
     required this.orgId,
+    this.imageUrl,
   });
 
   final _Tab tab;
   final String title;
   final String description;
   final String orgId;
+  final String? imageUrl;
   final Function(_Tab) switchTab;
 
   @override
@@ -254,7 +269,10 @@ class _ContentSection extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const AppCompanyLogo(dimension: 150),
+                  GestureDetector(
+                    onTap: () => context.read<DetailOrgBloc>().add(SelectOrgAvatar(orgId)),
+                    child: AppAvatar(imageUrl: imageUrl, size: 150),
+                  ),
                   const SizedBox(height: 24),
                   Text(title, style: context.themes.main.texts.h1),
                   if (context.read<AuthBloc>().state.getValueOrNull?.isAdmin(orgId) == true) ...[
@@ -352,15 +370,7 @@ class _EventListItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          CachedNetworkImage(
-            imageUrl: '',
-            errorWidget:
-                (_, __, ___) => Container(
-                  height: 52,
-                  width: 52,
-                  decoration: BoxDecoration(color: context.themes.main.colors.secondary, shape: BoxShape.circle),
-                ),
-          ),
+          AppAvatar(imageUrl: imgUrl),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -417,12 +427,12 @@ class _SpotListItem extends StatelessWidget {
     required this.city,
     required this.title,
     required this.address,
-    this.imgPath,
+    this.imgUrl,
     this.isSubscribe = false,
   });
 
   final String title, address, city, id;
-  final String? imgPath;
+  final String? imgUrl;
   final bool isSubscribe;
 
   String get _address => city.isNotEmpty ? '$city, $address' : address;
@@ -435,15 +445,7 @@ class _SpotListItem extends StatelessWidget {
       borderRadius: const BorderRadius.all(Radius.circular(16)),
       child: Row(
         children: [
-          CachedNetworkImage(
-            imageUrl: '',
-            errorWidget:
-                (_, __, ___) => Container(
-                  height: 52,
-                  width: 52,
-                  decoration: BoxDecoration(color: context.themes.main.colors.secondary, shape: BoxShape.circle),
-                ),
-          ),
+          AppAvatar(imageUrl: imgUrl),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

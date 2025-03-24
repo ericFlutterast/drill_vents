@@ -5,6 +5,7 @@ import 'package:drill_events/app/blocs/moderation_users.dart';
 import 'package:drill_events/app/features/event/evenet_admin/tabs/tab_builder.dart';
 import 'package:drill_events/app/features/event/event_screen_args.dart';
 import 'package:drill_events/app/features/event/widgets/date_time_info.dart';
+import 'package:drill_events/app/features/widgets/app_avatar.dart';
 import 'package:drill_events/app/features/widgets/app_button.dart';
 import 'package:drill_events/app/features/widgets/app_icon_button.dart';
 import 'package:drill_events/app/features/widgets/app_notification.dart';
@@ -67,6 +68,7 @@ class EventAdminScreen extends StatefulWidget {
                 cache: context.dependencies.fastCache,
                 repository: context.dependencies.backendApi,
                 logger: context.dependencies.logger,
+                fileStorage: context.dependencies.fileStorage,
               ),
         ),
         BlocProvider(
@@ -118,14 +120,21 @@ class _EventAdminScreenState extends State<EventAdminScreen> {
               ),
             },
 
-            PositionedScreenHeader(
-              controller: _controller,
-              onTapLogo: () {},
-              backButtonHandler: _backButtonHandler,
-              actions: [
-                const SizedBox(width: 12),
-                AppIconButton(icon: CupertinoIcons.pencil, onTap: _openEdinEventScreen, dimension: 42),
-              ],
+            BlocBuilder<EventDetailAdminBloc, EventDetailAdminState>(
+              builder: (context, state) {
+                return PositionedScreenHeader(
+                  orgAvatarUrl: state.hasValue ? state.value.event.orgAvatar : null,
+                  controller: _controller,
+                  backButtonHandler: _backButtonHandler,
+                  onTapLogo: () {
+                    //TODO: чтобы отображалсь иконка но не было нажатия
+                  },
+                  actions: [
+                    const SizedBox(width: 12),
+                    AppIconButton(icon: CupertinoIcons.pencil, onTap: _openEdinEventScreen, dimension: 42),
+                  ],
+                );
+              },
             ),
           ],
         ),
@@ -144,5 +153,57 @@ class _EventAdminScreenState extends State<EventAdminScreen> {
   void _switchTab(_Tab tab) {
     _controller.jumpTo(0);
     setState(() => _currentTab = tab);
+  }
+}
+
+class _UserListItem extends StatelessWidget {
+  const _UserListItem({required this.name, required this.mail, this.imageUrl});
+
+  final String name, mail;
+  final String? imageUrl;
+
+  static Widget shimmer() {
+    return const Row(
+      children: [
+        Shimmer(borderRadius: 100, height: 52, width: 52),
+        SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [Shimmer(height: 18, width: 200), SizedBox(width: 3), Shimmer(height: 18, width: 150)],
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final texts = context.themes.main.texts;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        AppAvatar(imageUrl: imageUrl, fit: BoxFit.fitHeight),
+        const SizedBox(width: 12),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 3),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (name.isNotEmpty)
+                Text(
+                  name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: texts.body.copyWith(fontWeight: FontWeight.w600, height: 1.3),
+                ),
+
+              Text(mail, maxLines: 2, overflow: TextOverflow.ellipsis, style: texts.bodySmall),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }

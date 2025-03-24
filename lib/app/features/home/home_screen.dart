@@ -4,6 +4,7 @@ import 'package:drill_events/app/blocs/home_bloc.dart';
 import 'package:drill_events/app/features/scroll_physics/loading_scroll_physic.dart';
 import 'package:drill_events/app/features/scroll_physics/pagination_scroll_physic.dart';
 import 'package:drill_events/app/features/widgets/animated_refresh.dart';
+import 'package:drill_events/app/features/widgets/app_avatar.dart';
 import 'package:drill_events/app/features/widgets/app_text_field.dart';
 import 'package:drill_events/app/features/widgets/circle_avatar_decoration.dart';
 import 'package:drill_events/app/features/widgets/event_status_label.dart';
@@ -23,7 +24,12 @@ class HomeScreen extends StatefulWidget {
 
   static Widget bloc(BuildContext context) {
     return BlocProvider<EventsBloc>(
-      create: (_) => EventsBloc(context.dependencies.backendApi, context.dependencies.logger),
+      create:
+          (_) => EventsBloc(
+            repository: context.dependencies.backendApi,
+            logger: context.dependencies.logger,
+            fileStorage: context.dependencies.fileStorage,
+          ),
       child: const HomeScreen(),
     );
   }
@@ -106,7 +112,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 if (state.isPending)
                   SliverList.separated(
                     itemCount: 20,
-                    itemBuilder: (context, index) => _EventListItem.shimmer(context),
+                    itemBuilder:
+                        (context, index) => Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: _EventListItem.shimmer(context),
+                        ),
                     separatorBuilder: (_, __) => const SizedBox(height: 28),
                   )
                 else if (state.hasValue) ...[
@@ -120,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
                       }
 
-                      final event = state.value.events.elementAt(index);
+                      final EventCardModel event = state.value.events.elementAt(index);
 
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -132,6 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           onTap: () => context.openEventScreen(eventID: event.id, orgId: event.org.id),
                           startDate: event.startDate,
                           availableSeats: event.availableSeats,
+                          imgUrl: event.spot.imageUrl,
                         ),
                       );
                     },
@@ -274,15 +285,7 @@ class _EventListItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          CachedNetworkImage(
-            imageUrl: '',
-            errorWidget:
-                (_, __, ___) => Container(
-                  height: 52,
-                  width: 52,
-                  decoration: BoxDecoration(color: colors.secondary, shape: BoxShape.circle),
-                ),
-          ),
+          AppAvatar(imageUrl: imgUrl),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

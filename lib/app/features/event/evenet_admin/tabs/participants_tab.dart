@@ -35,7 +35,7 @@ class _ParticipantsListTab extends StatelessWidget {
                 for (final item in participants) ...[
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: _UserListItem(name: item.name ?? '', mail: item.email),
+                    child: _UserListItem(name: item.name ?? '', mail: item.email, imageUrl: item.imageUrl),
                   ),
                   const SizedBox(height: 12),
                 ],
@@ -45,58 +45,6 @@ class _ParticipantsListTab extends StatelessWidget {
           ],
         );
       },
-    );
-  }
-}
-
-class _UserListItem extends StatelessWidget {
-  const _UserListItem({required this.name, required this.mail});
-
-  final String name, mail;
-
-  static Widget shimmer() {
-    return const Row(
-      children: [
-        Shimmer(borderRadius: 100, height: 52, width: 52),
-        SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [Shimmer(height: 18, width: 200), SizedBox(width: 3), Shimmer(height: 18, width: 150)],
-          ),
-        ),
-      ],
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final texts = context.themes.main.texts;
-    final colors = context.themes.main.colors;
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Container(height: 52, width: 52, decoration: BoxDecoration(color: colors.secondary, shape: BoxShape.circle)),
-        const SizedBox(width: 12),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 3),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (name.isNotEmpty)
-                Text(
-                  name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: texts.body.copyWith(fontWeight: FontWeight.w600, height: 1.3),
-                ),
-
-              Text(mail, maxLines: 2, overflow: TextOverflow.ellipsis, style: texts.bodySmall),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

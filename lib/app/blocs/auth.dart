@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
 import 'package:drill_events/app/new_models/models.dart';
 import 'package:drill_events/common/adapters/events_pipe/pipe_events.dart';
+import 'package:drill_events/common/adapters/file_firebase_storage.dart';
 import 'package:drill_events/common/ports/backend_api.dart';
 import 'package:drill_events/common/ports/fast_cache.dart';
 import 'package:drill_events/common/ports/file_storage.dart';
@@ -128,7 +129,7 @@ final class AuthBloc extends Bloc<AuthEvents, AuthState> {
 
       final user = result[0] as UserModel;
       final roles = result[1] as Iterable<RoleModel>;
-      final userAvatar = await _fileStorage.getFileDownloadUrl(user.id);
+      final userAvatar = await _fileStorage.getFileDownloadUrl('${StorageDirectory.userAvatars}/${user.id}');
 
       emit(state.done(user.copyWith(roles: roles, userAvatar: userAvatar)));
     } on DioException catch (error, stackTrace) {

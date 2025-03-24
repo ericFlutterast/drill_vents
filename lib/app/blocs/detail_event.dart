@@ -2,8 +2,10 @@ import 'package:dio/dio.dart';
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
 import 'package:drill_events/app/new_models/models.dart';
 import 'package:drill_events/common/adapters/events_pipe/pipe_events.dart';
+import 'package:drill_events/common/adapters/file_firebase_storage.dart';
 import 'package:drill_events/common/ports/backend_api.dart';
 import 'package:drill_events/common/ports/fast_cache.dart';
+import 'package:drill_events/common/ports/file_storage.dart';
 import 'package:drill_events/common/ports/logger.dart';
 import 'package:drill_events/common/ports/pipe.dart';
 import 'package:drill_events/common/utils/cache_keys.dart';
@@ -33,10 +35,12 @@ final class DetailEventBloc extends Bloc<DetailEvents, DetailEventState> {
     required BackendAPI repository,
     required Logger logger,
     required Pipe pipe,
+    required FileStorage fileStorage,
   }) : _logger = logger,
        _repository = repository,
        _cache = cache,
        _pipe = pipe,
+       _fileStorage = fileStorage,
        super(const CommonBlocState.init()) {
     on<FetchDetailEvent>(_fetchDetailEvent);
     on<SetBookingInfoEvent>(_setBookingInfo);
@@ -52,6 +56,7 @@ final class DetailEventBloc extends Bloc<DetailEvents, DetailEventState> {
   final BackendAPI _repository;
   final FastCache _cache;
   final Pipe _pipe;
+  final FileStorage _fileStorage;
 
   Future<void> _fetchDetailEvent(FetchDetailEvent event, Emit emit) async {
     try {
@@ -68,7 +73,9 @@ final class DetailEventBloc extends Bloc<DetailEvents, DetailEventState> {
         _cache.set(cacheKey, item, duration: const Duration(seconds: 10));
       }
 
-      emit(state.done(item));
+      final orgAvatar = await _fileStorage.getFileDownloadUrl('${StorageDirectory.orgAvatars}/${item.org.id}');
+
+      emit(state.done(item.copyWith(orgAvatar: orgAvatar)));
     } on DioException catch (error, stackTrace) {
       emit(state.error(error.appErrorMessage));
       _logger.error(error.appErrorMessage, error: error, stackTrace: stackTrace);

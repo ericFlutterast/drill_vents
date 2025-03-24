@@ -3,6 +3,7 @@ import 'package:drill_events/app/blocs/auth.dart';
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
 import 'package:drill_events/app/blocs/profile_bloc.dart';
 import 'package:drill_events/app/features/profile/widgets/editing_profile_modal.dart';
+import 'package:drill_events/app/features/widgets/app_avatar.dart';
 import 'package:drill_events/app/features/widgets/app_button.dart';
 import 'package:drill_events/app/features/widgets/app_icon_button.dart';
 import 'package:drill_events/app/features/widgets/app_notification.dart';
@@ -88,7 +89,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                     controller: _scrollController,
                     slivers: [
                       SliverPadding(padding: EdgeInsets.only(top: MediaQuery.sizeOf(context).height * 0.1)),
-                      SliverToBoxAdapter(child: _ProfileHeader(imagePath: state.value.userAvatar)),
+                      SliverToBoxAdapter(child: _ProfileHeader(imagePath: state.getValueOrNull?.userAvatar)),
                       const SliverPadding(padding: EdgeInsets.only(top: 10)),
                       const SliverToBoxAdapter(child: _UserInfo()),
                       const SliverPadding(padding: EdgeInsets.only(top: 26)),
@@ -114,6 +115,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                                 title: item.title,
                                 onTap: () => context.openOrgScreen(item.id),
                                 eventItem: item.eventsCount,
+                                imageUrl: item.imageUrl,
                               ),
                             );
                           },
@@ -144,6 +146,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                                 startDate: item.startDate,
                                 startTime: item.startTime,
                                 availableSeats: item.availableSeats,
+                                imgUrl: item.org.imageUrl,
                               ),
                             );
                           },
@@ -217,7 +220,7 @@ class _ProfileHeader extends StatelessWidget {
       },
       child: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
-          final avatar = imagePath ?? state.value.userAvatar;
+          final avatar = imagePath ?? state.getValueOrNull?.userAvatar;
           if (state.isDone || state.isIdle && state.hasValue) {
             return Center(
               child: CircleAvatarDecoration(
@@ -367,11 +370,12 @@ class _LogoutDialog extends StatelessWidget {
 }
 
 class _OrgListItem extends StatelessWidget {
-  const _OrgListItem({required this.title, this.onTap, required this.eventItem});
+  const _OrgListItem({required this.title, this.onTap, required this.eventItem, this.imageUrl});
 
   final String title;
   final int eventItem;
   final VoidCallback? onTap;
+  final String? imageUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -381,15 +385,7 @@ class _OrgListItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          CachedNetworkImage(
-            imageUrl: '',
-            errorWidget:
-                (_, __, ___) => Container(
-                  height: 52,
-                  width: 52,
-                  decoration: BoxDecoration(color: context.themes.main.colors.secondary, shape: BoxShape.circle),
-                ),
-          ),
+          AppAvatar(imageUrl: imageUrl),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -445,15 +441,7 @@ class _EventListItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          CachedNetworkImage(
-            imageUrl: '',
-            errorWidget:
-                (_, __, ___) => Container(
-                  height: 52,
-                  width: 52,
-                  decoration: BoxDecoration(color: context.themes.main.colors.secondary, shape: BoxShape.circle),
-                ),
-          ),
+          AppAvatar(imageUrl: imgUrl),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
