@@ -10,7 +10,7 @@ class AppBackButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       borderRadius: const BorderRadius.all(Radius.circular(100)),
-      onTap: onTap,
+      onTap: onTap ?? () => Navigator.pop(context),
       child: SizedBox.square(
         dimension: 42,
         child: Ink(
