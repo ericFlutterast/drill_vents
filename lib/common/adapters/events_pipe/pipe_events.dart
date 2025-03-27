@@ -14,3 +14,5 @@ final class UpdateOrgScreenData extends PipeEvent {
   UpdateOrgScreenData(this.orgId);
   final String orgId;
 }
+
+final class UpdateEventsInfo extends PipeEvent {}

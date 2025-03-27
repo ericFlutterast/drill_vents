@@ -3,10 +3,12 @@ import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
 import 'package:drill_events/app/new_models/models.dart';
+import 'package:drill_events/common/adapters/events_pipe/pipe_events.dart';
 import 'package:drill_events/common/adapters/file_firebase_storage.dart';
 import 'package:drill_events/common/ports/backend_api.dart';
 import 'package:drill_events/common/ports/file_storage.dart';
 import 'package:drill_events/common/ports/logger.dart';
+import 'package:drill_events/common/ports/pipe.dart';
 import 'package:drill_events/common/utils/error_codes.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -44,20 +46,31 @@ typedef Emit = Emitter<EventsState>;
 
 ///Bloc
 final class EventsBloc extends Bloc<Events, EventsState> {
-  EventsBloc({required BackendAPI repository, required Logger logger, required FileStorage fileStorage})
-    : _repository = repository,
-      _logger = logger,
-      _fileStorage = fileStorage,
-
-      super(const CommonBlocState.init(value: EventsStateModel())) {
+  EventsBloc({
+    required BackendAPI repository,
+    required Logger logger,
+    required FileStorage fileStorage,
+    required Pipe pipe,
+  }) : _repository = repository,
+       _logger = logger,
+       _fileStorage = fileStorage,
+       _pipe = pipe,
+       super(const CommonBlocState.init(value: EventsStateModel())) {
     on<FetchEventsFeed>(_fetchFeed);
     on<SearchEvents>(_searchEvents, transformer: bloc_concurrency.restartable());
     on<PaginationEvent>(_pagination, transformer: bloc_concurrency.restartable());
+
+    _pipe.listen((event) {
+      if (event is UpdateEventsInfo) {
+        add(FetchEventsFeed());
+      }
+    });
   }
 
   final BackendAPI _repository;
   final Logger _logger;
   final FileStorage _fileStorage;
+  final Pipe _pipe;
 
   Future<void> _fetchFeed(FetchEventsFeed event, Emit emit) async {
     try {

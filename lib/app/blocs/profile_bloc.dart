@@ -87,6 +87,8 @@ final class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
   Future<void> _selectAvatar(SelectProfileAvatarEvent event, Emit emit) async {
     try {
+      emit(state.pending(value: state.getValueOrNull));
+
       final pickedFile = await _imagePicker.pickMedia();
 
       File? avatar;
@@ -97,6 +99,7 @@ final class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       }
 
       final newState = state.value.copyWith(userAvatar: imageUrl);
+      _pipe.publish(UpdateUserDataPipeEvent());
       emit(state.copyWith(value: newState));
     } on FirebaseException {
       emit(state.error('Не удалось загрузить фото', value: state.value));
