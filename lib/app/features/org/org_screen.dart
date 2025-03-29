@@ -133,24 +133,30 @@ class _OrgScreenState extends State<OrgScreen> {
                 CustomScrollView(
                   controller: _scrollController,
                   slivers: [
-                    SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(28, 82, 28, 24),
-                      sliver: SliverList.list(
-                        children: [
-                          // TODO: добавить плавность
-                          isPending
-                              ? _ContentSection.shimmer()
-                              : _ContentSection(
-                                orgId: state.value.orgModel.id,
-                                tab: _openedTab,
-                                switchTab: _switchTab,
-                                title: state.value.orgModel.title,
-                                description: state.value.orgModel.description,
-                                imageUrl: state.value.orgAvatar,
-                              ),
-                        ],
+                    if (isPending) ...[
+                      const SliverPadding(padding: EdgeInsets.only(top: 180)),
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 28),
+                          child: _ContentSection.shimmer(),
+                        ),
                       ),
-                    ),
+                    ] else
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(28, 82, 28, 24),
+                        sliver: SliverList.list(
+                          children: [
+                            _ContentSection(
+                              orgId: state.value.orgModel.id,
+                              tab: _openedTab,
+                              switchTab: _switchTab,
+                              title: state.value.orgModel.title,
+                              description: state.value.orgModel.description,
+                              imageUrl: state.value.orgAvatar,
+                            ),
+                          ],
+                        ),
+                      ),
                     // TODO: постараться вынести
                     SliverPadding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),

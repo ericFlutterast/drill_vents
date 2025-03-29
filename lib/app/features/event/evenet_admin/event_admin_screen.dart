@@ -37,9 +37,7 @@ class EventAdminScreen extends StatefulWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 50),
-          const Shimmer(height: 42, width: 42, borderRadius: 100),
-          const SizedBox(height: 50),
+          const SizedBox(height: 180),
           Shimmer(height: 20, width: deviceSize.width * 0.5),
           const SizedBox(height: 7),
           Shimmer(height: 50, width: deviceSize.width * 0.7),
@@ -126,9 +124,7 @@ class _EventAdminScreenState extends State<EventAdminScreen> {
                   orgAvatarUrl: state.hasValue ? state.value.event.orgAvatar : null,
                   controller: _controller,
                   backButtonHandler: _backButtonHandler,
-                  onTapLogo: () {
-                    //TODO: чтобы отображалсь иконка но не было нажатия
-                  },
+                  onTapLogo: () => context.openOrgScreen(state.value.event.org.id),
                   actions: [
                     const SizedBox(width: 12),
                     AppIconButton(icon: CupertinoIcons.pencil, onTap: _openEdinEventScreen, dimension: 42),

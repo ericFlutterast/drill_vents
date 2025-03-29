@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:drill_events/app/blocs/auth.dart';
-import 'package:drill_events/app/blocs/home_bloc.dart';
+import 'package:drill_events/app/blocs/feed_events.dart';
 import 'package:drill_events/app/features/scroll_physics/loading_scroll_physic.dart';
 import 'package:drill_events/app/features/scroll_physics/pagination_scroll_physic.dart';
 import 'package:drill_events/app/features/widgets/animated_refresh.dart';
@@ -29,6 +29,7 @@ class HomeScreen extends StatefulWidget {
             repository: context.dependencies.backendApi,
             logger: context.dependencies.logger,
             fileStorage: context.dependencies.fileStorage,
+            pipe: context.dependencies.pipe,
           ),
       child: const HomeScreen(),
     );
@@ -102,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 CupertinoSliverRefreshControl(
                   refreshIndicatorExtent: 60,
-                  refreshTriggerPullDistance: 180,
+                  refreshTriggerPullDistance: 170,
                   onRefresh: () async => context.read<EventsBloc>().add(FetchEventsFeed()),
                   builder: (context, _, pullExtent, __, ___) {
                     return pullExtent > 85 ? const Center(child: AnimatedRefresh()) : const SizedBox.shrink();
@@ -282,6 +283,7 @@ class _EventListItem extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [

@@ -39,7 +39,12 @@ class EventScreen extends StatefulWidget {
         ),
         BlocProvider<BookingEventBloc>(
           create:
-              (_) => BookingEventBloc(repository: context.dependencies.backendApi, logger: context.dependencies.logger),
+              (_) => BookingEventBloc(
+                cache: context.dependencies.fastCache,
+                repository: context.dependencies.backendApi,
+                logger: context.dependencies.logger,
+                pipe: context.dependencies.pipe,
+              ),
         ),
       ],
       child: const EventScreen(),
@@ -190,7 +195,15 @@ class _EventScreenState extends State<EventScreen> {
                             }
                             if (state.hasValue && state.value.booking != null ||
                                 bookingState.hasValue && bookingState.isDone) {
-                              onTap = () => context.openBottomSheet(const _DeclineBookingModal());
+                              onTap = () {
+                                context.openBottomSheet(
+                                  _DeclineBookingModal(
+                                    userId: authState.value.id,
+                                    eventId: state.value.id,
+                                    bloc: context.read<BookingEventBloc>(),
+                                  ),
+                                );
+                              };
                               return AppButton.warning(onTap: onTap, title: 'Отменить завявку');
                             }
 
@@ -200,7 +213,7 @@ class _EventScreenState extends State<EventScreen> {
                           },
                         ),
 
-                        const SliverPadding(padding: EdgeInsets.only(top: 25)),
+                        const SliverPadding(padding: EdgeInsets.only(top: 50)),
                       ],
                     ),
                   PositionedScreenHeader(
@@ -421,31 +434,60 @@ class _BookingButtonBuilder extends StatelessWidget {
 }
 
 class _DeclineBookingModal extends StatelessWidget {
-  const _DeclineBookingModal();
+  const _DeclineBookingModal({required this.userId, required this.eventId, required this.bloc});
+
+  final String eventId, userId;
+  final BookingEventBloc bloc;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 28),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text('Вы уверены?', style: context.themes.main.texts.h3),
-          const SizedBox(height: 18),
-          Text(
-            'Текущая заявка на участие будет отменена. Вы сможете подать ее снова в любое время.',
-            style: context.themes.main.texts.body,
-          ),
-          const SizedBox(height: 36),
-          AppButton.warning(
-            title: 'Отменить завявку',
-            onTap: () {
-              //TODO: запрос отмены заявки
+    return BlocProvider.value(
+      value: bloc,
+      child: Builder(
+        builder: (context) {
+          return BlocListener<BookingEventBloc, BookingEventState>(
+            listener: (_, state) {
+              if (state.isError) {
+                NotificationManager.of(context).showNotification(
+                  notification: const AppNotification(message: 'Что-то пошло не так', status: NotificationStatus.error),
+                );
+              }
+              if (state.isDone) {
+                NotificationManager.of(context).showNotification(
+                  notification: const AppNotification(
+                    title: 'Вы успешно отписались',
+                    status: NotificationStatus.success,
+                  ),
+                );
+              }
+
               Navigator.pop(context);
             },
-          ),
-        ],
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 28),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('Вы уверены?', style: context.themes.main.texts.h3),
+                    const SizedBox(height: 18),
+                    Text(
+                      'Текущая заявка на участие будет отменена. Вы сможете подать ее снова в любое время.',
+                      style: context.themes.main.texts.body,
+                    ),
+                    const SizedBox(height: 36),
+                    AppButton.warning(
+                      title: 'Отменить завявку',
+                      onTap:
+                          () => context.read<BookingEventBloc>().add(RemoveBookEvent(eventId: eventId, userId: userId)),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
