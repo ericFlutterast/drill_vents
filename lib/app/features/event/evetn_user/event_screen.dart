@@ -146,13 +146,21 @@ class _EventScreenState extends State<EventScreen> {
         },
         child: BlocListener<BookingEventBloc, CommonBlocState<BookingModel>>(
           listener: _signUpToEventBlocListener,
-          child: BlocBuilder<DetailEventBloc, DetailEventState>(
+          child: BlocConsumer<DetailEventBloc, DetailEventState>(
+            listener: (context, state) {
+              if (state.isError) {
+                NotificationManager.of(context).showNotification(
+                  notification: AppNotification(
+                    message: state.errorMessage.toString(),
+                    status: NotificationStatus.error,
+                  ),
+                );
+              }
+            },
             builder: (context, state) {
               return Stack(
                 children: [
-                  if (state.hasError)
-                    const Center(child: Text('Не удалось получить информацию'))
-                  else if (state.isDone && state.hasValue)
+                  if (state.isDone && state.hasValue)
                     CustomScrollView(
                       controller: _scrollController,
                       slivers: [
@@ -186,6 +194,10 @@ class _EventScreenState extends State<EventScreen> {
                         const SliverPadding(padding: EdgeInsets.only(top: 42)),
                         _BookingButtonBuilder(
                           builder: (context) {
+                            if (state.value.availableSeats <= 0) {
+                              return const SizedBox.shrink();
+                            }
+
                             final authState = context.watch<AuthBloc>().state;
                             final bookingState = context.watch<BookingEventBloc>().state;
 

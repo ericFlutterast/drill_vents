@@ -308,6 +308,7 @@ class _EventListItem extends StatelessWidget {
                     const SizedBox(width: 8),
                     Text(spotName, style: texts.bodySmall),
                     const Spacer(),
+                    //TODO: availableSeats >= capacity
                     if (availableSeats <= 0) Text('Мест нет', style: texts.bodySmall.copyWith(color: colors.secondary)),
                   ],
                 ),
