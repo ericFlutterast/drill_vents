@@ -1,6 +1,6 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:drill_events/app/blocs/receiving_spots.dart';
 import 'package:drill_events/app/features/create_edit_event/validators/event_validators.dart';
+import 'package:drill_events/app/features/widgets/app_avatar.dart';
 import 'package:drill_events/app/features/widgets/app_notification.dart';
 import 'package:drill_events/app/features/widgets/notification_manager.dart';
 import 'package:drill_events/app/features/widgets/shimmer.dart';
@@ -18,8 +18,11 @@ class SpotsTile extends StatefulWidget {
   static Widget bloc(BuildContext context, {Key? key, required Validator<String> validator, required String orgId}) {
     return BlocProvider<ReceivingSpotsBloc>(
       create: (context) {
-        return ReceivingSpotsBloc(context.dependencies.backendApi, context.dependencies.logger)
-          ..add(GetSpotsEvent(orgId));
+        return ReceivingSpotsBloc(
+          api: context.dependencies.backendApi,
+          logger: context.dependencies.logger,
+          fileStorage: context.dependencies.fileStorage,
+        )..add(GetSpotsEvent(orgId));
       },
       child: SpotsTile._(key: key, validator: validator),
     );
@@ -74,6 +77,7 @@ class _SpotsTileState extends State<SpotsTile> {
                       address: spot.address,
                       onSelect: () => _selectSpot(index),
                       isSelect: _selectedIndex == index || widget.validator.value == spot.id,
+                      imageUrl: spot.org.imageUrl,
                     ),
                     if (index != 3) const SizedBox(height: 20),
                   ],
@@ -97,32 +101,30 @@ class _SpotsTileState extends State<SpotsTile> {
 }
 
 class _Spot extends StatelessWidget {
-  const _Spot({required this.onSelect, this.isSelect = false, required this.title, required this.address});
+  const _Spot({
+    required this.onSelect,
+    this.isSelect = false,
+    required this.title,
+    required this.address,
+    this.imageUrl,
+  });
 
   final VoidCallback onSelect;
   final bool isSelect;
   final String title;
   final String address;
+  final String? imageUrl;
 
   static Widget shimmer() => const Shimmer(height: 52);
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.themes.main.colors;
     final texts = context.themes.main.texts;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        CachedNetworkImage(
-          imageUrl: '',
-          errorWidget:
-              (_, __, ___) => Container(
-                height: 52,
-                width: 52,
-                decoration: BoxDecoration(color: colors.secondary, shape: BoxShape.circle),
-              ),
-        ),
+        AppAvatar(imageUrl: imageUrl, size: 52),
         const SizedBox(width: 12),
         Expanded(
           child: Column(

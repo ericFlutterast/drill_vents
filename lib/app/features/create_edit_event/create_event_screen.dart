@@ -86,9 +86,9 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     }
 
     if (state.isError) {
-      NotificationManager.of(
-        context,
-      ).showNotification(notification: const AppNotification(message: 'Ошибка', status: NotificationStatus.error));
+      NotificationManager.of(context).showNotification(
+        notification: AppNotification(message: state.errorMessage.toString(), status: NotificationStatus.error),
+      );
     }
   }
 
