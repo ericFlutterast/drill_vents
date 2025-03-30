@@ -187,6 +187,24 @@ class DetailSpotModel extends Equatable {
 
   @override
   List<Object?> get props => [id, title, description, address, cityId, subscribed, org];
+
+  DetailSpotModel copyWith({
+    String? id,
+    String? title,
+    String? description,
+    String? address,
+    int? cityId,
+    bool? subscribed,
+    ShortOrgModel? org,
+  }) => DetailSpotModel(
+    id: id ?? this.id,
+    title: title ?? this.title,
+    description: description ?? this.description,
+    address: address ?? this.address,
+    cityId: cityId ?? this.cityId,
+    org: org ?? this.org,
+    subscribed: subscribed ?? this.subscribed,
+  );
 }
 
 @JsonSerializable()

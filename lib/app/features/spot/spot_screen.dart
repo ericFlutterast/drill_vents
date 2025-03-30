@@ -1,7 +1,7 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:drill_events/app/blocs/auth.dart';
 import 'package:drill_events/app/blocs/detail_spot.dart';
 import 'package:drill_events/app/blocs/manage_spot_subscription.dart';
+import 'package:drill_events/app/features/widgets/app_avatar.dart';
 import 'package:drill_events/app/features/widgets/app_button.dart';
 import 'package:drill_events/app/features/widgets/event_status_label.dart';
 import 'package:drill_events/app/features/widgets/interpunct.dart';
@@ -26,7 +26,12 @@ class SpotScreen extends StatefulWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<DetailSpotBloc>(
-          create: (_) => DetailSpotBloc(context.dependencies.backendApi, context.dependencies.logger),
+          create:
+              (_) => DetailSpotBloc(
+                api: context.dependencies.backendApi,
+                logger: context.dependencies.logger,
+                fileStorage: context.dependencies.fileStorage,
+              ),
         ),
         BlocProvider<ManageSpotSubscriptionBloc>(
           create:
@@ -84,29 +89,28 @@ class _SpotScreenState extends State<SpotScreen> {
             context.read<DetailSpotBloc>().add(FetchDetailSpot(spotId));
           }
         },
-        child: Stack(
-          children: [
-            BlocBuilder<DetailSpotBloc, DetailSpotState>(
-              builder: (context, state) {
-                if (state.hasError) {
-                  // TODO:
-                  return Expanded(child: Text("Error ${state.errorMessage}"));
-                }
+        child: BlocBuilder<DetailSpotBloc, DetailSpotState>(
+          builder: (context, state) {
+            if (state.hasError) {
+              // TODO:
+              return Expanded(child: Text("Error ${state.errorMessage}"));
+            }
 
-                if (state.isPending) {
-                  // TODO:
-                  return const Text("Pending");
-                }
+            if (state.isPending) {
+              // TODO:
+              return const Text("Pending");
+            }
 
-                if (state.isIdle) {
-                  // TODO:
-                  return const Text("Idle");
-                }
+            if (state.isIdle) {
+              // TODO:
+              return const Text("Idle");
+            }
 
-                final spot = state.value.spot;
-                final isAdmin = context.read<AuthBloc>().state.getValueOrNull?.isAdmin(state.value.spot.org.id);
-
-                return CustomScrollView(
+            final spot = state.value.spot;
+            final isAdmin = context.read<AuthBloc>().state.getValueOrNull?.isAdmin(state.value.spot.org.id);
+            return Stack(
+              children: [
+                CustomScrollView(
                   controller: _scrollController,
                   slivers: [
                     SliverPadding(
@@ -141,7 +145,7 @@ class _SpotScreenState extends State<SpotScreen> {
                     SliverList.separated(
                       itemCount: state.value.events.length,
                       itemBuilder: (context, index) {
-                        final event = state.value.events.elementAt(index);
+                        final EventCardModel event = state.value.events.elementAt(index);
 
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -151,6 +155,8 @@ class _SpotScreenState extends State<SpotScreen> {
                             startDate: event.startDate,
                             startTime: event.startTime,
                             availableSeats: event.availableSeats,
+                            imgUrl: event.org.imageUrl,
+                            bookingModel: event.booking,
                           ),
                         );
                       },
@@ -158,11 +164,15 @@ class _SpotScreenState extends State<SpotScreen> {
                     ),
                     const SliverToBoxAdapter(child: SizedBox(height: 80)),
                   ],
-                );
-              },
-            ),
-            PositionedScreenHeader(controller: _scrollController, onTapLogo: () {}),
-          ],
+                ),
+                PositionedScreenHeader(
+                  controller: _scrollController,
+                  onTapLogo: () => context.openOrgScreen(state.getValueOrNull?.spot.org.id ?? ''),
+                  orgAvatarUrl: state.getValueOrNull?.spot.org.imageUrl,
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -208,15 +218,7 @@ class _EventListItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          CachedNetworkImage(
-            imageUrl: '',
-            errorWidget:
-                (_, __, ___) => Container(
-                  height: 52,
-                  width: 52,
-                  decoration: BoxDecoration(color: context.themes.main.colors.secondary, shape: BoxShape.circle),
-                ),
-          ),
+          AppAvatar(size: 52, imageUrl: imgUrl),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
