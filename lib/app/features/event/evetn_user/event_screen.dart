@@ -34,7 +34,7 @@ class EventScreen extends StatefulWidget {
               cache: context.dependencies.fastCache,
               pipe: context.dependencies.pipe,
               fileStorage: context.dependencies.fileStorage,
-            )..add(FetchDetailEvent(id: id));
+            )..add(FetchDetailEvent(eventId: id));
           },
         ),
         BlocProvider<BookingEventBloc>(

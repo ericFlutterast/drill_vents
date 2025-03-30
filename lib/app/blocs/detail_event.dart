@@ -16,9 +16,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 abstract class DetailEvents {}
 
 final class FetchDetailEvent extends DetailEvents {
-  FetchDetailEvent({required this.id});
+  FetchDetailEvent({required this.eventId});
 
-  final String id;
+  final String eventId;
 }
 
 final class SetBookingInfoEvent extends DetailEvents {
@@ -62,11 +62,11 @@ final class DetailEventBloc extends Bloc<DetailEvents, DetailEventState> {
     try {
       emit(state.pending());
 
-      final cacheKey = CacheKey.event(event.id);
+      final cacheKey = CacheKey.event(event.eventId);
       DetailEventModel? item = _cache.get<DetailEventModel>(cacheKey);
 
       if (item == null) {
-        item = await _repository.getEvent(event.id);
+        item = await _repository.getEvent(event.eventId);
         final cities = await _repository.getCities();
         final necessaryCity = findCity(cities.toList(), item.spot.cityId);
         item = item.copyWith(spotCity: necessaryCity?.title);

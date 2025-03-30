@@ -92,6 +92,7 @@ class _EventAdminScreenState extends State<EventAdminScreen> {
 
     final eventId = context.getArgs<EventScreenArgs>().eventId;
     context.read<EventDetailAdminBloc>().add(FetchDetailEventAdmin(eventId));
+    context.read<EventDetailAdminBloc>().add(FetchParticipantsEvent(eventId));
     context.read<ModerationUsersBloc>().add(FetchUserForModerationEvent(eventId));
   }
 
