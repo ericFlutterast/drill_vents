@@ -218,8 +218,8 @@ class _EventScreenState extends State<EventScreen> {
                     ),
                   PositionedScreenHeader(
                     controller: _scrollController,
-                    orgAvatarUrl: state.getValueOrNull?.orgAvatar,
-                    onTapLogo: () => context.openOrgScreen("7fdb5b3d-9de4-4dbb-a862-1a430feeb7fa"),
+                    orgAvatarUrl: state.getValueOrNull?.org.imageUrl,
+                    onTapLogo: () => context.openOrgScreen(state.getValueOrNull?.org.id ?? ''),
                   ),
                 ],
               );
