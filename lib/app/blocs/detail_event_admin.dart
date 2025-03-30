@@ -21,6 +21,11 @@ final class FetchDetailEventAdmin extends EventDetailAdminEvent {
   final String eventId;
 }
 
+final class FetchParticipantsEvent extends EventDetailAdminEvent {
+  FetchParticipantsEvent(this.eventId);
+  final String eventId;
+}
+
 ///State
 typedef EventDetailAdminState = CommonBlocState<EventDetailAdminStateModel>;
 
@@ -50,7 +55,8 @@ final class EventDetailAdminBloc extends Bloc<EventDetailAdminEvent, EventDetail
        _cache = cache,
        _fileStorage = fileStorage,
        super(const CommonBlocState.init()) {
-    on<FetchDetailEventAdmin>(_fetchDetailEvent);
+    on<FetchDetailEventAdmin>(_fetchDetail);
+    on<FetchParticipantsEvent>(_fetchParticipants);
   }
 
   final Logger _logger;
@@ -58,20 +64,12 @@ final class EventDetailAdminBloc extends Bloc<EventDetailAdminEvent, EventDetail
   final FastCache _cache;
   final FileStorage _fileStorage;
 
-  Future<void> _fetchDetailEvent(FetchDetailEventAdmin event, _Emit emit) async {
+  Future<void> _fetchDetail(FetchDetailEventAdmin event, _Emit emit) async {
     try {
       emit(state.pending());
 
       final cacheKey = CacheKey.event(event.eventId);
       DetailEventModel? item = _cache.get<DetailEventModel>(cacheKey);
-
-      final participants = await _repository.getParticipants(event.eventId);
-
-      final participantsAvatars = await _fileStorage.getListFileDownloadUrl(
-        participants.map((item) {
-          return '${StorageDirectory.userAvatars}/${item.id}';
-        }),
-      );
 
       if (item == null) {
         final result = await Future.wait([_repository.getEvent(event.eventId), _repository.getCities()]);
@@ -87,19 +85,33 @@ final class EventDetailAdminBloc extends Bloc<EventDetailAdminEvent, EventDetail
       final orgAvatarUrl = await _fileStorage.getFileDownloadUrl('${StorageDirectory.orgAvatars}/${item.org.id}');
 
       final newState =
-          state.getValueOrNull?.copyWith(
-            event: item.copyWith(orgAvatar: orgAvatarUrl),
-            participants: participants.mapIndexed((i, item) {
-              return item.copyWith(imageUrl: participantsAvatars.elementAt(i));
-            }),
-          ) ??
-          EventDetailAdminStateModel(
-            event: item.copyWith(orgAvatar: orgAvatarUrl),
-            participants: participants.mapIndexed((i, item) {
-              return item.copyWith(imageUrl: participantsAvatars.elementAt(i));
-            }),
-          );
+          state.getValueOrNull?.copyWith(event: item.copyWith(orgAvatar: orgAvatarUrl)) ??
+          EventDetailAdminStateModel(event: item.copyWith(orgAvatar: orgAvatarUrl));
 
+      emit(state.done(newState));
+    } on DioException catch (error, stackTrace) {
+      emit(state.error(error.appErrorMessage));
+      _logger.error(error.appErrorMessage, error: error, stackTrace: stackTrace);
+    } catch (error, stackTrace) {
+      emit(state.error(error));
+      _logger.error(error, error: error, stackTrace: stackTrace);
+    }
+  }
+
+  Future<void> _fetchParticipants(FetchParticipantsEvent event, _Emit emit) async {
+    try {
+      final participants = await _repository.getParticipants(event.eventId);
+
+      final participantsAvatars = await _fileStorage.getListFileDownloadUrl(
+        participants.map((item) {
+          return '${StorageDirectory.userAvatars}/${item.id}';
+        }),
+      );
+      final newState = state.getValueOrNull?.copyWith(
+        participants: participants.mapIndexed((i, item) {
+          return item.copyWith(imageUrl: participantsAvatars.elementAt(i));
+        }),
+      );
       emit(state.done(newState));
     } on DioException catch (error, stackTrace) {
       emit(state.error(error.appErrorMessage));

@@ -86,7 +86,6 @@ class NotificationManagerState extends State<NotificationManager> with SingleTic
               top: MediaQuery.sizeOf(context).height * 0.07,
               left: 0,
               right: 0,
-              height: 63,
               child: SlideTransition(
                 position: Tween<Offset>(begin: const Offset(0, -5), end: Offset.zero).animate(_animationController),
                 child: Dismissible(

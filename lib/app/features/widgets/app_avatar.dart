@@ -9,7 +9,7 @@ class AppAvatar extends StatelessWidget {
     this.imageUrl,
     this.clipBehavior = Clip.hardEdge,
     this.size = 52,
-    this.fit = BoxFit.fitWidth,
+    this.fit = BoxFit.cover,
   });
 
   final BoxFit fit;

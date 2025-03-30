@@ -21,14 +21,14 @@ final class UnsubscribeEvent extends ManageSpotSubscriptionEvent {
 }
 
 ///State
-typedef ManageSpotSubscriptionState = CommonBlocState;
+typedef ManageSpotSubscriptionState = CommonBlocState<String>;
 typedef _Emit = Emitter<ManageSpotSubscriptionState>;
 
 final class ManageSpotSubscriptionBloc extends Bloc<ManageSpotSubscriptionEvent, ManageSpotSubscriptionState> {
   ManageSpotSubscriptionBloc({required Logger logger, required BackendAPI api})
     : _logger = logger,
       _api = api,
-      super(const CommonBlocState.init()) {
+      super(const CommonBlocState<String>.init()) {
     on<SubscribeEvent>(_subscribe);
     on<UnsubscribeEvent>(_unsubscribe);
   }
@@ -40,7 +40,7 @@ final class ManageSpotSubscriptionBloc extends Bloc<ManageSpotSubscriptionEvent,
     try {
       emit(state.pending());
       await _api.subscribeToSpot(event.spotId);
-      emit(state.done(null));
+      emit(state.done('Подписка успешно оформлена'));
     } on DioException catch (error, stackTrace) {
       emit(state.error(error.appErrorMessage));
       _logger.error(error.appErrorMessage, error: error, stackTrace: stackTrace);
@@ -54,7 +54,7 @@ final class ManageSpotSubscriptionBloc extends Bloc<ManageSpotSubscriptionEvent,
     try {
       emit(state.pending());
       await _api.unsubscribeFromSpot(event.spotId);
-      emit(state.done(null));
+      emit(state.done('Подписка успешно отменена'));
     } on DioException catch (error, stackTrace) {
       emit(state.error(error.appErrorMessage));
       _logger.error(error.appErrorMessage, error: error, stackTrace: stackTrace);

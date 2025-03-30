@@ -1,4 +1,5 @@
 import 'package:drill_events/app/blocs/auth.dart';
+import 'package:drill_events/app/features/widgets/app_back_button.dart';
 import 'package:drill_events/app/features/widgets/app_button.dart';
 import 'package:drill_events/app/features/widgets/app_notification.dart';
 import 'package:drill_events/app/features/widgets/app_text_field.dart';
@@ -52,73 +53,77 @@ class _AuthScreenState extends State<AuthScreen> {
 
     return Scaffold(
       backgroundColor: colors.inverse,
-      body: BlocListener<AuthBloc, AuthState>(
-        listener: _blocListener,
-        child: SingleChildScrollView(
-          physics: const NeverScrollableScrollPhysics(),
-          child: SizedBox(
-            height: MediaQuery.sizeOf(context).height,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: MediaQuery.sizeOf(context).height * 0.15),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Text('Drill Vents', style: texts.h1),
-                ),
-                SizedBox(height: MediaQuery.sizeOf(context).height * 0.15),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 28),
-                  child: AppTextField(
-                    onEditingComplete: () => _mailFocus.nextFocus(),
-                    focusNode: _mailFocus,
-                    useReactiveForm: true,
-                    formControl: _authFormGroup.controls['email'] as FormControl,
-                    maxLines: 1,
-                    hintText: 'mail@domain.com',
-                    keyboardType: TextInputType.emailAddress,
-                    focusBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: colors.primary, width: 1.5),
-                      borderRadius: const BorderRadius.all(Radius.circular(50)),
+      body: SafeArea(
+        child: BlocListener<AuthBloc, AuthState>(
+          listener: _blocListener,
+          child: SingleChildScrollView(
+            physics: const NeverScrollableScrollPhysics(),
+            child: SizedBox(
+              height: MediaQuery.sizeOf(context).height,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: MediaQuery.sizeOf(context).height * 0.05),
+                  const Padding(padding: EdgeInsets.only(left: 20), child: AppBackButton()),
+                  SizedBox(height: MediaQuery.sizeOf(context).height * 0.1),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Text('Drill Vents', style: texts.h1),
+                  ),
+                  SizedBox(height: MediaQuery.sizeOf(context).height * 0.1),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 28),
+                    child: AppTextField(
+                      onEditingComplete: () => _mailFocus.nextFocus(),
+                      focusNode: _mailFocus,
+                      useReactiveForm: true,
+                      formControl: _authFormGroup.controls['email'] as FormControl,
+                      maxLines: 1,
+                      hintText: 'mail@domain.com',
+                      keyboardType: TextInputType.emailAddress,
+                      focusBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: colors.primary, width: 1.5),
+                        borderRadius: const BorderRadius.all(Radius.circular(50)),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 24),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 28),
-                  child: AppTextField(
-                    focusNode: _passwordFocus,
-                    useReactiveForm: true,
-                    formControl: _authFormGroup.controls['password'] as FormControl,
-                    maxLines: 1,
-                    hintText: '********',
-                    obscureText: true,
-                    focusBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: colors.primary, width: 1.5),
-                      borderRadius: const BorderRadius.all(Radius.circular(50)),
+                  const SizedBox(height: 24),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 28),
+                    child: AppTextField(
+                      focusNode: _passwordFocus,
+                      useReactiveForm: true,
+                      formControl: _authFormGroup.controls['password'] as FormControl,
+                      maxLines: 1,
+                      hintText: '********',
+                      obscureText: true,
+                      focusBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: colors.primary, width: 1.5),
+                        borderRadius: const BorderRadius.all(Radius.circular(50)),
+                      ),
                     ),
                   ),
-                ),
-                const Spacer(),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 46),
-                  child: BlocBuilder<AuthBloc, AuthState>(
-                    builder: (context, state) {
-                      if (state.isPending) {
-                        return const AppButton.loading(title: 'Войти');
-                      }
+                  const Spacer(),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 46),
+                    child: BlocBuilder<AuthBloc, AuthState>(
+                      builder: (context, state) {
+                        if (state.isPending) {
+                          return const AppButton.loading(title: 'Войти');
+                        }
 
-                      return ReactiveFormBuilder(
-                        form: () => _authFormGroup,
-                        builder: (context, formGroup, child) {
-                          return AppButton.primary(title: 'Войти', onTap: () => _createSession(formGroup));
-                        },
-                      );
-                    },
+                        return ReactiveFormBuilder(
+                          form: () => _authFormGroup,
+                          builder: (context, formGroup, child) {
+                            return AppButton.primary(title: 'Войти', onTap: () => _createSession(formGroup));
+                          },
+                        );
+                      },
+                    ),
                   ),
-                ),
-                SizedBox(height: MediaQuery.sizeOf(context).height * 0.02),
-              ],
+                  SizedBox(height: MediaQuery.sizeOf(context).height * 0.13),
+                ],
+              ),
             ),
           ),
         ),

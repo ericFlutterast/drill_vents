@@ -113,6 +113,7 @@ final class AuthBloc extends Bloc<AuthEvents, AuthState> {
       await _saveTokens(session.tokens);
 
       add(GetUserInfo());
+      _pipe.publish(UpdateEventsInfo());
     } on DioException catch (error, stackTrace) {
       emit(state.error(error.response?.data['message'] ?? 'Сетевая ошибка'));
       _logger.error(error, error: error, stackTrace: stackTrace);
@@ -155,6 +156,7 @@ final class AuthBloc extends Bloc<AuthEvents, AuthState> {
       await _clearTokens();
       _fastCache.clear();
       emit(state.idle(value: null));
+      _pipe.publish(UpdateEventsInfo());
     } on DioException catch (error, stackTrace) {
       emit(state.error(error.appErrorMessage));
       _logger.error(error.appErrorMessage, error: error, stackTrace: stackTrace);

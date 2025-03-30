@@ -4,8 +4,10 @@ import 'package:drill_events/app/blocs/detail_org_list_section.dart';
 import 'package:drill_events/app/blocs/manage_spot_subscription.dart';
 import 'package:drill_events/app/features/widgets/app_avatar.dart';
 import 'package:drill_events/app/features/widgets/app_button.dart';
+import 'package:drill_events/app/features/widgets/app_notification.dart';
 import 'package:drill_events/app/features/widgets/event_status_label.dart';
 import 'package:drill_events/app/features/widgets/interpunct.dart';
+import 'package:drill_events/app/features/widgets/notification_manager.dart';
 import 'package:drill_events/app/features/widgets/screen_header.dart';
 import 'package:drill_events/app/features/widgets/shimmer.dart';
 import 'package:drill_events/app/new_models/models.dart';
@@ -87,6 +89,11 @@ class _OrgScreenState extends State<OrgScreen> {
           if (state.isDone) {
             final orgId = context.getArgs<OrgScreenArgs>().orgId;
             context.read<DetailOrgListSectionBloc>().add(FetchDetailOrgLists(orgId));
+            if (state.hasValue) {
+              NotificationManager.of(
+                context,
+              ).showNotification(notification: AppNotification(title: state.value, status: NotificationStatus.success));
+            }
           }
         },
         child: BlocBuilder<DetailOrgBloc, DetailOrgState>(
@@ -133,24 +140,30 @@ class _OrgScreenState extends State<OrgScreen> {
                 CustomScrollView(
                   controller: _scrollController,
                   slivers: [
-                    SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(28, 82, 28, 24),
-                      sliver: SliverList.list(
-                        children: [
-                          // TODO: добавить плавность
-                          isPending
-                              ? _ContentSection.shimmer()
-                              : _ContentSection(
-                                orgId: state.value.orgModel.id,
-                                tab: _openedTab,
-                                switchTab: _switchTab,
-                                title: state.value.orgModel.title,
-                                description: state.value.orgModel.description,
-                                imageUrl: state.value.orgAvatar,
-                              ),
-                        ],
+                    if (isPending) ...[
+                      const SliverPadding(padding: EdgeInsets.only(top: 180)),
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 28),
+                          child: _ContentSection.shimmer(),
+                        ),
                       ),
-                    ),
+                    ] else
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(28, 82, 28, 24),
+                        sliver: SliverList.list(
+                          children: [
+                            _ContentSection(
+                              orgId: state.value.orgModel.id,
+                              tab: _openedTab,
+                              switchTab: _switchTab,
+                              title: state.value.orgModel.title,
+                              description: state.value.orgModel.description,
+                              imageUrl: state.value.orgAvatar,
+                            ),
+                          ],
+                        ),
+                      ),
                     // TODO: постараться вынести
                     SliverPadding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -270,7 +283,12 @@ class _ContentSection extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   GestureDetector(
-                    onTap: () => context.read<DetailOrgBloc>().add(SelectOrgAvatar(orgId)),
+                    onTap: () {
+                      final isAdmin = context.read<AuthBloc>().state.value.isAdmin(orgId);
+                      if (isAdmin) {
+                        context.read<DetailOrgBloc>().add(SelectOrgAvatar(orgId));
+                      }
+                    },
                     child: AppAvatar(imageUrl: imageUrl, size: 150),
                   ),
                   const SizedBox(height: 24),
@@ -366,6 +384,7 @@ class _EventListItem extends StatelessWidget {
     final colors = context.themes.main.colors;
 
     return InkWell(
+      borderRadius: BorderRadius.circular(12),
       onTap: onTap,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,

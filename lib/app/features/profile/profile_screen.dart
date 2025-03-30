@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:drill_events/app/blocs/auth.dart';
 import 'package:drill_events/app/blocs/common_bloc_state.dart';
 import 'package:drill_events/app/blocs/profile_bloc.dart';
@@ -89,7 +88,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                     controller: _scrollController,
                     slivers: [
                       SliverPadding(padding: EdgeInsets.only(top: MediaQuery.sizeOf(context).height * 0.1)),
-                      SliverToBoxAdapter(child: _ProfileHeader(imagePath: state.getValueOrNull?.userAvatar)),
+                      SliverToBoxAdapter(child: _ProfileHeader(imageUrl: state.getValueOrNull?.userAvatar)),
                       const SliverPadding(padding: EdgeInsets.only(top: 10)),
                       const SliverToBoxAdapter(child: _UserInfo()),
                       const SliverPadding(padding: EdgeInsets.only(top: 26)),
@@ -198,16 +197,16 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         const SizedBox(height: 45),
         Shimmer(height: 16, width: MediaQuery.sizeOf(context).width * 0.35),
         const SizedBox(height: 16),
-        for (int i = 0; i < 5; i++) ...[_EventListItem.shimmer(context), const SizedBox(height: 28)],
+        for (int i = 0; i < 10; i++) ...[_EventListItem.shimmer(context), const SizedBox(height: 28)],
       ],
     ),
   );
 }
 
 class _ProfileHeader extends StatelessWidget {
-  const _ProfileHeader({required this.imagePath});
+  const _ProfileHeader({required this.imageUrl});
 
-  final String? imagePath;
+  final String? imageUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -220,7 +219,7 @@ class _ProfileHeader extends StatelessWidget {
       },
       child: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
-          final avatar = imagePath ?? state.getValueOrNull?.userAvatar;
+          final avatar = imageUrl ?? state.getValueOrNull?.userAvatar;
           if (state.isDone || state.isIdle && state.hasValue) {
             return Center(
               child: CircleAvatarDecoration(
@@ -230,10 +229,7 @@ class _ProfileHeader extends StatelessWidget {
                     avatar != null
                         ? ClipRRect(
                           borderRadius: BorderRadius.circular(100),
-                          child: SizedBox.square(
-                            dimension: 85,
-                            child: CachedNetworkImage(imageUrl: avatar, fit: BoxFit.fill),
-                          ),
+                          child: SizedBox.square(dimension: 85, child: AppAvatar(imageUrl: avatar)),
                         )
                         : SizedBox.square(dimension: 85, child: Icon(Icons.person, size: 60, color: colors.secondary)),
               ),
@@ -263,7 +259,10 @@ class _UserInfo extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              if (user.info.name case String name) ...[Text(name, style: textStyles.h3), const SizedBox(height: 5)],
+              if (user.info.name != null && user.info.name!.isNotEmpty) ...[
+                Text(user.info.name!, style: textStyles.h3),
+                const SizedBox(height: 5),
+              ],
               if (user.info.phone != null && user.info.phone!.isNotEmpty) ...[
                 Text(user.info.phone!, style: textStyles.bodySmall),
                 const SizedBox(height: 5),
@@ -291,7 +290,7 @@ class _UserInfo extends StatelessWidget {
             ],
           );
         }
-        return const Center(child: CircularProgressIndicator.adaptive());
+        return _UserInfo.shimmer(context);
       },
     );
   }
@@ -438,6 +437,7 @@ class _EventListItem extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
+      borderRadius: const BorderRadius.all(Radius.circular(16)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [

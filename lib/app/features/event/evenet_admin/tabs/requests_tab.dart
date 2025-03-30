@@ -67,7 +67,7 @@ final class _RequestsTabHeaderDelegate extends SliverPersistentHeaderDelegate {
   final int usersLength;
 
   @override
-  double get maxExtent => 60;
+  double get maxExtent => 120;
 
   @override
   double get minExtent => 60;
@@ -160,6 +160,7 @@ class _RequestItemState extends State<_RequestItem> {
   void _approveUser() {
     final eventId = context.getArgs<EventScreenArgs>().eventId;
     context.read<ModerationUsersBloc>().add(ApproveUserEvent(eventId, userId: widget.userId));
+    context.read<EventDetailAdminBloc>().add(FetchParticipantsEvent(eventId));
   }
 
   void _checkWhenDeleteItemLeft(double dx, dy) {

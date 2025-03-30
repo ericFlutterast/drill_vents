@@ -232,6 +232,14 @@ class MainBackendAPI implements BackendAPI {
     return BookingModel.fromJson(item);
   }
 
+  @override
+  Future<BookingModel> unbook(String eventId, String userId) async {
+    final params = {'action': 'unbook', 'usr_id': userId, 'reason': 'reason'};
+    final response = await _api.post('/bookings/events/$eventId/status', queryParameters: params);
+    final item = response.data['booking'] as Map<String, dynamic>;
+    return BookingModel.fromJson(item);
+  }
+
   //Roles
 
   @override
